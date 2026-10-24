@@ -66,6 +66,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/presensi/hari-libur/{id}', [PresensiController::class, 'destroyHariLibur'])->name('presensi.destroyHariLibur');
     Route::get('/presensi/kartu-qr', [PresensiController::class, 'kartuQr'])->name('presensi.kartuQr');
     Route::get('/presensi/rekap', [PresensiController::class, 'rekap'])->name('presensi.rekap');
+    // Modul Ekstrakurikuler & Daftar Anggota
+    Route::get('/ekskul', [App\Http\Controllers\EkskulController::class, 'index'])->name('ekskul.index');
+    Route::post('/ekskul', [App\Http\Controllers\EkskulController::class, 'store'])->name('ekskul.store');
+    Route::put('/ekskul/{id}', [App\Http\Controllers\EkskulController::class, 'update'])->name('ekskul.update');
+    Route::delete('/ekskul/{id}', [App\Http\Controllers\EkskulController::class, 'destroy'])->name('ekskul.destroy');
+    Route::post('/ekskul/bulk-delete', [App\Http\Controllers\EkskulController::class, 'bulkDestroy'])->name('ekskul.bulkDestroy');
+
+    // Dashboard Anggota per Ekskul (Sistem Daftar via Ceklis)
+    Route::get('/ekskul/{id}/anggota', [App\Http\Controllers\EkskulController::class, 'show'])->name('ekskul.show');
+    Route::post('/ekskul/{id}/anggota', [App\Http\Controllers\EkskulController::class, 'storeAnggota'])->name('ekskul.storeAnggota');
+    Route::delete('/ekskul/anggota/{anggotaId}', [App\Http\Controllers\EkskulController::class, 'destroyAnggota'])->name('ekskul.destroyAnggota');
+    Route::post('/ekskul/anggota/bulk-delete', [App\Http\Controllers\EkskulController::class, 'bulkDestroyAnggota'])->name('ekskul.bulkDestroyAnggota');
 });
 
 require __DIR__.'/auth.php';

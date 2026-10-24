@@ -147,6 +147,12 @@
                 <li>
                     <a href="#"><i class="ph ph-calendar"></i><span>Jadwal Pelajaran</span></a>
                 </li>
+                <li class="{{ request()->is('ekskul*') ? 'active-page' : '' }}">
+                    <a href="{{ route('ekskul.index') }}">
+                        <iconify-icon icon="solar:cup-star-outline" class="menu-icon"></iconify-icon>
+                        <span>Ekstrakurikuler</span>
+                    </a>
+                </li>
             </ul>
 
             <!-- 4. MENU PRESENSI / ABSENSI -->
