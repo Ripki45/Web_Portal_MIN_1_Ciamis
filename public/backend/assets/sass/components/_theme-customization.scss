@@ -1,0 +1,94 @@
+/* ============================== theme customization Css start ============================ */
+[data-theme=dark] .body-bg {
+    display: none !important;
+    visibility: hidden;
+    opacity: 0;
+}
+
+
+.theme-customization-sidebar {
+    max-width: 360px;
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: .3s linear;
+
+    &.active {
+        transform: translateX(0);
+    }
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.theme-customization__button {
+    z-index: 9;
+}
+
+.theme-setting-item__btn {
+    border: 1px solid #ddd;
+    transition: .3s linear;
+
+    &:hover {
+        color: var(--primary-600) !important;
+        border-color: var(--primary-600) !important;
+        background-color: var(--primary-50) !important;
+    }
+
+    &.active {
+        color: var(--primary-600) !important;
+        border-color: var(--primary-600) !important;
+        outline: 2px solid var(--primary-600) !important;
+    }
+}
+
+[data-theme="dark"] .theme-setting-item__btn {
+    border-color: #ffffff33 !important;
+}
+
+[dir="rtl"] {
+    .theme-customization-sidebar {
+        transform: translateX(-100%);
+
+        &.active {
+            transform: translateX(0);
+        }
+    }
+}
+
+.color-picker-btn__box {
+    position: relative;
+
+    &::before {
+        position: absolute;
+        content: "\EB7B";
+        font-family: "remixicon";
+        font-weight: 400;
+        inset-inline-start: 50%;
+        inset-block-start: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 24px;
+        color: #fff;
+        transition: .2s ease-in-out;
+    }
+}
+
+.color-picker-btn {
+    &.active {
+        .color-picker-btn__box {
+            outline: 2px solid var(--primary-600);
+            outline-offset: 3px;
+
+            &::before {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+    }
+}
+
+
+/* ============================== theme customization Css End ============================ */

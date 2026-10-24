@@ -1,0 +1,1130 @@
+/* Home One css start */
+.map-border-left {
+    @media (min-width: 1400px) {
+        border-inline-start: 1px solid var(--neutral-100);
+        padding-inline-start: 28px;
+    }
+}
+
+/* ===== Store Activity Timeline ===== */
+.timeline-wrap__left {
+  position: relative;
+}
+
+.timeline-wrap__line {
+  width: 1px;
+  flex-grow: 1;
+  min-height: 20px;
+  background-color: #e5e7eb;
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+.timeline-wrap__item:last-child .timeline-wrap__line {
+  display: none;
+}
+
+.quick-action-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.2s ease;
+}
+
+.quick-action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.quick-action-btn i {
+  color: #ffffff;
+}
+.text-decoration-underline {
+    text-decoration: underline !important;
+}
+.ps-60-px {
+    padding-left: 60px;
+    @media (max-width: 1699px) {
+        padding-left: 40px;
+    }
+    @media (max-width: 1399px) {
+        padding-left: 20px;
+    }
+}
+
+
+
+
+#impressionsChart, #clicksChart {
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+
+
+#subscribersChart {
+  width: 100%;
+}
+#subscribersChart .apexcharts-canvas,
+#subscribersChart svg {
+  width: 100% !important;
+}
+
+
+#supportTrackerChart {
+  width: 100%;
+}
+#supportTrackerChart .apexcharts-canvas,
+#supportTrackerChart svg {
+  width: 100% !important;
+}
+#supportTrackerChart .apexcharts-datalabel-value {
+  font-weight: 700 !important;
+}
+
+.supportTrackerChartContent {
+    width: 180px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+#averageIncomeChart {
+  width: 100%;
+}
+#averageIncomeChart .apexcharts-canvas,
+#averageIncomeChart svg {
+  width: 100% !important;
+}
+
+
+/* Traffic source progress-fill row */
+.traffic-source-row {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 48px;
+}
+
+.traffic-source-row__bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--fill);
+  background: var(--fill-color);
+  z-index: 1;
+}
+
+.traffic-source-row__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 14px;
+}
+
+#performanceOverviewChart {
+  width: 100%;
+}
+#performanceOverviewChart .apexcharts-canvas,
+#performanceOverviewChart svg {
+  width: 100% !important;
+}
+
+
+.radius-start-8 { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+.radius-end-8 { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+#topBrowsingPagesChart {
+  width: 100%;
+}
+#topBrowsingPagesChart .apexcharts-canvas,
+#topBrowsingPagesChart svg {
+  width: 100% !important;
+}
+
+
+
+
+#totalOrdersChart {
+  width: 100%;
+  position: relative;
+}
+#totalOrdersChart .apexcharts-canvas,
+#totalOrdersChart svg {
+  width: 100% !important;
+}
+
+/* Zigzag scale-break overlay */
+.totalOrders-zigzag {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background-image: repeating-linear-gradient(
+    -55deg,
+    var(--color-background-primary, #fff) 0,
+    var(--color-background-primary, #fff) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+#userByDeviceChart {
+  width: 100%;
+}
+#userByDeviceChart .apexcharts-canvas,
+#userByDeviceChart svg {
+  width: 100% !important;
+}
+
+
+
+
+
+#dailyVisitInsightsChart {
+  width: 100%;
+}
+#dailyVisitInsightsChart .apexcharts-canvas,
+#dailyVisitInsightsChart svg {
+  width: 100% !important;
+}
+
+
+
+
+
+
+/* Browser Used - Avg Used progress bar */
+#browserUsedTable {
+  td, th {
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+  }
+}
+.browser-progress {
+  width: 64px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: #e5e7eb;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.browser-progress__bar {
+  height: 100%;
+  border-radius: 999px;
+}
+
+
+/* ===== Active Trading Bots (index-3) ===== */
+.bot-card {
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 10px 26px rgba(17, 24, 39, 0.08);
+    transform: translateY(-2px);
+  }
+}
+.bot-spark {
+  width: 130px;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+
+/* Live status dot — pulsing "live" indicator */
+.live-dot {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background-color: inherit;
+    animation: live-dot-pulse 1.6s ease-out infinite;
+    z-index: 0;
+  }
+}
+@keyframes live-dot-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  70%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot::after {
+    animation: none;
+  }
+}
+
+
+/* ===== Top Performing Assets + Recent Activity rows (index-3) ===== */
+.min-w-0 {
+  min-width: 0;
+}
+.asset-row,
+.activity-row {
+  padding: 10px 16px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background-color: var(--neutral-100);
+  }
+
+}
+.activity-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1.35fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+.activity-row__mid {
+  min-width: 0;
+}
+@media (max-width: 575.98px) {
+  .activity-row {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+  .activity-row__mid {
+    display: none;
+  }
+}
+
+
+/* Dense mode (compact rows) — Portfolio Holdings & Trade History tables */
+#portfolioHoldingsTable.table-dense,
+#tradeHistoryTable.table-dense,
+#agentsPerformanceTable.table-dense,
+#latestTransactionTable.table-dense,
+#auditReportTable.table-dense,
+#latestInvestmentTable.table-dense,
+#allProjectsTable.table-dense,
+#toDoListTable.table-dense,
+#marketOverviewTable.table-dense,
+#recentOrdersTable.table-dense,
+#recentNftTable.table-dense {
+  tbody td {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+}
+
+
+/* ===== DeFi Analytics (index-3) ===== */
+.defi-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--neutral-200);
+  overflow: hidden;
+}
+.defi-progress__bar {
+  height: 100%;
+  border-radius: 999px;
+}
+#defiYieldChart {
+  width: 100%;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+
+/* ===== Sales Overview + Lead Source (index-4) ===== */
+#salesOverviewChart,
+#leadSourceChart {
+  width: 100%;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+/* Lead Source semi-donut center label */
+.lead-source-center {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  width: 100%;
+}
+
+
+/* ===== Client Payment Status + Campaigns (index-4) ===== */
+.radius-4 {
+  border-radius: 4px;
+  overflow: hidden;
+}
+.payment-status-bar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+  }
+}
+#campaignsChart {
+  width: 100%;
+
+  .apexcharts-canvas {
+    margin: 0 auto;
+  }
+}
+.campaigns-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+/* jVectorMap container */
+#sessionWorldMap {
+  width: 100%;
+
+  svg {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+
+/* ===== Ticket Stat Cards (index-5) ===== */
+.ticket-spark {
+  min-width: 0;
+  max-width: 170px;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+
+  /* dashed vertical line at the right end of the chart */
+  &::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    right: 2px;
+    border-right: 1px dashed #cbd5e1;
+    pointer-events: none;
+  }
+}
+
+
+/* ===== Total Balance / Wallet section (index-5) ===== */
+.premium-card {
+  min-height: 168px;
+  background-color: #0b1220;
+  background-image:
+    radial-gradient(70% 130% at 85% 25%, rgba(99, 102, 241, 0.22), transparent 60%),
+    radial-gradient(60% 120% at 65% 90%, rgba(56, 189, 248, 0.12), transparent 70%);
+}
+.premium-card__brand {
+  letter-spacing: 0.5px;
+  font-size: 15px;
+}
+.quick-transfer-field {
+  padding: 5px;
+
+  .form-select {
+    width: auto;
+    min-width: 64px;
+    padding-block: 8px;
+  }
+
+  .form-control {
+    padding-block: 10px;
+  }
+
+  .form-select:focus,
+  .form-control:focus {
+    box-shadow: none;
+  }
+}
+.stat-wave {
+  width: 100%;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+
+/* ===== Marketing Expenses nested donut (index-6) ===== */
+.marketing-donut {
+  width: 200px;
+
+  #marketingInnerChart {
+    width: 110px;
+  }
+
+  .apexcharts-canvas {
+    margin: 0 auto;
+  }
+}
+
+
+/* ===== Earning Categories pills (index-6) ===== */
+.earning-categories {
+  .traffic-source-row {
+    height: 48px;
+  }
+
+  .traffic-source-row__content {
+    padding: 0 10px;
+  }
+}
+
+
+/* ===== Investment donut with leader-line labels (index-6) ===== */
+.investment-donut {
+  width: 440px;
+  max-width: 100%;
+  height: 360px;
+
+  #investmentChart {
+    height: 100%;
+    align-items: center;
+  }
+}
+.investment-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+.investment-pct {
+  position: absolute;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary-light);
+  z-index: 3;
+}
+.investment-pct--right {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.investment-pct--tl {
+  left: 4px;
+  top: 56px;
+}
+.investment-pct--bl {
+  left: 4px;
+  bottom: 56px;
+}
+
+
+/* ===== Working Schedule + Team Members + Chat (index-8) ===== */
+.schedule-calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+
+  .cal-head {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary-light);
+    padding: 6px 0;
+  }
+  .cal-day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1 / 1;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary-light);
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--neutral-100);
+    }
+    &.is-muted {
+      color: #cbd5e1;
+    }
+    &.is-active {
+      background-color: var(--primary-600);
+      color: #fff;
+    }
+  }
+}
+.schedule-event {
+  border-left: 3px solid var(--evt, #8b5cf6);
+  padding-left: 14px;
+}
+
+/* Team Members list */
+.team-list {
+  max-height: 705px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.team-row {
+  padding: 8px 8px;
+  border-radius: 10px;
+
+  & + .team-row {
+    border-top: 1px solid var(--neutral-100);
+    border-radius: 0;
+  }
+  &.team-row--active {
+    background-color: #f4f3fd;
+    border-radius: 10px;
+    border-top-color: transparent;
+  }
+}
+.team-ring {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* Chat */
+.chat-body {
+  max-height: 720px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.chat-msg {
+  display: flex;
+  gap: 10px;
+
+  &--out {
+    justify-content: flex-end;
+  }
+  & > div {
+    max-width: 80%;
+  }
+}
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-primary-light);
+
+  &--yellow {
+    background-color: #fef9e7;
+    border-top-left-radius: 0;
+  }
+  &--grey {
+    background-color: var(--neutral-100);
+    border-top-right-radius: 0;
+  }
+}
+
+
+/* ===== Active Project timeline (index-8) ===== */
+.project-timeline {
+  position: relative;
+  padding: 8px 0;
+}
+.tl-line {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  height: 3px;
+  background: var(--neutral-300);
+  border-radius: 999px;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+.tl-line__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: var(--primary-600);
+  border-radius: 999px;
+}
+.timeline-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.tl-col {
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  justify-items: center;
+  align-items: center;
+  row-gap: 16px;
+}
+.tl-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary-600);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+.tl-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 17px;
+}
+.tl-step__badge {
+  display: inline-block;
+  box-shadow: 0 4px 14px rgba(17, 24, 39, 0.08);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--primary-600);
+  margin-bottom: 8px;
+}
+.tl-step__name {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary-light);
+}
+@media (max-width: 767.98px) {
+  .timeline-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .tl-line {
+    display: none;
+  }
+  .tl-col {
+    grid-template-rows: none;
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 16px;
+  }
+}
+
+
+/* ===== Crypto Overview sparklines (index-9) ===== */
+.crypto-spark {
+  width: 100px;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+
+/* ===== Daily Average Overview + Market Cap (index-9) ===== */
+.avg-ring {
+  width: 84px;
+  flex-shrink: 0;
+}
+.market-graph {
+  width: 100px;
+}
+.market-row {
+  padding: 12px 8px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+
+  & + .market-row {
+    border-top: 1px solid var(--neutral-100);
+    border-radius: 0;
+  }
+  &:hover,
+  &.market-row--active {
+    background-color: #4F46E50D;
+    border-radius: 12px;
+    border-top-color: transparent;
+  }
+  &:hover + .market-row,
+  &.market-row--active + .market-row {
+    border-top-color: transparent;
+  }
+}
+
+
+/* ===== Visitors By Device + Sales Revenue (index-10) ===== */
+#visitorsDeviceGauge,
+#salesRevenueChart {
+  width: 100%;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+
+/* ===== Browser Activity table (index-9 / index-10) =====
+   Uses the shared `.table-style` markup so its hover is identical to
+   index.html; this only supplies the cell padding. */
+.browser-activity-table {
+  thead th {
+    padding: 12px 16px;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+}
+
+/* ===== Top Revenue Channels (index-10) ===== */
+.channel-row {
+  padding: 15px 0;
+
+  & + .channel-row {
+    border-top: 1px solid var(--neutral-100);
+  }
+}
+.channel-progress {
+  height: 5px;
+  border-radius: 999px;
+  background-color: var(--neutral-200);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+  }
+}
+
+
+/* ===== Upcoming Sales - vertical timeline (index-10) ===== */
+.sales-timeline {
+  &__item {
+    display: grid;
+    grid-template-columns: 60px 22px 1fr;
+    gap: 12px;
+    padding-bottom: 40px;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  &__marker {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__ring {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 4px solid currentColor;
+    background-color: var(--white, #fff);
+    margin-top: 4px;
+    z-index: 1;
+  }
+
+  &__item:not(:last-child) &__marker::after {
+    content: "";
+    position: absolute;
+    top: 22px;
+    bottom: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background-color: var(--neutral-200);
+    height: calc(100% + 38px);
+  }
+}
+
+/* ===== Top Categories - radialBar gauge (index-10) ===== */
+.category-gauge {
+  width: 96px;
+  height: 96px;
+
+  .apexcharts-canvas {
+    margin: 0 auto;
+  }
+}
+
+/* ===== Top Audience Locations (index-10) ===== */
+.audience-flag {
+  border-radius: 4px;
+  overflow: hidden;
+}
+.audience-change {
+  width: 96px;
+}
+.audience-value {
+  width: 96px;
+}
+.audience-row {
+  padding: 10px 20px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+
+  & + .audience-row {
+    border-top: 1px solid var(--neutral-100);
+  }
+
+  &:hover {
+    background-color: #4F46E50D;
+    border-top-color: transparent;
+  }
+  &:hover + .audience-row {
+    border-top-color: transparent;
+  }
+}
+
+
+/* Recent Orders (index-10) uses the shared `.table-style` hover — same as index.html. */
+
+
+/* ===== NFT Marketplace (index-11) ===== */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+.nft-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 32px;
+  border-radius: 16px;
+  background:
+    radial-gradient(130% 120% at 78% 16%, rgba(217, 70, 239, 0.55) 0%, rgba(217, 70, 239, 0) 42%),
+    linear-gradient(135deg, #3b1e6e 0%, #241b53 45%, #141334 100%);
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    max-width: 62%;
+
+    h2 {
+      font-size: 1.75rem;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+  }
+
+  &__tag {
+    display: inline-block;
+    background-color: rgba(34, 197, 94, 0.16);
+    color: #4ade80;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  &__accent {
+    color: #facc15;
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
+    text-underline-offset: 6px;
+  }
+
+  &__btn-dark {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #4b4fa6 0%, #2c2b63 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  &__img {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    max-height: 80%;
+    max-width: 36%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+}
+@media (max-width: 575px) {
+  .nft-hero__content {
+    max-width: 100%;
+  }
+  .nft-hero__img {
+    display: none;
+  }
+}
+
+.nft-stat-spark {
+  width: 90px;
+  height: 48px;
+}
+
+.nft-count-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: 12px;
+  background-color: var(--neutral-100);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary-light);
+}
+.nft-count-sep {
+  align-self: flex-end;
+  padding-bottom: 12px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--neutral-400);
+}
+
+#marketplaceChart {
+  width: 100%;
+
+  .apexcharts-canvas,
+  svg {
+    width: 100% !important;
+  }
+}
+
+
+/* ===== Trending Bids + History of Bids (index-11) ===== */
+.bid-tabs {
+  .nav-link {
+    color: var(--text-secondary-light);
+    background-color: transparent;
+
+    &.active {
+      background-color: var(--primary-600);
+      color: #fff;
+    }
+  }
+}
+
+.trending-bid-card {
+  &__img {
+    width: 100%;
+    height: 244px;
+    object-fit: cover;
+  }
+
+  &__timer {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(17, 24, 39, 0.72);
+    color: #fff;
+    border-radius: 999px;
+    padding: 5px 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+.trending-bids-slider {
+  .slick-track {
+    display: flex;
+  }
+  .slick-slide {
+    height: inherit;
+
+    > div {
+      height: 100%;
+    }
+  }
+  .slick-list {
+    margin: 0 -8px;
+  }
+
+  .slick-dots {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      width: auto;
+      height: auto;
+      margin: 0;
+
+      button {
+        width: 8px;
+        height: 8px;
+        padding: 0;
+        border-radius: 999px;
+        background-color: var(--neutral-300);
+        text-indent: -9999px;
+        border: 0;
+
+        &::before {
+          content: none;
+        }
+      }
+
+      &.slick-active button {
+        width: 10px;
+        height: 10px;
+        background-color: var(--primary-600);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+      }
+    }
+  }
+}
+
+.bid-history-row {
+  padding: 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+
+  & + .bid-history-row {
+    border-top: 1px solid var(--neutral-100);
+  }
+
+  &:hover {
+    background-color: #4F46E50D;
+    border-top-color: transparent;
+  }
+  &:hover + .bid-history-row {
+    border-top-color: transparent;
+  }
+}
+
+.g-20-px, .gy-20-px {
+    --bs-gutter-y: 20px;
+    --bs-gutter-x: 20px;
+}
+
+/* Home One css end */

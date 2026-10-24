@@ -1,0 +1,105 @@
+[data-theme=dark] {
+    .table>:not(caption)>*>* {
+        color: #fff;
+        background-color: #273142;
+    }
+
+    .table-style thead tr th,
+    table tbody tr td,
+    .table-style thead tr th:first-child,
+    .table-style thead tr th:last-child,
+    .table-style tbody tr:hover td:last-child,
+    .table-style tbody tr:hover td:first-child {
+        border-color: var(--neutral-200) !important;
+    }
+
+    .bg-warning-100 {
+        background-color: #fef9c31f !important;
+    }
+
+    .border-primary-200 {
+        border-color: #95c7ff2e !important;
+    }
+
+    .border-primary-100 {
+        border-color: #bfdcff30 !important;
+    }
+
+    .border-warning-200 {
+        border-color: #fef08a30 !important;
+    }
+
+    .border-success-200 {
+        border-color: #bbf7d03b !important;
+    }
+
+    .border-danger-200 {
+        border-color: #fecaca36 !important;
+    }
+
+    .border-info-100 {
+        border-color: #dbeafe26 !important;
+    }
+
+    .border-cyan-100 {
+        border-color: #daf6ff33 !important;
+    }
+
+    .border-info-200 {
+        border-color: #bfdbfe36 !important;
+    }
+
+    .timeline-wrap__line {
+        background-color: #e5e7eb1f;
+    }
+
+    .border-cyan-200 {
+        border-color: #85daf442 !important;
+    }
+
+    .border-warning-100 {
+        border-color: #fef9c326 !important;
+    }
+
+    .bg-primary-100 {
+        background-color: #bfdcff1c !important;
+    }
+
+    .bg-lilac-50 {
+        background-color: #f0e1ff12 !important;
+    }
+
+    .bg-purple-100 {
+        background-color: #eae3f91c;
+    }
+
+    .border-lilac-200 {
+        border-color: #dcc0f81f !important;
+    }
+
+    .chat-bubble--grey {
+        background-color: var(--neutral-200);
+    }
+
+    .chat-bubble--yellow {
+        background-color: #ffd64212;
+    }
+
+    input.form-check-input {
+        background-color: #1b2431;
+        border-color: #ffffff6b;
+    }
+
+    .apexcharts-text {
+        fill: #fff;
+    }
+
+    .bg-cyan-100 {
+        background-color: #daf6ff0a !important;
+    }
+
+    .bg-info-100 {
+        background-color: #dbeafe0f !important;
+    }
+
+}

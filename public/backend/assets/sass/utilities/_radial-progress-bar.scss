@@ -1,0 +1,33 @@
+/* Gradient bg end */
+svg.radial-progress {
+    height: auto;
+    max-width: 212px;
+    transform: rotate(0deg);
+    width: 100%;
+}
+
+svg.radial-progress circle {
+    fill: none;
+    stroke: #F5F6FA;
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+
+svg.radial-progress circle.incomplete {
+    opacity: 1;
+}
+
+svg.radial-progress circle.complete {
+    stroke-dasharray: 219.9114857513;
+    stroke-dashoffset: 219.9114857513;
+    stroke: var(--primary-600);
+    transition: stroke-dashoffset 1.25s ease-out;
+}
+
+svg.radial-progress text {
+    fill: #fff;
+    text-anchor: middle;
+    transform: rotate(0deg);
+}
+
+/* ======================== Animation Css Start ==================================== */

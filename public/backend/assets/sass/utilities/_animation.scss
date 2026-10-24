@@ -1,0 +1,13 @@
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Basic spin utility */
+.animate-spin {
+  animation-name: spin;
+  animation-duration: 1s;       /* এক রাউন্ডের সময় (ডিফল্ট) */
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  transform-origin: center;
+  backface-visibility: hidden;  /* smoother on some browsers */
+}

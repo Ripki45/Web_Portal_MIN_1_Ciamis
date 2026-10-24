@@ -1,0 +1,407 @@
+    /* ============================================================
+     Twin Sidebar (icon rail + expandable menu panel)
+     Self-contained demo — namespaced under .twin-sidebar
+     ============================================================ */
+    :root {
+        --ts-rail-w: 72px;
+        --ts-panel-w: 248px;
+        --ts-purple: var(--primary-600);
+        /* dynamic — follows the theme color picker */
+        --ts-purple-soft: color-mix(in srgb, var(--primary-600) 12%, transparent);
+        --ts-text: #5c667e;
+        --ts-heading: #1f2937;
+        --ts-border: #ececf2;
+        --ts-hover: #f4f5fa;
+    }
+
+    .twin-sidebar {
+        position: fixed;
+        inset-inline-start: 0;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        background: #ffffff;
+        box-shadow: 0 0 24px rgba(24, 27, 44, 0.06);
+        z-index: 1045;
+        transition: transform 0.3s ease;
+    }
+
+    /* ---------- Icon rail ---------- */
+    .twin-rail {
+        width: var(--ts-rail-w);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0 18px;
+        border-right: 1px solid var(--ts-border);
+    }
+
+    .twin-rail__brand {
+        display: inline-flex;
+        width: 40px;
+        height: 40px;
+        margin-bottom: 22px;
+    }
+
+    .twin-rail__brand img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .twin-rail__nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        flex-grow: 1;
+        width: 100%;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .twin-rail__nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .twin-rail__bottom {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding-top: 10px;
+    }
+
+    .rail-icon {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 14px;
+        background: transparent;
+        color: var(--ts-text);
+        font-size: 22px;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .rail-icon:hover {
+        background: var(--ts-hover);
+        color: var(--ts-heading);
+    }
+
+    .rail-icon.active {
+        background: var(--ts-purple);
+        color: #fff;
+    }
+
+    /* tooltip label on hover (useful when panel is collapsed) */
+    .rail-icon .rail-tip {
+        position: absolute;
+        left: calc(100% + 12px);
+        top: 50%;
+        transform: translateY(-50%) scale(0.9);
+        transform-origin: left center;
+        white-space: nowrap;
+        background: #1f2937;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 6px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+        z-index: 5;
+    }
+
+    .twin-sidebar.is-collapsed .rail-icon:hover .rail-tip {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+
+    /* ---------- Menu panel ---------- */
+    .twin-panel {
+        width: var(--ts-panel-w);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: width 0.25s ease, opacity 0.2s ease;
+    }
+
+    .twin-sidebar.is-collapsed .twin-panel {
+        width: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .twin-panel__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        height: 78px;
+        padding: 0 20px;
+        flex-shrink: 0;
+    }
+
+    .twin-panel__logo {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--ts-heading);
+        text-decoration: none;
+        letter-spacing: -0.2px;
+    }
+
+    .twin-panel__logo img {
+        height: 30px;
+        width: auto;
+    }
+
+    .twin-collapse {
+        font-size: 24px;
+        cursor: pointer;
+        transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .twin-collapse:hover {
+        color: var(--ts-purple);
+    }
+
+    .twin-panel__body {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 4px 16px 16px;
+        scrollbar-width: thin;
+    }
+
+    .twin-menu {
+        display: none;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .twin-menu.active {
+        display: block;
+        animation: tsFade 0.25s ease;
+    }
+
+    @keyframes tsFade {
+        from {
+            opacity: 0;
+            transform: translateX(6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    .twin-menu li+li {
+        margin-top: 4px;
+    }
+
+    .twin-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 14px;
+        border-radius: 10px;
+        color: var(--ts-text);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .twin-menu a i {
+        font-size: 18px;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+
+    .twin-menu a:hover {
+        background: var(--ts-hover);
+        color: var(--ts-heading);
+    }
+
+    .twin-menu li.active a {
+        background: var(--ts-purple-soft);
+        color: var(--ts-purple);
+        font-weight: 600;
+    }
+
+    /* ---------- Footer (Upgrade card) ---------- */
+    .twin-panel__foot {
+        padding: 12px 16px 20px;
+        flex-shrink: 0;
+        text-align: center;
+    }
+
+    .upgrade-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .upgrade-card__art {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: var(--ts-purple-soft);
+        color: var(--ts-purple);
+        font-size: 34px;
+    }
+
+    .upgrade-card__text {
+        margin: 0;
+        font-size: 12.5px;
+        color: var(--ts-text);
+        line-height: 1.5;
+    }
+
+    .upgrade-btn {
+        display: block;
+        width: 100%;
+        padding: 11px 16px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--primary-600) 0%, color-mix(in srgb, var(--primary-600), #000 18%) 100%);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .upgrade-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 26px color-mix(in srgb, var(--primary-600) 36%, transparent);
+        color: #fff;
+    }
+
+    .twin-version {
+        display: block;
+        margin-top: 14px;
+        font-size: 12px;
+        color: #9aa2b1;
+    }
+
+    /* ---------- Mobile ---------- */
+    .twin-mobile-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1050;
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 12px;
+        background: #fff;
+        color: var(--ts-heading);
+        font-size: 22px;
+        box-shadow: 0 4px 16px rgba(24, 27, 44, 0.14);
+        cursor: pointer;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .twin-backdrop {
+        position: fixed;
+        inset: 0;
+        background: #1118279e;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+        z-index: 1040;
+    }
+
+    .twin-backdrop.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* ---------- Main content (expands / reduces with the sidebar) ---------- */
+    .demo-main,
+    .dashboard-main {
+        margin-inline-start: calc(var(--ts-rail-w) + var(--ts-panel-w));
+        transition: margin-left 0.25s ease;
+    }
+
+    .demo-main {
+        padding: 40px;
+    }
+
+    body.twin-collapsed .demo-main,
+    body.twin-collapsed .dashboard-main {
+        margin-left: var(--ts-rail-w);
+    }
+
+    @media (max-width: 1199px) {
+        .twin-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .twin-sidebar.is-open {
+            transform: none;
+        }
+
+        .twin-mobile-toggle {
+            display: inline-flex;
+        }
+
+        .demo-main,
+        .dashboard-main,
+        body.twin-collapsed .demo-main,
+        body.twin-collapsed .dashboard-main {
+            margin-left: 0;
+        }
+    }
+
+    /* ---------- Dark mode (follows project [data-theme=dark] convention) ---------- */
+    [data-theme="dark"] {
+        --ts-purple: var(--primary-600);
+        --ts-purple-soft: color-mix(in srgb, var(--primary-600) 22%, transparent);
+        --ts-text: #d1d5db;
+        /* --text-secondary-light */
+        --ts-heading: #ffffff;
+        /* --base */
+        --ts-border: #323d4e;
+        /* --neutral-200 */
+        --ts-hover: #323d4e;
+        /* --dark-3 */
+    }
+
+    [data-theme="dark"] .twin-sidebar {
+        background: #273142;
+        /* --white (--dark-2) */
+        box-shadow: 0 0 24px rgba(0, 0, 0, 0.35);
+    }
+
+    [data-theme="dark"] .rail-icon.active {
+        box-shadow: 0 8px 16px color-mix(in srgb, var(--primary-600) 42%, transparent);
+    }
+
+    [data-theme="dark"] .twin-mobile-toggle {
+        background: #273142;
+        color: var(--ts-heading);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    [data-theme="dark"] .twin-version {
+        color: #6b7280;
+    }

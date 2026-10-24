@@ -1,0 +1,28 @@
+.left-line__circle::before {
+    position: absolute;
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-600);
+    inset-inline-start: 0;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.incomplete-circle::before {
+    background-color: transparent;
+    border: 1px solid var(--primary-200);
+}
+
+
+.left-line-dotted::before {
+    position: absolute;
+    content: "";
+    width: 0px;
+    height: calc(100% - 56px);
+    border: 1px dashed var(--primary-300);
+    top: 50%;
+    transform: translateY(-50%);
+    inset-inline-start: 4px;
+}

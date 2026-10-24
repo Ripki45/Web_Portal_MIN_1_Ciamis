@@ -1,0 +1,123 @@
+.navbar-header {
+  height: rem(72px);
+  background-color: transparent;
+  padding: rem(16px) rem(24px);
+  z-index: 2;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(163deg, rgb(245, 243, 230) 5%, rgb(242, 245, 250) 100%);
+  z-index: 4;
+}
+
+[data-theme="dark"] .navbar-header {
+    background: #1b2431;
+}
+
+.sidebar-toggle,
+.sidebar-mobile-toggle {
+  line-height: 1.2;
+  color: var(--text-primary-light);
+
+  .icon {
+    font-size: rem(22px);
+  }
+}
+
+.sidebar-toggle {
+  display: none;
+
+  @include media(xl) {
+    display: inline-block;
+  }
+
+  &.active {
+    .icon {
+      &.non-active {
+        display: none;
+      }
+
+      &.active {
+        display: inline-block;
+      }
+    }
+  }
+
+  .icon {
+    &.active {
+      display: none;
+    }
+  }
+}
+
+.sidebar-mobile-toggle {
+  display: inline-block;
+
+  @include media(xl) {
+    display: none;
+  }
+}
+
+.navbar-search {
+  position: relative;
+  display: none;
+
+  @include media(lg) {
+    display: inline-block;
+  }
+
+  input {
+    width: rem(388px);
+    height: rem(44px);
+    border: 1px solid var(--white);
+    padding-block: rem(8px);
+    padding-inline-start: rem(24px);
+    padding-inline-end: rem(52px);
+    color: var(--text-primary-light);
+    border-radius: 50rem;
+    &:focus {
+      border-color: var(--primary-600);
+    }
+  }
+
+  .icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    inset-inline-end: rem(8px);
+    font-size: rem(18px);
+    color: #fff;
+    background-color: var(--primary-600);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+  }
+}
+
+[data-theme-toggle] {
+  font-size: 0;
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: "\f1bf";
+    font-family: remixicon;
+    font-style: normal;
+    font-size: rem(20px);
+    color: var(--text-primary-light);
+  }
+
+  &[aria-label="dark"] {
+    &::after {
+      content: "\ef6f";
+      color: #fff;
+    }
+  }
+}
+
+.positioned-icon {
+  inset-inline-start: 16px;
+
+}

@@ -1,0 +1,25 @@
+Kita Buat Kolom Data Guru daan Tendik, Formnya itu
+
+- foto profil.
+- nama_lengkap (beserta gelar)
+- nip/nuptk/nik (opsional/nullable karena tidak semua honorer punya NIP/NUPTK)
+- Nomor Telepon
+- jenis_kelamin (L / P)
+- status_kepegawaian (PNS, PPPK, Honorer)
+- Jabatan (Guru Kelas, Guru Mapel, Tenaga Kependidikan, Kepala Madrasah)
+- Posisi
+- Role
+- Password
+- Active/Deactive (dengan Toggle warna hijau)
+
+tapi aku bingung masa sebegitu banyak data dalam satu tabel sih, apa kita bagi dua aja
+untuk Role, Password, sama active/Deactive itu kita buat di tabel role dan Hak akses saja?
+berarti untuk Role dan Hak Akses menampilkan :
+
+- Photo Profil
+- Nama Lengkap (Beserta Gelar)
+- Role
+- Active dan Deactive
+- Hak Akses
+
+begitu?
