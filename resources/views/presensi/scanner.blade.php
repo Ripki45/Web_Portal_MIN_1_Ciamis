@@ -31,6 +31,30 @@
             letter-spacing: 12px; font-size: 28px; font-weight: 800;
             text-align: center; border: 2px solid #16a34a; border-radius: 12px; height: 60px;
         }
+
+        /* Tombol Pilihan 3 Sesi Presensi */
+        .sesi-pill {
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: 13px;
+            border: 2px solid #bbf7d0;
+            background: #ffffff;
+            color: #15803d;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .sesi-pill:hover { background: #dcfce7; color: #14532d; }
+        .sesi-pill.active {
+            background: #16a34a;
+            color: #ffffff;
+            border-color: #15803d;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+        }
     </style>
 </head>
 <body>
@@ -98,6 +122,59 @@
 
     <div class="container pb-40">
 
+        <!-- ========================================================================= -->
+        <!-- PILIHAN 3 KATEGORI SESI PRESENSI: 1. HARIAN KBM | 2. SHALAT | 3. EKSKUL   -->
+        <!-- ========================================================================= -->
+        <div class="row g-2 mb-16">
+            <div class="col-md-4">
+                <a href="{{ route('presensi.scanner', ['kategori' => 'harian', 'kelas_id' => $selectedKelasId, 'tab' => request('tab')]) }}"
+                   class="sesi-pill {{ ($kategori ?? 'harian') == 'harian' ? 'active' : '' }}">
+                    <i class="ph-bold ph-student text-lg"></i> 1. Kehadiran Sekolah (KBM)
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ route('presensi.scanner', ['kategori' => 'shalat', 'kelas_id' => $selectedKelasId, 'tab' => request('tab')]) }}"
+                   class="sesi-pill {{ ($kategori ?? '') == 'shalat' ? 'active' : '' }}">
+                    <i class="ph-bold ph-mosque text-lg"></i> 2. Shalat Dzuhur Berjamaah
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ route('presensi.scanner', ['kategori' => 'ekskul', 'ekskul_id' => $selectedEkskulId, 'tab' => request('tab')]) }}"
+                   class="sesi-pill {{ ($kategori ?? '') == 'ekskul' ? 'active' : '' }}">
+                    <i class="ph-bold ph-tent text-lg"></i> 3. Kegiatan Ekstrakurikuler
+                </a>
+            </div>
+        </div>
+
+        <!-- Dropdown Pilih Kegiatan Ekstrakurikuler (Muncul Jika Mode = Ekskul) -->
+        @if (($kategori ?? 'harian') === 'ekskul')
+            <div class="card radius-16 border-warning shadow-sm mb-16" style="border-left: 5px solid #f59e0b;">
+                <div class="card-body p-16">
+                    <form action="{{ route('presensi.scanner') }}" method="GET" class="row align-items-center g-2">
+                        <input type="hidden" name="kategori" value="ekskul">
+                        <input type="hidden" name="tab" value="{{ request('tab') }}">
+                        <div class="col-md-5">
+                            <span class="fw-bold text-primary-light text-sm d-block">
+                                <i class="ph-bold ph-trophy text-warning-main"></i> Pilih Ekstrakurikuler yang Sedang Berlangsung:
+                            </span>
+                            <small class="text-xs text-secondary-light">Hanya siswa yang terdaftar di ekskul ini yang akan diterima saat scan</small>
+                        </div>
+                        <div class="col-md-7">
+                            <select name="ekskul_id" id="selectEkskulAktif" class="form-select radius-8 fw-bold border-success" onchange="this.form.submit()">
+                                <?php foreach ($ekskuls as $eks): ?>
+                                    <option value="{{ $eks->id }}" {{ $selectedEkskulId == $eks->id ? 'selected' : '' }}>
+                                        {{ $eks->nama_ekskul }} (Pembina: {{ $eks->pembina->nama_lengkap ?? '-' }})
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @else
+            <input type="hidden" id="selectEkskulAktif" value="">
+        @endif
+
         <!-- Navigasi Tab: 1. Scan Kartu Hadir & 2. Input Wali Kelas -->
         <div class="card radius-16 border-0 shadow-sm mb-24">
             <div class="card-body p-16 d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -111,7 +188,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link {{ request('tab') == 'manual' ? 'active' : '' }} d-flex align-items-center gap-2 radius-8 px-20 py-10 fw-bold" 
                                 data-bs-toggle="pill" data-bs-target="#pane-manual" type="button" role="tab">
-                            <i class="ph-bold ph-notepad text-lg"></i> 2. Input Sakit / Izin / Alfa (Wali Kelas)
+                            <i class="ph-bold ph-notepad text-lg"></i> 2. Input Sakit / Izin / Alfa ({{ ($kategori ?? 'harian') == 'ekskul' ? 'Pembina Ekskul' : 'Wali Kelas' }})
                         </button>
                     </li>
                 </ul>
@@ -175,8 +252,8 @@
                                         <div class="d-flex gap-2">
                                             <input type="text" id="inputCariNama" list="listSiswaAktif" class="form-control form-control-sm radius-8 bg-white" placeholder="Ketik nama siswa (misal: ANIPAN)...">
                                             <datalist id="listSiswaAktif">
-                                                <?php foreach ($semuaSiswaAktif as$sa): ?>
-                                                    <option value="{{ $sa->nisn ?: $sa->nomor_induk }}">{{ $sa->nama_siswa }} — {{$sa->kelas->nama_kelas ?? '' }}</option>
+                                                <?php foreach ($semuaSiswaAktif as $sa): ?>
+                                                    <option value="{{ $sa->nisn ?: $sa->nomor_induk }}">{{ $sa->nama_siswa }} — {{ $sa->kelas->nama_kelas ?? '' }}</option>
                                                 <?php endforeach; ?>
                                             </datalist>
                                             <button type="button" id="btnHadirkanNama" class="btn btn-warning-600 btn-sm radius-8 px-16 fw-bold text-nowrap">
@@ -218,14 +295,14 @@
                                             </tr>
                                         </thead>
                                         <tbody id="tbodyRiwayat">
-                                            <?php foreach ($riwayatHariIni as$item): ?>
+                                            <?php foreach ($riwayatHariIni as $item): ?>
                                                 <tr>
                                                     <td class="fw-bold text-success-600">{{ $item->waktu_masuk }}</td>
                                                     <td class="fw-bold text-primary-light">{{ $item->siswa->nama_siswa ?? '-' }}</td>
                                                     <td>{{ $item->kelas->nama_kelas ?? '-' }}</td>
                                                     <td>
                                                         <span class="bg-success-focus text-success-main px-10 py-2 rounded-pill text-xs fw-semibold">
-                                                            {{ $item->status }} ({{$item->metode }})
+                                                            {{ $item->status }} ({{ $item->metode }})
                                                         </span>
                                                     </td>
                                                 </tr>
@@ -246,7 +323,7 @@
                 <div class="card radius-16 border-0 shadow-sm">
                     <div class="card-header bg-white border-bottom py-16 px-24 d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div>
-                            <h6 class="fw-bold mb-1">Input Kehadiran Kelas (Wali Kelas)</h6>
+                            <h6 class="fw-bold mb-1">Input Kehadiran Manual ({{ ($kategori ?? 'harian') == 'ekskul' ? 'Anggota Ekstrakurikuler' : 'Wali Kelas' }})</h6>
                             <small class="text-xs text-secondary-light">
                                 Status saat ini: <b class="{{ $operasional['buka_manual'] ? 'text-success-600' : 'text-danger-600' }}">{{ $operasional['alasan_manual'] }}</b>
                             </small>
@@ -263,22 +340,27 @@
                                 </button>
                             @endif
 
-                            <!-- Pilih Kelas -->
-                            <form action="{{ route('presensi.scanner') }}" method="GET" class="d-flex align-items-center gap-2 ms-md-2">
-                                <input type="hidden" name="tab" value="manual">
-                                <select name="kelas_id" class="form-select form-select-sm radius-8 w-auto fw-bold border-success" onchange="this.form.submit()">
-                                    <?php foreach ($kelasList as$kls): ?>
-                                        <option value="{{ $kls->id }}" {{ $selectedKelasId ==$kls->id ? 'selected' : '' }}>
-                                            {{ $kls->nama_kelas }}
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </form>
+                            @if (($kategori ?? 'harian') !== 'ekskul')
+                                <!-- Pilih Kelas -->
+                                <form action="{{ route('presensi.scanner') }}" method="GET" class="d-flex align-items-center gap-2 ms-md-2">
+                                    <input type="hidden" name="kategori" value="{{ $kategori ?? 'harian' }}">
+                                    <input type="hidden" name="tab" value="manual">
+                                    <select name="kelas_id" class="form-select form-select-sm radius-8 w-auto fw-bold border-success" onchange="this.form.submit()">
+                                        <?php foreach ($kelasList as $kls): ?>
+                                            <option value="{{ $kls->id }}" {{ $selectedKelasId == $kls->id ? 'selected' : '' }}>
+                                                {{ $kls->nama_kelas }}
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </form>
+                            @endif
                         </div>
                     </div>
 
                     <form action="{{ route('presensi.storeManualDepan') }}" method="POST">
                         @csrf
+                        <input type="hidden" name="kategori" value="{{ $kategori ?? 'harian' }}">
+                        <input type="hidden" name="ekskul_id" value="{{ $selectedEkskulId }}">
                         <input type="hidden" name="kelas_id" value="{{ $selectedKelasId }}">
 
                         <div class="card-body p-24">
@@ -295,7 +377,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($siswas as $idx =>$s): ?>
+                                        <?php foreach ($siswas as $idx => $s): ?>
                                             @php
                                                 $absen = $presensiMap[$s->id] ?? null;
                                                 $st    = $absen ? $absen->status : '';
@@ -342,7 +424,7 @@
                             @if ($operasional['buka_manual'])
                                 <div class="d-flex justify-content-end mt-20">
                                     <button type="submit" class="btn btn-primary-600 radius-8 px-24 py-11 fw-bold d-flex align-items-center gap-2">
-                                        <i class="ph-bold ph-floppy-disk"></i> Simpan Data Presensi Kelas
+                                        <i class="ph-bold ph-floppy-disk"></i> Simpan Data Presensi
                                     </button>
                                 </div>
                             @endif
@@ -364,7 +446,7 @@
         const pinOverlay = document.getElementById('pinLockOverlay');
 
         function cekPinTersimpan() {
-            if (!pinOverlay) return; // Jika Super Admin sudah login, lewati PIN
+            if (!pinOverlay) return;
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) {
                 const parsed = JSON.parse(savedData);
@@ -387,7 +469,6 @@
                 e.preventDefault();
                 const inputVal = document.getElementById('inputPinPetugas').value.trim();
                 if (inputVal === SERVER_PIN) {
-                    // Simpan selama 30 hari di HP Guru
                     const expireTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
                     localStorage.setItem(STORAGE_KEY, JSON.stringify({ pin: SERVER_PIN, expire: expireTime }));
                     pinOverlay.style.display = 'none';
@@ -425,14 +506,14 @@
             Swal.fire({
                 icon: 'info',
                 title: diubah + ' Siswa Diubah ke ' + targetStatus,
-                text: 'Jangan lupa klik tombol "Simpan Data Presensi Kelas" di bagian bawah tabel.',
+                text: 'Jangan lupa klik tombol "Simpan Data Presensi" di bagian bawah tabel.',
                 timer: 2500,
                 showConfirmButton: false
             });
         }
 
         // =========================================================================
-        // 4. SUARA BEEP + PANGGILAN NAMA BAHASA INDONESIA & KAMERA BELAKANG
+        // 4. SUARA BEEP + PANGGILAN NAMA BAHASA INDONESIA ("Nama Siswa, Hadir!")
         // =========================================================================
         function panggilSuaraSiswa(teks) {
             if ('speechSynthesis' in window) {
@@ -462,9 +543,14 @@
             let html5Qrcode = null;
             let isProcessing = false;
             let currentMode = 'Scan Kamera HP';
+            const kategoriAktif = "{{ $kategori ?? 'harian' }}";
 
             function kirimScanKeServer(kodeBarcode, metodeCustom = null) {
                 if (isProcessing) return;
+
+                const elEkskul = document.getElementById('selectEkskulAktif');
+                const ekskulId = elEkskul ? elEkskul.value : '';
+
                 isProcessing = true;
 
                 fetch("{{ route('presensi.prosesScan') }}", {
@@ -473,13 +559,18 @@
                         "Content-Type": "application/json",
                         "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
                     },
-                    body: JSON.stringify({ kode_barcode: kodeBarcode, metode: metodeCustom || currentMode })
+                    body: JSON.stringify({
+                        kode_barcode: kodeBarcode,
+                        kategori: kategoriAktif,
+                        ekskul_id: ekskulId,
+                        metode: metodeCustom || currentMode
+                    })
                 })
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
                         playBeep(true);
-                        panggilSuaraSiswa("Hadir, " + data.siswa.nama.toLowerCase());
+                        panggilSuaraSiswa(data.siswa.nama.toLowerCase() + ", hadir!");
 
                         const tbody = document.getElementById('tbodyRiwayat');
                         const row = `<tr>
@@ -493,9 +584,9 @@
                         Swal.fire({ icon: 'success', title: 'Hadir!', text: data.siswa.nama + ' (' + data.siswa.kelas + ')', timer: 1400, showConfirmButton: false });
                     } else {
                         playBeep(false);
-                        Swal.fire({ icon: data.status === 'warning' ? 'warning' : 'error', title: 'Perhatian', text: data.message, timer: 2000, showConfirmButton: false });
+                        Swal.fire({ icon: data.status === 'warning' ? 'warning' : 'error', title: 'Perhatian', text: data.message, timer: 2200, showConfirmButton: false });
                     }
-                    setTimeout(() => { isProcessing = false; }, 2000);
+                    setTimeout(() => { isProcessing = false; }, 1800);
                 })
                 .catch(() => { isProcessing = false; });
             }
@@ -509,7 +600,6 @@
                     (decodedText) => { kirimScanKeServer(decodedText); },
                     () => {}
                 ).catch(() => {
-                    // Fallback jika dibuka di Laptop yang hanya punya 1 webcam depan
                     html5Qrcode.start(
                         { facingMode: "user" },
                         { fps: 10, qrbox: { width: 240, height: 240 } },

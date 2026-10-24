@@ -14,7 +14,9 @@ class Presensi extends Model
         'kelas_id',
         'tahun_ajaran_id',
         'tanggal',
-        'waktu_masuk',
+        'kategori',    // 'harian', 'shalat', 'ekskul'
+        'ekskul_id',   // ID Ekskul jika kategori = ekskul
+        'waktu_masuk', // Sesuai kolom asli database kamu
         'status',
         'metode',
         'keterangan',
@@ -33,5 +35,10 @@ class Presensi extends Model
     public function tahunAjaran()
     {
         return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
+    }
+
+    public function ekskul()
+    {
+        return $this->belongsTo(Ekskul::class, 'ekskul_id');
     }
 }
