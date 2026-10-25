@@ -566,12 +566,12 @@ class PresensiController extends Controller
     }
 
     /**
-     * 9. REKAP & LAPORAN PRESENSI BULANAN (HARIAN, SHALAT DZUHUR, & EKSKUL)
+     * 9. REKAP & LAPORAN PRESENSI BULANAN (HARIAN, SHALAT DZUHUR, EKSKUL, & LINTAS TAHUN)
      */
     public function rekap(Request $request)
     {
         $kelasList  = Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
-        $ekskulList = Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
+        $ekskulList = \App\Models\Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
 
         $kategori         = $request->get('kategori', 'harian');
@@ -582,7 +582,7 @@ class PresensiController extends Controller
         $selectedMapelId  = $request->get('kelas_mapel_id', '');
 
         $kelasTerpilih  = Kelas::with('waliKelas')->find($selectedKelasId);
-        $ekskulTerpilih = Ekskul::with('pembina')->find($selectedEkskulId);
+        $ekskulTerpilih = \App\Models\Ekskul::with('pembina')->find($selectedEkskulId);
         $jumlahHari     = Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth;
 
         $daftarMapelKelas = \App\Models\KelasMapel::with(['mapel', 'guru'])
@@ -627,9 +627,11 @@ class PresensiController extends Controller
         $tglAwal  = sprintf('%04d-%02d-01', $tahun, $bulan);
         $tglAkhir = sprintf('%04d-%02d-%02d', $tahun, $bulan, $jumlahHari);
 
-        $siswas = collect();
+        $siswas    = collect();
+        $presensis = collect();
+
         if ($kategori === 'ekskul' && $ekskulTerpilih) {
-            $anggotaIds = EkskulAnggota::where('ekskul_id', $ekskulTerpilih->id)->pluck('siswa_id');
+            $anggotaIds = \App\Models\EkskulAnggota::where('ekskul_id', $ekskulTerpilih->id)->pluck('siswa_id');
             $siswas = Siswa::with('kelas')
                 ->whereIn('id', $anggotaIds)
                 ->where('status', 'Aktif')
@@ -642,13 +644,7 @@ class PresensiController extends Controller
                 ->whereBetween('tanggal', [$tglAwal, $tglAkhir])
                 ->get();
         } else {
-            if ($selectedKelasId) {
-                $siswas = Siswa::where('kelas_id', $selectedKelasId)
-                    ->where('status', 'Aktif')
-                    ->orderBy('nama_siswa', 'asc')
-                    ->get();
-            }
-
+            // Ambil catatan presensi di kelas & bulan tersebut terlebih dahulu
             $presensis = Presensi::where('kelas_id', $selectedKelasId)
                 ->where(function ($q) use ($kategori) {
                     if ($kategori === 'harian') {
@@ -659,6 +655,23 @@ class PresensiController extends Controller
                 })
                 ->whereBetween('tanggal', [$tglAwal, $tglAkhir])
                 ->get();
+
+            // Ambil ID siswa yang punya riwayat absen di kelas ini pada bulan/tahun tersebut (meskipun sekarang sudah naik kelas/lulus)
+            $riwayatSiswaIds = $presensis->pluck('siswa_id')->unique()->toArray();
+
+            if ($selectedKelasId) {
+                $siswas = Siswa::with('kelas')
+                    ->where(function ($q) use ($selectedKelasId, $riwayatSiswaIds) {
+                        $q->where(function ($sub) use ($selectedKelasId) {
+                            $sub->where('kelas_id', $selectedKelasId)->where('status', 'Aktif');
+                        });
+                        if (!empty($riwayatSiswaIds)) {
+                            $q->orWhereIn('id', $riwayatSiswaIds);
+                        }
+                    })
+                    ->orderBy('nama_siswa', 'asc')
+                    ->get();
+            }
         }
 
         $matriks = [];
@@ -722,4 +735,5 @@ class PresensiController extends Controller
 
         return view('presensi.rekap', $dataView);
     }
+    
 }

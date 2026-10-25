@@ -78,6 +78,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/ekskul/{id}/anggota', [App\Http\Controllers\EkskulController::class, 'storeAnggota'])->name('ekskul.storeAnggota');
     Route::delete('/ekskul/anggota/{anggotaId}', [App\Http\Controllers\EkskulController::class, 'destroyAnggota'])->name('ekskul.destroyAnggota');
     Route::post('/ekskul/anggota/bulk-delete', [App\Http\Controllers\EkskulController::class, 'bulkDestroyAnggota'])->name('ekskul.bulkDestroyAnggota');
+    // Tahap 6: Kenaikan Kelas Berurutan, Arsip Alumni, & Tombol Ajaib Pemeliharaan Sistem
+    Route::get('/kenaikan-kelas', [App\Http\Controllers\KenaikanKelasController::class, 'index'])->name('kenaikan.index');
+    Route::post('/kenaikan-kelas/proses', [App\Http\Controllers\KenaikanKelasController::class, 'prosesNaikKelas'])->name('kenaikan.proses');
+    Route::post('/kenaikan-kelas/alumni/bulk-delete', [App\Http\Controllers\KenaikanKelasController::class, 'bulkDeleteAlumni'])->name('kenaikan.bulkDeleteAlumni');
+    Route::post('/kenaikan-kelas/magic-action', [App\Http\Controllers\KenaikanKelasController::class, 'magicAction'])->name('kenaikan.magicAction');
 });
 
 require __DIR__.'/auth.php';

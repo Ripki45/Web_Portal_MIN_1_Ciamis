@@ -23,6 +23,8 @@ class Siswa extends Model
         'pekerjaan_ortu',
         'foto',
         'status',
+        'kelas_terakhir', // <-- Tambahan untuk Arsip Alumni
+        'tahun_lulus',    // <-- Tambahan untuk Arsip Alumni
     ];
 
     public function kelas()

@@ -153,6 +153,12 @@
                         <span>Ekstrakurikuler</span>
                     </a>
                 </li>
+                <li class="{{ request()->is('kenaikan-kelas*') ? 'active-page' : '' }}">
+                    <a href="{{ route('kenaikan.index') }}">
+                        <iconify-icon icon="solar:round-transfer-vertical-outline" class="menu-icon"></iconify-icon>
+                        <span>Kenaikan & Reset Sistem</span>
+                    </a>
+                </li>
             </ul>
 
             <!-- 4. MENU PRESENSI / ABSENSI -->
