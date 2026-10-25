@@ -9,7 +9,7 @@
         <div>
             <h6 class="fw-semibold mb-1">Pusat Pergantian Tahun Ajaran, Kenaikan Kelas & Pemeliharaan Sistem</h6>
             <span class="text-xs text-secondary-light">
-                Dilengkapi <b>Sistem Kunci Berurutan (Kelas 6 $\rightarrow$ Kelas 1)</b> agar data siswa tidak pernah menumpang/bercampur
+                Dilengkapi <b>Sistem Kunci Berurutan (Kelas 6 &rarr; Kelas 1)</b> agar data siswa tidak pernah menumpang/bercampur
             </span>
         </div>
         <div>
@@ -26,19 +26,19 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ !in_array(request('tab'), ['alumni', 'magic']) ? 'active' : '' }} d-flex align-items-center gap-2 radius-8 px-20 py-10 fw-bold"
                             data-bs-toggle="pill" data-bs-target="#tab-kenaikan" type="button">
-                        <i class="ph-bold ph-trend-up text-lg"></i> 1. Kenaikan Kelas & Kelulusan Berurutan
+                        <i class="ph-bold ph-trend-up text-lg"></i> 1. Kenaikan Kelas & Kelulusan
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ request('tab') == 'alumni' ? 'active' : '' }} d-flex align-items-center gap-2 radius-8 px-20 py-10 fw-bold"
                             data-bs-toggle="pill" data-bs-target="#tab-alumni" type="button">
-                        <i class="ph-bold ph-graduation-cap text-lg"></i> 2. Arsip Siswa Lulus / Alumni ({{ $alumnis->count() }})
+                        <i class="ph-bold ph-graduation-cap text-lg"></i> Siswa Lulus ({{ $alumnis->count() }})
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ request('tab') == 'magic' ? 'active' : '' }} d-flex align-items-center gap-2 radius-8 px-20 py-10 fw-bold"
                             data-bs-toggle="pill" data-bs-target="#tab-magic" type="button">
-                        <i class="ph-bold ph-magic-wand text-lg"></i> 3. Tombol Ajaib Reset & Pemeliharaan Sistem
+                        <i class="ph-bold ph-magic-wand text-lg"></i> 3. Reset & Pemeliharaan Sistem
                     </button>
                 </li>
             </ul>
@@ -55,7 +55,7 @@
             <div class="card radius-12 mb-24 border-primary">
                 <div class="card-body p-20">
                     <h6 class="text-sm fw-bold text-primary-600 mb-8">
-                        <i class="ph-bold ph-shield-check"></i> Peta Status Ruang Kelas (Aturan Wajib Urutan Atas ke Bawah: Kelas 6 $\rightarrow$ 5 $\rightarrow$ 4 $\rightarrow$ 3 $\rightarrow$ 2 $\rightarrow$ 1)
+                        <i class="ph-bold ph-shield-check"></i> Peta Status Ruang Kelas (Aturan Wajib Urutan Atas ke Bawah: Kelas 6 &rarr; 5 &rarr; 4 &rarr; 3 &rarr; 2 &rarr; 1)
                     </h6>
                     <p class="text-xs text-secondary-light mb-16">
                         Agar siswa Kelas 1-A tidak menumpang/bercampur dengan siswa Kelas 2-A yang belum naik kelas, sistem <b>mengunci otomatis</b> kelas tujuan yang masih berisi siswa. Kosongkan mulai dari <b>Kelas 6 (Luluskan)</b> terlebih dahulu, lalu naikkan Kelas 5 ke Kelas 6, dan seterusnya.
@@ -109,7 +109,7 @@
                             <div class="d-flex flex-wrap align-items-center gap-3">
                                 @if ($kelasAsal->tingkat == 6)
                                     <span class="bg-warning-focus text-warning-main px-14 py-8 radius-8 fw-bold text-xs">
-                                        🎓 Kelas Akhir (Tingkat 6) $\rightarrow$ Tujuan: LULUSKAN KE ARSIP ALUMNI
+                                        🎓 Kelas Akhir (Tingkat 6) &rarr; Tujuan: LULUSKAN KE ARSIP ALUMNI
                                     </span>
                                     <button type="submit" class="btn btn-success-600 radius-8 px-20 py-9 fw-bold text-sm"
                                             onclick="return confirm('Luluskan semua siswa yang dicentang ke Arsip Alumni? Ruang {{ $kelasAsal->nama_kelas }} akan menjadi kosong.')">

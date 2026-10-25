@@ -12,23 +12,44 @@ class SiswaController extends Controller
 {
     public function index(Request $request)
     {
-        $kelasList = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        $tahunAktif = \App\Models\TahunAjaran::where('is_active', true)->first();
+        $kelasList  = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
         
-        // Query siswa dengan filter Kelas jika dipilih
+        // 1. Query Siswa Aktif (Tab 1) dengan filter Kelas jika dipilih
         $query = Siswa::with('kelas')->where('status', 'Aktif');
         
         if ($request->filled('kelas_id')) {
             $query->where('kelas_id', $request->kelas_id);
         }
 
-        // Urutkan berdasarkan Kelas lalu Abjad Nama Siswa (A-Z) seperti di buku absen
         $siswas = $query->orderBy('kelas_id', 'asc')->orderBy('nama_siswa', 'asc')->get();
 
-        // Hitung statistik Laki-laki & Perempuan sesuai filter saat ini
         $totalL = $siswas->where('jenis_kelamin', 'L')->count();
         $totalP = $siswas->where('jenis_kelamin', 'P')->count();
 
-        return view('siswa.index', compact('siswas', 'kelasList', 'totalL', 'totalP'));
+        // 2. Data Buku Mutasi Masuk (Tab 2)
+        $mutasiMasuk = \App\Models\MutasiSiswa::with(['siswa', 'kelasTujuan'])
+            ->where('jenis_mutasi', 'Masuk')
+            ->latest('id')
+            ->get();
+
+        // 3. Data Buku Mutasi Keluar (Tab 3)
+        $mutasiKeluar = \App\Models\MutasiSiswa::with(['siswa'])
+            ->where('jenis_mutasi', 'Keluar')
+            ->latest('id')
+            ->get();
+
+        // Daftar seluruh siswa aktif untuk pilihan dropdown pada Modal Mutasi Keluar
+        $siswaAktifSemua = Siswa::with('kelas')
+            ->where('status', 'Aktif')
+            ->orderBy('kelas_id', 'asc')
+            ->orderBy('nama_siswa', 'asc')
+            ->get();
+
+        return view('siswa.index', compact(
+            'tahunAktif', 'siswas', 'kelasList', 'totalL', 'totalP',
+            'mutasiMasuk', 'mutasiKeluar', 'siswaAktifSemua'
+        ));
     }
 
     public function store(Request $request)

@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/mutasi/masuk', [MutasiSiswaController::class, 'storeMasuk'])->name('mutasi.storeMasuk');
     Route::post('/mutasi/keluar', [MutasiSiswaController::class, 'storeKeluar'])->name('mutasi.storeKeluar');
     Route::delete('/mutasi/{id}', [MutasiSiswaController::class, 'destroy'])->name('mutasi.destroy');
+    Route::post('/mutasi/bulk-delete', [App\Http\Controllers\MutasiSiswaController::class, 'bulkDestroy'])->name('mutasi.bulkDestroy');
     // Route Master Mata Pelajaran
     Route::post('/mapel/generate-default', [MataPelajaranController::class, 'generateDefault'])->name('mapel.generate');
     Route::resource('mapel', MataPelajaranController::class)->except(['create', 'show', 'edit']);

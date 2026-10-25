@@ -139,9 +139,6 @@
                     <a href="{{ route('siswa.index') }}"><i class="ph ph-student"></i><span>Data Siswa</span></a>
                 </li>
                 <li>
-                    <a href="{{ route('mutasi.index') }}"><i class="ph ph-arrows-left-right"></i><span>Kenaikan & Mutasi</span></a>
-                </li>
-                <li>
                     <a href="{{ route('mapel.index') }}"><i class="ph ph-books"></i><span>Mata Pelajaran</span></a>
                 </li>
                 <li>
