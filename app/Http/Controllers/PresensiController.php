@@ -11,15 +11,37 @@ use App\Models\HariLibur;
 use App\Models\Ekskul;
 use App\Models\EkskulAnggota;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 use Carbon\Carbon;
 
 class PresensiController extends Controller
 {
-    /**
-     * Mengecek Status Operasional (Dibedakan antara Jam Scan QR & Jam Input Wali Kelas)
-     */
-    private function cekStatusOperasional($tanggalCek = null, $kategori = 'harian')
+    private function pastikanKolomPengaturanLengkap()
     {
+        if (!Schema::hasColumn('pengaturan_presensis', 'jam_buka_shalat')) {
+            Schema::table('pengaturan_presensis', function (Blueprint $table) {
+                $table->string('jam_buka_shalat', 15)->default('11:30:00')->nullable();
+                $table->string('jam_tutup_shalat', 15)->default('12:30:00')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('tahun_ajarans', 'bulan_mulai')) {
+            Schema::table('tahun_ajarans', function (Blueprint $table) {
+                $table->integer('bulan_mulai')->nullable();
+            });
+        }
+    }
+
+    /**
+     * Mengecek Status Operasional:
+     * - KBM & Shalat Dzuhur mengikuti PengaturanPresensi
+     * - Ekstrakurikuler mengikuti jadwal di tabel ekskuls (Default: 13:00 - 16:30 WIB)
+     * - Hari Minggu & Hari Libur otomatis OFF untuk SEMUA sesi
+     */
+    private function cekStatusOperasional($tanggalCek = null, $kategori = 'harian', $ekskulId = null)
+    {
+        $this->pastikanKolomPengaturanLengkap();
+
         $now     = Carbon::now('Asia/Jakarta');
         $tanggal = $tanggalCek ?: $now->format('Y-m-d');
         $waktu   = $now->format('H:i:s');
@@ -27,48 +49,39 @@ class PresensiController extends Controller
         $setting = PengaturanPresensi::firstOrCreate([], [
             'jam_buka'         => '07:15:00',
             'jam_tutup'        => '09:00:00',
+            'jam_buka_shalat'  => '11:30:00',
+            'jam_tutup_shalat' => '12:30:00',
             'jam_tutup_manual' => '14:00:00',
             'pin_akses'        => '1234',
             'libur_minggu'     => true,
         ]);
 
-        if (!$setting->jam_tutup_manual) {
-            $setting->update(['jam_tutup_manual' => '14:00:00', 'pin_akses' => '1234']);
+        if (!$setting->jam_buka_shalat) {
+            $setting->update([
+                'jam_buka_shalat'  => '11:30:00',
+                'jam_tutup_shalat' => '12:30:00',
+            ]);
         }
 
-        // Khusus Sesi Shalat Dzuhur & Ekstrakurikuler: Buka sepanjang hari agar bisa scan siang/sore
-        if ($kategori === 'shalat' || $kategori === 'ekskul') {
-            $labelSesi = $kategori === 'shalat' ? 'Sesi Shalat Dzuhur Berjamaah Aktif' : 'Sesi Presensi Ekstrakurikuler Aktif';
-            return [
-                'buka'          => true,
-                'buka_scan'     => true,
-                'buka_manual'   => true,
-                'alasan'        => $labelSesi,
-                'alasan_scan'   => $labelSesi,
-                'alasan_manual' => $labelSesi,
-                'setting'       => $setting,
-            ];
-        }
-
-        // 1. Cek Hari Minggu (Khusus KBM Harian)
+        // 1. CEK HARI MINGGU (OFF UNTUK SEMUA SESI)
         if ($setting->libur_minggu && Carbon::parse($tanggal)->isSunday()) {
             return [
                 'buka'          => false,
                 'buka_scan'     => false,
                 'buka_manual'   => false,
-                'alasan'        => 'Hari Minggu (Libur Rutin)',
-                'alasan_scan'   => 'Hari Minggu (Libur Rutin)',
-                'alasan_manual' => 'Hari Minggu (Libur Rutin)',
+                'alasan'        => 'Hari Minggu (Libur Rutin — Semua Presensi OFF)',
+                'alasan_scan'   => 'Hari Minggu (Libur Rutin — Presensi OFF)',
+                'alasan_manual' => 'Hari Minggu (Libur Rutin — Presensi OFF)',
                 'setting'       => $setting,
             ];
         }
 
-        // 2. Cek Kalender Hari Libur
+        // 2. CEK KALENDER HARI LIBUR (OFF UNTUK SEMUA SESI)
         $hariLibur = HariLibur::whereDate('tanggal_mulai', '<=', $tanggal)
                               ->whereDate('tanggal_selesai', '>=', $tanggal)
                               ->first();
         if ($hariLibur) {
-            $msg = 'Hari Libur: ' . $hariLibur->keterangan;
+            $msg = 'Hari Libur: ' . $hariLibur->keterangan . ' (Presensi OFF)';
             return [
                 'buka'          => false,
                 'buka_scan'     => false,
@@ -80,21 +93,50 @@ class PresensiController extends Controller
             ];
         }
 
-        // 3. Cek Jam Scan QR Siswa vs Jam Batas Input Manual Wali Kelas
-        $buka        = Carbon::parse($setting->jam_buka)->format('H:i:s');
-        $tutupScan   = Carbon::parse($setting->jam_tutup)->format('H:i:s');
-        $tutupManual = Carbon::parse($setting->jam_tutup_manual)->format('H:i:s');
+        // 3. CEK JAM OPERASIONAL SESUAI KATEGORI SESI
+        if ($kategori === 'shalat') {
+            $buka        = Carbon::parse($setting->jam_buka_shalat ?? '11:30:00')->format('H:i:s');
+            $tutupScan   = Carbon::parse($setting->jam_tutup_shalat ?? '12:30:00')->format('H:i:s');
+            $tutupManual = Carbon::parse($setting->jam_tutup_manual ?? '14:00:00')->format('H:i:s');
+            $namaSesi    = 'Scan Shalat Dzuhur';
+        } elseif ($kategori === 'ekskul') {
+            // HYBRID: Baca jam latihan dari tabel Ekskul terpilih (Default: 13:00 - 16:30)
+            $jamMulaiEks   = '13:00';
+            $jamSelesaiEks = '16:30';
+            $namaEksLabel  = 'Ekstrakurikuler';
+
+            if ($ekskulId) {
+                $eksObj = Ekskul::find($ekskulId);
+                if ($eksObj) {
+                    $namaEksLabel = 'Ekskul ' . $eksObj->nama_ekskul;
+                    if (!empty($eksObj->jam_latihan) && preg_match_all('/\d{2}:\d{2}/', $eksObj->jam_latihan, $matches)) {
+                        if (!empty($matches[0][0])) $jamMulaiEks   = $matches[0][0];
+                        if (!empty($matches[0][1])) $jamSelesaiEks = $matches[0][1];
+                    }
+                }
+            }
+
+            $buka        = Carbon::parse($jamMulaiEks)->format('H:i:s');
+            $tutupScan   = Carbon::parse($jamSelesaiEks)->format('H:i:s');
+            $tutupManual = max($tutupScan, '17:30:00');
+            $namaSesi    = 'Scan ' . $namaEksLabel;
+        } else {
+            $buka        = Carbon::parse($setting->jam_buka ?? '07:15:00')->format('H:i:s');
+            $tutupScan   = Carbon::parse($setting->jam_tutup ?? '09:00:00')->format('H:i:s');
+            $tutupManual = Carbon::parse($setting->jam_tutup_manual ?? '14:00:00')->format('H:i:s');
+            $namaSesi    = 'Scan KBM Harian';
+        }
 
         $bukaScan   = ($waktu >= $buka && $waktu <= $tutupScan);
         $bukaManual = ($waktu >= $buka && $waktu <= $tutupManual);
 
         $alasanScan = $bukaScan
-            ? 'Scan QR Dibuka (' . substr($buka, 0, 5) . ' - ' . substr($tutupScan, 0, 5) . ' WIB)'
-            : 'Scan QR Ditutup (Buka Pukul ' . substr($buka, 0, 5) . ' - ' . substr($tutupScan, 0, 5) . ' WIB)';
+            ? $namaSesi . ' Dibuka (' . substr($buka, 0, 5) . ' - ' . substr($tutupScan, 0, 5) . ' WIB)'
+            : $namaSesi . ' Ditutup (Jadwal Buka: ' . substr($buka, 0, 5) . ' - ' . substr($tutupScan, 0, 5) . ' WIB)';
 
         $alasanManual = $bukaManual
-            ? 'Input Wali Kelas Dibuka (s/d ' . substr($tutupManual, 0, 5) . ' WIB)'
-            : 'Input Wali Kelas Ditutup (Batas Pukul ' . substr($tutupManual, 0, 5) . ' WIB)';
+            ? 'Input Manual Dibuka (s/d ' . substr($tutupManual, 0, 5) . ' WIB)'
+            : 'Input Manual Ditutup (Jadwal: ' . substr($buka, 0, 5) . ' - ' . substr($tutupManual, 0, 5) . ' WIB)';
 
         return [
             'buka'          => ($bukaScan || $bukaManual),
@@ -108,22 +150,21 @@ class PresensiController extends Controller
     }
 
     /**
-     * 1. HALAMAN DEPAN SCANNER + INPUT WALI KELAS (MENDUKUNG MULTI-SESI: HARIAN, SHALAT, EKSKUL)
+     * 1. HALAMAN DEPAN SCANNER + INPUT WALI KELAS
      */
     public function scanner(Request $request)
     {
         $tanggal          = Carbon::now('Asia/Jakarta')->format('Y-m-d');
-        $kategori         = $request->get('kategori', 'harian'); // 'harian', 'shalat', 'ekskul'
+        $kategori         = $request->get('kategori', 'harian');
         $ekskuls          = Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
         $selectedEkskulId = $request->get('ekskul_id', $ekskuls->first()->id ?? null);
 
-        $operasional = $this->cekStatusOperasional($tanggal, $kategori);
+        $operasional = $this->cekStatusOperasional($tanggal, $kategori, $selectedEkskulId);
         $setting     = $operasional['setting'];
 
         $kelasList       = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
         $selectedKelasId = $request->get('kelas_id', $kelasList->first()->id ?? null);
 
-        // Daftar siswa aktif untuk Pencarian Nama (Siswa Lupa Kartu QR)
         if ($kategori === 'ekskul' && $selectedEkskulId) {
             $anggotaIds = EkskulAnggota::where('ekskul_id', $selectedEkskulId)->pluck('siswa_id');
             $semuaSiswaAktif = Siswa::with('kelas')
@@ -209,9 +250,9 @@ class PresensiController extends Controller
     {
         $kategori = $request->input('kategori', 'harian');
         $ekskulId = $request->input('ekskul_id');
-        $siswaId  = $request->input('siswa_id'); // <-- Variabel yang sebelumnya sempat hilang
+        $siswaId  = $request->input('siswa_id');
 
-        $operasional = $this->cekStatusOperasional(null, $kategori);
+        $operasional = $this->cekStatusOperasional(null, $kategori, $ekskulId);
 
         if (!$operasional['buka_scan']) {
             return response()->json([
@@ -222,7 +263,6 @@ class PresensiController extends Controller
 
         $kode = trim($request->kode_barcode ?? '');
 
-        // Jika QR Code berisi teks biodata lengkap (format EMIS), ekstrak angka NISN / Induknya
         if (preg_match('/NISN\s*:\s*([0-9]+)/i', $kode, $matches)) {
             $kode = trim($matches[1]);
         } elseif (preg_match('/INDUK\s*:\s*([0-9]+)/i', $kode, $matches)) {
@@ -248,7 +288,6 @@ class PresensiController extends Controller
             ]);
         }
 
-        // Validasi Khusus Ekstrakurikuler: Cek apakah siswa terdaftar di anggota ekskul
         $labelSesi = 'Hadir';
         if ($kategori === 'shalat') {
             $labelSesi = 'Shalat Dzuhur';
@@ -331,13 +370,13 @@ class PresensiController extends Controller
     }
 
     /**
-     * 3. SIMPAN SAKIT / IZIN / ALFA DARI HALAMAN DEPAN (MENGIKUTI JAM BATAS MANUAL GURU)
+     * 3. SIMPAN SAKIT / IZIN / ALFA DARI HALAMAN DEPAN
      */
     public function storeManualDepan(Request $request)
     {
         $kategori    = $request->input('kategori', 'harian');
         $ekskulId    = $request->input('ekskul_id');
-        $operasional = $this->cekStatusOperasional(null, $kategori);
+        $operasional = $this->cekStatusOperasional(null, $kategori, $ekskulId);
 
         if (!$operasional['buka_manual']) {
             return redirect()->back()->with('error', 'Gagal menyimpan! ' . $operasional['alasan_manual']);
@@ -441,13 +480,18 @@ class PresensiController extends Controller
     }
 
     /**
-     * 5. UPDATE PENGATURAN JAM & PIN AKSES GURU (OLEH ADMIN)
+     * 5. UPDATE PENGATURAN JAM (KBM & SHALAT DZUHUR) & PIN AKSES GURU
+     * (Jam Ekskul sudah otomatis mengikuti jadwal di menu Ekstrakurikuler)
      */
     public function updateSettingJam(Request $request)
     {
+        $this->pastikanKolomPengaturanLengkap();
+
         $request->validate([
             'jam_buka'         => 'required',
             'jam_tutup'        => 'required',
+            'jam_buka_shalat'  => 'nullable',
+            'jam_tutup_shalat' => 'nullable',
             'jam_tutup_manual' => 'required',
             'pin_akses'        => 'required|string|min:4|max:10',
         ]);
@@ -456,12 +500,14 @@ class PresensiController extends Controller
         $setting->update([
             'jam_buka'         => $request->jam_buka,
             'jam_tutup'        => $request->jam_tutup,
+            'jam_buka_shalat'  => $request->jam_buka_shalat ?? '11:30:00',
+            'jam_tutup_shalat' => $request->jam_tutup_shalat ?? '12:30:00',
             'jam_tutup_manual' => $request->jam_tutup_manual,
             'pin_akses'        => trim($request->pin_akses),
             'libur_minggu'     => $request->has('libur_minggu'),
         ]);
 
-        return redirect()->back()->with('success', 'Pengaturan Jam Operasional & PIN Keamanan berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Pengaturan Jam Operasional (KBM & Shalat Dzuhur) berhasil diperbarui!');
     }
 
     public function storeHariLibur(Request $request)
@@ -566,31 +612,56 @@ class PresensiController extends Controller
     }
 
     /**
-     * 9. REKAP & LAPORAN PRESENSI BULANAN (HARIAN, SHALAT DZUHUR, EKSKUL, & LINTAS TAHUN)
+     * 9. REKAP & LAPORAN PRESENSI BULANAN
+     * - Default Bulan mengikuti Bulan Pertama Tahun Ajaran Aktif (Juli untuk Ganjil, Januari untuk Genap)
+     * - TTD Kiri: Mengetahui Kepala Madrasah | TTD Kanan: Wali Kelas / Guru Mapel / Pembina Ekskul
      */
     public function rekap(Request $request)
     {
+        $this->pastikanKolomPengaturanLengkap();
+
         $kelasList  = Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
-        $ekskulList = \App\Models\Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
+        $ekskulList = Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
+
+        // Tentukan Bulan & Tahun Default berdasarkan Tahun Ajaran Aktif (bukan bulan kalender berjalan!)
+        $defaultBulan = 7; // Default Semester Ganjil = Juli (Bulan 7)
+        $defaultTahun = (int) date('Y');
+
+        if ($tahunAktif) {
+            if (!empty($tahunAktif->bulan_mulai)) {
+                $defaultBulan = (int) $tahunAktif->bulan_mulai;
+            } elseif (stripos($tahunAktif->semester ?? '', 'Genap') !== false) {
+                $defaultBulan = 1; // Semester Genap dimulai Januari
+            } else {
+                $defaultBulan = 7; // Semester Ganjil dimulai Juli
+            }
+
+            // Ambil tahun dari string Tahun Ajaran (misal "2026/2027" -> Ganjil: 2026, Genap: 2027)
+            if (preg_match('/(\d{4})\s*\/\s*(\d{4})/', $tahunAktif->tahun_ajaran ?? '', $mTahun)) {
+                $defaultTahun = ($defaultBulan >= 7) ? (int) $mTahun[1] : (int) $mTahun[2];
+            }
+        }
 
         $kategori         = $request->get('kategori', 'harian');
         $selectedKelasId  = $request->get('kelas_id', $kelasList->first()->id ?? null);
         $selectedEkskulId = $request->get('ekskul_id', $ekskulList->first()->id ?? null);
-        $bulan            = (int) $request->get('bulan', Carbon::now('Asia/Jakarta')->month);
-        $tahun            = (int) $request->get('tahun', Carbon::now('Asia/Jakarta')->year);
+        $bulan            = (int) $request->get('bulan', $defaultBulan);
+        $tahun            = (int) $request->get('tahun', $defaultTahun);
         $selectedMapelId  = $request->get('kelas_mapel_id', '');
 
         $kelasTerpilih  = Kelas::with('waliKelas')->find($selectedKelasId);
-        $ekskulTerpilih = \App\Models\Ekskul::with('pembina')->find($selectedEkskulId);
+        $ekskulTerpilih = Ekskul::with('pembina')->find($selectedEkskulId);
         $jumlahHari     = Carbon::createFromDate($tahun, $bulan, 1)->daysInMonth;
 
         $daftarMapelKelas = \App\Models\KelasMapel::with(['mapel', 'guru'])
             ->where('kelas_id', $selectedKelasId)
             ->get();
 
+        // Tentukan Penandatangan Kanan Bawah (Wali Kelas / Guru Mapel / Pembina Ekskul)
+        // Sedangkan Penandatangan Kiri Bawah selalu dikunci untuk Kepala Madrasah ($kepalaMadrasah)
         $penandatanganGuru    = $kelasTerpilih->waliKelas ?? null;
-        $jabatanPenandatangan = 'Guru ' . ($kelasTerpilih->nama_kelas ?? 'Kelas');
+        $jabatanPenandatangan = 'Wali Kelas ' . str_replace('Kelas ', '', ($kelasTerpilih->nama_kelas ?? ''));
         $mapelTerpilihObj     = null;
 
         if ($kategori === 'ekskul' && $ekskulTerpilih) {
@@ -605,6 +676,7 @@ class PresensiController extends Controller
             }
         }
 
+        // Penandatangan Kiri Bawah: Selalu Kepala Madrasah
         $kepalaMadrasah = \App\Models\Gtk::with('jabatan')
             ->whereHas('jabatan', function ($q) {
                 $q->where('nama_jabatan', 'like', '%Kepala%');
@@ -617,7 +689,7 @@ class PresensiController extends Controller
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
-        $namaBulan = $namaBulanList[$bulan] ?? 'Agustus';
+        $namaBulan = $namaBulanList[$bulan] ?? 'Juli';
 
         $ejaanTingkat = [
             1 => 'Satu', 2 => 'Dua', 3 => 'Tiga', 4 => 'Empat', 5 => 'Lima', 6 => 'Enam'
@@ -631,7 +703,7 @@ class PresensiController extends Controller
         $presensis = collect();
 
         if ($kategori === 'ekskul' && $ekskulTerpilih) {
-            $anggotaIds = \App\Models\EkskulAnggota::where('ekskul_id', $ekskulTerpilih->id)->pluck('siswa_id');
+            $anggotaIds = EkskulAnggota::where('ekskul_id', $ekskulTerpilih->id)->pluck('siswa_id');
             $siswas = Siswa::with('kelas')
                 ->whereIn('id', $anggotaIds)
                 ->where('status', 'Aktif')
@@ -644,7 +716,6 @@ class PresensiController extends Controller
                 ->whereBetween('tanggal', [$tglAwal, $tglAkhir])
                 ->get();
         } else {
-            // Ambil catatan presensi di kelas & bulan tersebut terlebih dahulu
             $presensis = Presensi::where('kelas_id', $selectedKelasId)
                 ->where(function ($q) use ($kategori) {
                     if ($kategori === 'harian') {
@@ -656,7 +727,6 @@ class PresensiController extends Controller
                 ->whereBetween('tanggal', [$tglAwal, $tglAkhir])
                 ->get();
 
-            // Ambil ID siswa yang punya riwayat absen di kelas ini pada bulan/tahun tersebut (meskipun sekarang sudah naik kelas/lulus)
             $riwayatSiswaIds = $presensis->pluck('siswa_id')->unique()->toArray();
 
             if ($selectedKelasId) {
@@ -674,7 +744,12 @@ class PresensiController extends Controller
             }
         }
 
-        $matriks = [];
+        $matriks         = [];
+        $grandTotalHadir = 0;
+        $grandTotalS     = 0;
+        $grandTotalI     = 0;
+        $grandTotalA     = 0;
+
         foreach ($presensis as $p) {
             $hariKe = (int) Carbon::parse($p->tanggal)->format('j');
             $kode   = match ($p->status) {
@@ -685,7 +760,14 @@ class PresensiController extends Controller
                 default => ''
             };
             $matriks[$p->siswa_id][$hariKe] = $kode;
+
+            if ($p->status === 'Hadir') $grandTotalHadir++;
+            elseif ($p->status === 'Sakit') $grandTotalS++;
+            elseif ($p->status === 'Izin') $grandTotalI++;
+            elseif ($p->status === 'Alfa') $grandTotalA++;
         }
+
+        $grandTotalAbsen = $grandTotalS + $grandTotalI + $grandTotalA;
 
         $setting    = PengaturanPresensi::first();
         $hariLiburs = HariLibur::whereDate('tanggal_mulai', '<=', $tglAkhir)
@@ -718,11 +800,20 @@ class PresensiController extends Controller
             }
         }
 
+        $hariEfektif    = max(0, $jumlahHari - count($tanggalLibur));
+        $totalL         = $siswas->where('jenis_kelamin', 'L')->count();
+        $totalP         = $siswas->where('jenis_kelamin', 'P')->count();
+        $pembagiEfektif = max(1, $siswas->count() * max(1, $hariEfektif));
+        $persenAbsen    = round(($grandTotalAbsen / $pembagiEfektif) * 100, 1);
+        $persenHadir    = round(max(0, 100 - $persenAbsen), 1);
+
         $dataView = compact(
             'kelasList', 'ekskulList', 'tahunAktif', 'kategori', 'selectedKelasId', 'selectedEkskulId',
             'kelasTerpilih', 'ekskulTerpilih', 'labelTingkat', 'bulan', 'tahun', 'namaBulan', 'namaBulanList',
             'jumlahHari', 'siswas', 'matriks', 'tanggalLibur', 'kepalaMadrasah',
-            'daftarMapelKelas', 'selectedMapelId', 'penandatanganGuru', 'jabatanPenandatangan', 'mapelTerpilihObj'
+            'daftarMapelKelas', 'selectedMapelId', 'penandatanganGuru', 'jabatanPenandatangan', 'mapelTerpilihObj',
+            'grandTotalHadir', 'grandTotalS', 'grandTotalI', 'grandTotalA', 'grandTotalAbsen',
+            'hariEfektif', 'totalL', 'totalP', 'persenAbsen', 'persenHadir'
         );
 
         if ($request->get('export') === 'pdf') {
@@ -735,5 +826,4 @@ class PresensiController extends Controller
 
         return view('presensi.rekap', $dataView);
     }
-    
 }

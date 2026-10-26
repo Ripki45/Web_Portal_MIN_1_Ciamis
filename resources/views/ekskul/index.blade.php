@@ -170,7 +170,7 @@
                         <div class="row gy-3">
                             <div class="col-md-12">
                                 <label class="form-label fw-semibold text-sm mb-6">Nama Ekstrakurikuler <span class="text-danger-600">*</span></label>
-                                <input type="text" name="nama_ekskul" class="form-control radius-8" placeholder="Contoh: Pramuka / Futsal / Voli / Keagamaan" required>
+                                <input type="text" name="nama_ekskul" class="form-control radius-8 fw-bold" placeholder="Contoh: Pramuka / Futsal / Voli / Keagamaan" required>
                             </div>
                             <div class="col-md-12">
                                 <label class="form-label fw-semibold text-sm mb-6">Pilih Pembina / Pelatih (Dari Master GTK)</label>
@@ -183,18 +183,35 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
-                                <input type="text" name="hari_latihan" class="form-control radius-8" placeholder="Contoh: Jumat / Sabtu">
+                                <select name="hari_latihan" class="form-select radius-8 fw-semibold">
+                                    <option value="Setiap Hari Kerja">Fleksibel (Senin - Sabtu)</option>
+                                    <option value="Senin">Senin</option>
+                                    <option value="Selasa">Selasa</option>
+                                    <option value="Rabu">Rabu</option>
+                                    <option value="Kamis">Kamis</option>
+                                    <option value="Jumat">Jumat</option>
+                                    <option value="Sabtu">Sabtu</option>
+                                </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm mb-6">Jam Latihan</label>
-                                <input type="text" name="jam_latihan" class="form-control radius-8" placeholder="Contoh: 14:00 - 16:00 WIB">
-                            </div>
-                            <div class="col-md-12">
                                 <label class="form-label fw-semibold text-sm mb-6">Status</label>
                                 <select name="status" class="form-select radius-8">
                                     <option value="Aktif" selected>Aktif</option>
                                     <option value="Tidak Aktif">Tidak Aktif</option>
                                 </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Buka Presensi Ekskul</label>
+                                <input type="time" name="jam_mulai" class="form-control radius-8 fw-bold border-success" value="13:00" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Tutup Presensi Ekskul</label>
+                                <input type="time" name="jam_selesai" class="form-control radius-8 fw-bold border-success" value="16:30" required>
+                            </div>
+                            <div class="col-md-12">
+                                <small class="text-xs text-secondary-light">
+                                    * Scanner QR untuk ekskul ini otomatis terbuka sesuai rentang jam di atas (Default: 13:00 s/d 16:30 WIB).
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -209,6 +226,11 @@
 
     <!-- Modal Edit Ekskul -->
     <?php foreach ($ekskuls as $eks): ?>
+        @php
+            $jamParts = explode('-', $eks->jam_latihan ?? '');
+            $jMulai   = isset($jamParts[0]) && preg_match('/\d{2}:\d{2}/', $jamParts[0], $m1) ? $m1[0] : '13:00';
+            $jSelesai = isset($jamParts[1]) && preg_match('/\d{2}:\d{2}/', $jamParts[1], $m2) ? $m2[0] : '16:30';
+        @endphp
         <div class="modal fade" id="editEkskulModal{{ $eks->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content radius-16 bg-base">
@@ -223,7 +245,7 @@
                             <div class="row gy-3">
                                 <div class="col-md-12">
                                     <label class="form-label fw-semibold text-sm mb-6">Nama Ekstrakurikuler <span class="text-danger-600">*</span></label>
-                                    <input type="text" name="nama_ekskul" class="form-control radius-8" value="{{ $eks->nama_ekskul }}" required>
+                                    <input type="text" name="nama_ekskul" class="form-control radius-8 fw-bold" value="{{ $eks->nama_ekskul }}" required>
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label fw-semibold text-sm mb-6">Pembina / Pelatih</label>
@@ -236,18 +258,28 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
-                                    <input type="text" name="hari_latihan" class="form-control radius-8" value="{{ $eks->hari_latihan }}">
+                                    <select name="hari_latihan" class="form-select radius-8 fw-semibold">
+                                        <?php foreach (['Setiap Hari Kerja', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hr): ?>
+                                            <option value="{{ $hr }}" {{ ($eks->hari_latihan ?? 'Setiap Hari Kerja') == $hr ? 'selected' : '' }}>
+                                                {{ $hr == 'Setiap Hari Kerja' ? 'Fleksibel (Senin - Sabtu)' : $hr }}
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-sm mb-6">Jam Latihan</label>
-                                    <input type="text" name="jam_latihan" class="form-control radius-8" value="{{ $eks->jam_latihan }}">
-                                </div>
-                                <div class="col-md-12">
                                     <label class="form-label fw-semibold text-sm mb-6">Status</label>
                                     <select name="status" class="form-select radius-8">
                                         <option value="Aktif" {{ $eks->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
                                         <option value="Tidak Aktif" {{ $eks->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
                                     </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Buka Presensi Ekskul</label>
+                                    <input type="time" name="jam_mulai" class="form-control radius-8 fw-bold border-success" value="{{ $jMulai }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Tutup Presensi Ekskul</label>
+                                    <input type="time" name="jam_selesai" class="form-control radius-8 fw-bold border-success" value="{{ $jSelesai }}" required>
                                 </div>
                             </div>
                         </div>

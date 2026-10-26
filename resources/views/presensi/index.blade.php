@@ -138,44 +138,149 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content radius-16 bg-base">
                 <div class="modal-header py-16 px-24 border-bottom">
-                    <h1 class="modal-title fs-5">Pengaturan Waktu & PIN Keamanan Presensi</h1>
+                    <h1 class="modal-title fs-5">Pengaturan Waktu & PIN Keamanan</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{{ route('presensi.updateSettingJam') }}" method="POST">
                     @csrf
                     <div class="modal-body p-24">
-                        <div class="row gy-3 mb-20">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm">1. Jam Buka Presensi (WIB)</label>
-                                <input type="time" name="jam_buka" class="form-control radius-8 fw-bold" value="{{ substr($setting->jam_buka, 0, 5) }}" required>
-                                <small class="text-xs text-secondary-light">Awal mulai scan pagi (Default: 07:15)</small>
+                        {{-- 1. PRESENSI KBM PAGI --}}
+                        <div class="mb-24">
+                            <h6 class="fw-bold text-sm text-success-600 mb-16">
+                                <i class="ri-school-line me-2"></i>
+                                1. Presensi KBM Pagi
+                            </h6>
+
+                            <div class="row gy-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm">
+                                        Jam Buka Scan KBM (WIB)
+                                    </label>
+                                    <input type="time" name="jam_buka"
+                                        class="form-control radius-8 fw-bold"
+                                        value="{{ substr($setting->jam_buka ?? '07:15', 0, 5) }}"
+                                        required>
+                                    <small class="text-xs text-secondary-light">
+                                        Awal scan (Default: 07:15)
+                                    </small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm">
+                                        Jam Tutup Scan KBM (WIB)
+                                    </label>
+                                    <input type="time" name="jam_tutup"
+                                        class="form-control radius-8 fw-bold"
+                                        value="{{ substr($setting->jam_tutup ?? '09:00', 0, 5) }}"
+                                        required>
+                                    <small class="text-xs text-secondary-light">
+                                        Batas akhir (Default: 09:00)
+                                    </small>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm">2. Tutup Scan QR Siswa (WIB)</label>
-                                <input type="time" name="jam_tutup" class="form-control radius-8 fw-bold" value="{{ substr($setting->jam_tutup, 0, 5) }}" required>
-                                <small class="text-xs text-secondary-light">Batas akhir siswa scan kartu (Default: 09:00)</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm">3. Batas Input Wali Kelas (WIB)</label>
-                                <input type="time" name="jam_tutup_manual" class="form-control radius-8 fw-bold" value="{{ substr($setting->jam_tutup_manual ?? '14:00:00', 0, 5) }}" required>
-                                <small class="text-xs text-secondary-light">Batas guru input Sakit/Izin/Alfa (Default: 14:00)</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm">4. PIN Keamanan Layar Scan</label>
-                                <input type="text" name="pin_akses" class="form-control radius-8 fw-bold text-center bg-warning-50 border-warning" value="{{ $setting->pin_akses ?? '1234' }}" required>
-                                <small class="text-xs text-secondary-light">PIN 4-6 digit untuk HP Guru (Default: 1234)</small>
+                        </div>
+                        {{-- 3. PRESENSI EKSTRAKURIKULER --}}
+                        <div class="mb-24 pt-20 border-top">
+                            <h6 class="fw-bold text-sm text-warning-main mb-16">
+                                <i class="ri-medal-line me-2"></i>
+                                3. Presensi Ekstrakurikuler
+                            </h6>
+
+                            <div class="row gy-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm">
+                                        Jam Buka Scan Ekskul (WIB)
+                                    </label>
+                                    <input type="time" name="jam_buka_ekskul"
+                                        class="form-control radius-8 fw-bold"
+                                        value="{{ substr($setting->jam_buka_ekskul ?? '13:00', 0, 5) }}"
+                                        required>
+                                    <small class="text-xs text-secondary-light">
+                                        Awal scan ekskul (Default: 13:00)
+                                    </small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm">
+                                        Jam Tutup Scan Ekskul (WIB)
+                                    </label>
+                                    <input type="time" name="jam_tutup_ekskul"
+                                        class="form-control radius-8 fw-bold"
+                                        value="{{ substr($setting->jam_tutup_ekskul ?? '16:30', 0, 5) }}"
+                                        required>
+                                    <small class="text-xs text-secondary-light">
+                                        Batas scan ekskul (Default: 16:30)
+                                    </small>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="form-switch switch-primary d-flex align-items-center gap-3 pt-12 border-top">
-                            <input class="form-check-input" type="checkbox" role="switch" name="libur_minggu" id="libur_minggu" {{ $setting->libur_minggu ? 'checked' : '' }}>
-                            <label class="form-check-label fw-medium text-sm" for="libur_minggu">
-                                Kunci Otomatis Setiap Hari Minggu (Aktif Senin – Sabtu)
+                        {{-- 4. PENGATURAN TAMBAHAN --}}
+                        <div class="mb-20 pt-20 border-top">
+                            <h6 class="fw-bold text-sm text-primary-600 mb-16">
+                                <i class="ri-settings-3-line me-2"></i>
+                                4. Pengaturan Tambahan
+                            </h6>
+
+                            <div class="row gy-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm">
+                                        Batas Input Wali Kelas (WIB)
+                                    </label>
+                                    <input type="time" name="jam_tutup_manual"
+                                        class="form-control radius-8 fw-bold"
+                                        value="{{ substr($setting->jam_tutup_manual ?? '14:00', 0, 5) }}"
+                                        required>
+                                    <small class="text-xs text-secondary-light">
+                                        Input Sakit/Izin/Alfa (Default: 14:00)
+                                    </small>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm">
+                                        PIN Keamanan Layar Scan
+                                    </label>
+                                    <input type="text" name="pin_akses"
+                                        class="form-control radius-8 fw-bold text-center bg-warning-50 border-warning"
+                                        value="{{ $setting->pin_akses ?? '1234' }}"
+                                        inputmode="numeric"
+                                        pattern="[0-9]{4,6}"
+                                        minlength="4"
+                                        maxlength="6"
+                                        required>
+                                    <small class="text-xs text-secondary-light">
+                                        PIN 4–6 digit (Default: 1234)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- PENGATURAN LIBUR --}}
+                        <div class="form-switch switch-primary d-flex align-items-center gap-3 pt-16 border-top">
+                            <input class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                name="libur_minggu"
+                                id="libur_minggu"
+                                {{ ($setting->libur_minggu ?? true) ? 'checked' : '' }}>
+
+                            <label class="form-check-label fw-medium text-sm"
+                                for="libur_minggu">
+                                Kunci Otomatis Setiap Hari Minggu
+                                <span class="d-block text-xs text-secondary-light fw-normal">
+                                    Semua sesi presensi dinonaktifkan pada hari Minggu.
+                                </span>
                             </label>
                         </div>
                     </div>
+
+                    {{-- FOOTER MODAL --}}
                     <div class="modal-footer px-24 pb-24 border-0">
-                        <button type="submit" class="btn btn-primary-600 radius-8 w-100 fw-bold">Simpan Pengaturan Presensi</button>
+                        <button type="submit"
+                            class="btn btn-primary-600 radius-8 w-100 fw-bold">
+                            <i class="ri-save-line me-2"></i>
+                            Simpan Pengaturan Presensi
+                        </button>
                     </div>
                 </form>
             </div>

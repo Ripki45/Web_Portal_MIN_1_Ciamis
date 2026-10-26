@@ -7,11 +7,48 @@ use App\Models\Jabatan;
 use App\Models\Posisi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class GtkController extends Controller
 {
+    /**
+     * Otomatis memastikan kolom tambahan (alamat, no_hp, posisi_id, foto, ttd)
+     * sudah tersedia di tabel gtks tanpa perlu menjalankan migrate manual di terminal
+     */
+    private function pastikanKolomGtkLengkap()
+    {
+        if (!Schema::hasColumn('gtks', 'posisi_id')) {
+            Schema::table('gtks', function (Blueprint $table) {
+                $table->unsignedBigInteger('posisi_id')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('gtks', 'no_hp')) {
+            Schema::table('gtks', function (Blueprint $table) {
+                $table->string('no_hp', 25)->nullable();
+            });
+        }
+        if (!Schema::hasColumn('gtks', 'alamat')) {
+            Schema::table('gtks', function (Blueprint $table) {
+                $table->text('alamat')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('gtks', 'foto')) {
+            Schema::table('gtks', function (Blueprint $table) {
+                $table->string('foto')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('gtks', 'ttd')) {
+            Schema::table('gtks', function (Blueprint $table) {
+                $table->string('ttd')->nullable();
+            });
+        }
+    }
+
     public function index()
     {
+        $this->pastikanKolomGtkLengkap();
+
         // Urutkan data terbaru di paling atas (latest)
         $gtks     = Gtk::with(['jabatan', 'posisi', 'kelasWali'])->latest()->get();
         $jabatans = Jabatan::orderBy('id', 'asc')->get();
@@ -22,6 +59,8 @@ class GtkController extends Controller
 
     public function store(Request $request)
     {
+        $this->pastikanKolomGtkLengkap();
+
         $request->validate([
             'nomor_induk'        => 'nullable|string|max:50|unique:gtks,nomor_induk',
             'nama_lengkap'       => 'required|string|max:150',
@@ -38,9 +77,9 @@ class GtkController extends Controller
         ]);
 
         // Jika jabatannya Kepala Madrasah, kosongkan posisi_id karena jabatan tertinggi tunggal
-        $jabatan   = Jabatan::find($request->jabatan_id);
-        $isKepala  = $jabatan && (stripos($jabatan->nama_jabatan, 'Kepala Madrasah') !== false || stripos($jabatan->nama_jabatan, 'Kepala Sekolah') !== false);
-        $posisiId  = $isKepala ? null : $request->posisi_id;
+        $jabatan  = Jabatan::find($request->jabatan_id);
+        $isKepala = $jabatan && (stripos($jabatan->nama_jabatan, 'Kepala Madrasah') !== false || stripos($jabatan->nama_jabatan, 'Kepala Sekolah') !== false);
+        $posisiId = $isKepala ? null : $request->posisi_id;
 
         $fotoPath = null;
         if ($request->hasFile('foto')) {
@@ -70,6 +109,8 @@ class GtkController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->pastikanKolomGtkLengkap();
+
         $gtk = Gtk::findOrFail($id);
 
         $request->validate([
@@ -135,9 +176,6 @@ class GtkController extends Controller
         return redirect()->back()->with('success', 'Data GTK berhasil dihapus!');
     }
 
-    /**
-     * HAPUS BANYAK DATA GTK SEKALIGUS (FITUR CEKLIS)
-     */
     public function bulkDestroy(Request $request)
     {
         $ids = $request->input('ids', []);

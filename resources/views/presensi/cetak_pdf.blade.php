@@ -347,19 +347,21 @@
     @endphp
 
     <div class="footer-sig">
-        <div style="width: 33%; text-align: center;">
-            <div class="sig-block" style="margin-left: 30px;">
+        <div style="width: 35%; text-align: center;">
+            <div class="sig-block">
                 <div class="sig-text">
-                    <p>Mengetahui,</p>
-                    <p>Kepala Madrasah</p>
-                    <div style="height: 60px;"></div>
-                    <p style="font-weight: bold; text-decoration: underline;">
-                        {{ $kepalaMadrasah->nama_lengkap ?? '(Belum diatur di Data GTK)' }}
+                    <p class="mb-0">Mengetahui,</p>
+                    <p class="mb-0">Kepala MIN 1 Ciamis</p>
+                    <div style="height: 68px;"></div>
+                    <p class="fw-bold text-decoration-underline text-nowrap mb-0" style="font-weight: bold; text-decoration: underline;">
+                        {{ $kepalaMadrasah->nama_lengkap ?? '(Kepala Madrasah Belum Diatur)' }}
                     </p>
-                    <p>NIP. {{ $kepalaMadrasah->nip ?? $kepalaMadrasah->nomor_induk ?? '-' }}</p>
+                    <p class="text-nowrap mb-0">
+                        NIP. {{ $kepalaMadrasah->nip ?? $kepalaMadrasah->nomor_induk ?? '-' }}
+                    </p>
                 </div>
-                @if ($tampilkanTtd && $kepalaMadrasah && $kepalaMadrasah->ttd)
-                    <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}" alt="TTD Kepala" class="ttd-kepala-overlay">
+                @if ($kepalaMadrasah && $kepalaMadrasah->ttd)
+                    <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}" alt="TTD Kepala" class="img-ttd-digital ttd-kamad-overlay">
                 @endif
             </div>
         </div>
@@ -375,19 +377,21 @@
             </div>
         </div>
 
-        <div style="width: 33%; text-align: center;">
-            <div class="sig-block" style="margin-right: 20px;">
+        <div style="width: 35%; text-align: center;">
+            <div class="sig-block">
                 <div class="sig-text">
-                    <p>Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
-                    <p>Guru {{ $kelasTerpilih->nama_kelas ?? 'Kelas' }}</p>
-                    <div style="height: 60px;"></div>
-                    <p style="font-weight: bold; text-decoration: underline;">
-                        {{ $kelasTerpilih->waliKelas->nama_lengkap ?? '(Wali Kelas belum dipilih)' }}
+                    <p class="mb-0">Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
+                    <p class="mb-0">{{ $jabatanPenandatangan }}</p>
+                    <div style="height: 68px;"></div>
+                    <p class="fw-bold text-decoration-underline text-nowrap mb-0" style="font-weight: bold; text-decoration: underline;">
+                        {{ $penandatanganGuru->nama_lengkap ?? '(Guru Belum Dipilih)' }}
                     </p>
-                    <p>NIP. {{ $kelasTerpilih->waliKelas->nip ?? $kelasTerpilih->waliKelas->nomor_induk ?? '-' }}</p>
+                    <p class="text-nowrap mb-0">
+                        NIP. {{ $penandatanganGuru->nip ?? $penandatanganGuru->nomor_induk ?? '-' }}
+                    </p>
                 </div>
-                @if ($tampilkanTtd && $kelasTerpilih && $kelasTerpilih->waliKelas && $kelasTerpilih->waliKelas->ttd)
-                    <img src="{{ asset('storage/' . $kelasTerpilih->waliKelas->ttd) }}" alt="TTD Wali" class="ttd-wali-overlay">
+                @if ($penandatanganGuru && $penandatanganGuru->ttd)
+                    <img src="{{ asset('storage/' . $penandatanganGuru->ttd) }}" alt="TTD Guru" class="img-ttd-digital ttd-wali-overlay">
                 @endif
             </div>
         </div>

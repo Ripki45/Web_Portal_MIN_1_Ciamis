@@ -137,6 +137,60 @@
             pointer-events: none;
             z-index: 2;
         }
+        /* Layout Footer Rekap (3 Kolom di Laptop & Cetak, Otomatis Susun Rapi di HP) */
+        .rekap-footer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-top: 28px;
+            width: 100%;
+        }
+        .rekap-footer-col {
+            width: 32%;
+            text-align: center;
+        }
+        .rekap-footer-middle {
+            width: 36%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 18px;
+        }
+
+        /* Tampilan Khusus Layar HP & Tablet Kecil */
+        @media screen and (max-width: 991px) {
+            .rekap-footer-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+            }
+            .rekap-footer-col,
+            .rekap-footer-middle {
+                width: 100% !important;
+                max-width: 100%;
+                padding-top: 0;
+            }
+            /* Di HP: Tampilkan kotak Rumus Prosentase paling atas agar mudah dibaca */
+            .rekap-footer-middle {
+                order: 1;
+                background: #f8fafc;
+                border: 1px dashed #cbd5e1;
+                border-radius: 12px;
+                padding: 14px 12px;
+            }
+            .rekap-col-kanan {
+                order: 2;
+            }
+            .rekap-col-kiri {
+                order: 3;
+                padding-top: 12px;
+                border-top: 1px solid #f1f5f9;
+            }
+            .sig-block {
+                margin: 0 auto !important;
+            }
+        }
     </style>
 
     <!-- Toolbar Filter & Tombol Export Terpisah -->
@@ -429,18 +483,60 @@
             $persenAbsen   = $totalSiswa > 0 ? round(($grandTotalAbsen * 100) / $pembagiPersen, 2) : 0;
         @endphp
 
-        <!-- Bagian Tanda Tangan -->
-        <div class="d-flex justify-content-between align-items-center mt-24 pt-8" style="font-size: 13px; color: #000;">
-            <div style="width: 33%; text-align: center;">
-                <div class="sig-block" style="margin-right: 20px;">
+        <!-- ===================================================================== -->
+        <!-- FOOTER REKAP: KIRI (KAMAD) | TENGAH (RUMUS PROSENTASE) | KANAN (GURU) -->
+        <!-- ===================================================================== -->
+        <div class="rekap-footer-container">
+
+            <!-- 1. SISI KIRI: MENGETAHUI KEPALA MADRASAH -->
+            <div class="rekap-footer-col rekap-col-kiri">
+                <div class="sig-block">
                     <div class="sig-text">
-                        <p>Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
-                        <p>{{ $jabatanPenandatangan }}</p>
+                        <p class="mb-0">Mengetahui,</p>
+                        <p class="mb-0">Kepala MIN 1 Ciamis</p>
                         <div style="height: 68px;"></div>
-                        <p class="fw-bold text-decoration-underline text-nowrap" style="font-weight: bold; text-decoration: underline;">
-                            {{ $penandatanganGuru->nama_lengkap ?? '(Guru belum dipilih)' }}
+                        <p class="fw-bold text-decoration-underline mb-0" style="font-weight: bold; text-decoration: underline;">
+                            {{ $kepalaMadrasah->nama_lengkap ?? '(Kepala Madrasah Belum Diatur)' }}
                         </p>
-                        <p class="text-nowrap">
+                        <p class="mb-0">
+                            NIP. {{ $kepalaMadrasah->nip ?? $kepalaMadrasah->nomor_induk ?? '-' }}
+                        </p>
+                    </div>
+                    @if ($kepalaMadrasah && $kepalaMadrasah->ttd)
+                        <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}" alt="TTD Kepala" class="img-ttd-digital ttd-kamad-overlay">
+                    @endif
+                </div>
+            </div>
+
+            <!-- 2. SISI TENGAH: RUMUS PROSENTASE ABSEN BULAN INI -->
+            <div class="rekap-footer-middle">
+                <div class="d-inline-flex flex-wrap align-items-center justify-content-center gap-3" style="font-size: 12px; color: #0f172a;">
+                    <span class="fw-bold">Prosentase Absen Bulan Ini</span>
+                    <div class="text-center fw-bold">
+                        <div style="border-bottom: 1.5px solid #0f172a; padding: 0 8px 2px 8px;">
+                            {{ $grandTotalAbsen }} &times; 100
+                        </div>
+                        <div style="padding: 2px 8px 0 8px;">
+                            {{ $siswas->count() }} &times; {{ $hariEfektif }} = {{ $siswas->count() * $hariEfektif }}
+                        </div>
+                    </div>
+                    <span class="fw-extrabold text-primary-600" style="font-size: 13px;">
+                        = {{ $persenAbsen }}%
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3. SISI KANAN: WALI KELAS / GURU MAPEL / PEMBINA EKSKUL -->
+            <div class="rekap-footer-col rekap-col-kanan">
+                <div class="sig-block">
+                    <div class="sig-text">
+                        <p class="mb-0">Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
+                        <p class="mb-0">{{ $jabatanPenandatangan }}</p>
+                        <div style="height: 68px;"></div>
+                        <p class="fw-bold text-decoration-underline mb-0" style="font-weight: bold; text-decoration: underline;">
+                            {{ $penandatanganGuru->nama_lengkap ?? '(Guru Belum Dipilih)' }}
+                        </p>
+                        <p class="mb-0">
                             NIP. {{ $penandatanganGuru->nip ?? $penandatanganGuru->nomor_induk ?? '-' }}
                         </p>
                     </div>
@@ -450,39 +546,6 @@
                 </div>
             </div>
 
-            <div style="width: 34%; text-align: center;">
-                <div class="d-inline-flex align-items-center justify-content-center gap-12 text-nowrap">
-                    <span class="fw-bold">Prosentase Absen Bulan Ini</span>
-                    <div class="text-center px-8">
-                        <div style="border-bottom: 1.5px solid #000; padding-bottom: 2px; font-weight: 700;">
-                            {{ $grandTotalAbsen }} &nbsp;&times;&nbsp; 100
-                        </div>
-                        <div style="padding-top: 2px; font-weight: 700;">
-                            {{ $totalSiswa }} &nbsp;&times;&nbsp; {{ $hariEfektif }} &nbsp;=&nbsp; {{ $pembagiPersen }}
-                        </div>
-                    </div>
-                    <span class="fw-bold">= {{ $persenAbsen }} %</span>
-                </div>
-            </div>
-
-            <div style="width: 33%; text-align: center;">
-                <div class="sig-block" style="margin-right: 20px;">
-                    <div class="sig-text">
-                        <p>Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
-                        <p>Guru {{ $kelasTerpilih->nama_kelas ?? 'Kelas' }}</p>
-                        <div style="height: 68px;"></div>
-                        <p class="fw-bold text-decoration-underline text-nowrap">
-                            {{ $kelasTerpilih->waliKelas->nama_lengkap ?? '(Wali Kelas belum dipilih)' }}
-                        </p>
-                        <p class="text-nowrap">
-                            NIP. {{ $kelasTerpilih->waliKelas->nip ?? $kelasTerpilih->waliKelas->nomor_induk ?? '-' }}
-                        </p>
-                    </div>
-                    @if ($kelasTerpilih && $kelasTerpilih->waliKelas && $kelasTerpilih->waliKelas->ttd)
-                        <img src="{{ asset('storage/' . $kelasTerpilih->waliKelas->ttd) }}" alt="TTD Wali" class="img-ttd-digital ttd-wali-overlay">
-                    @endif
-                </div>
-            </div>
         </div>
 
     </div>

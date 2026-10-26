@@ -59,6 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/mapel/generate-default', [MataPelajaranController::class, 'generateDefault'])->name('mapel.generate');
     Route::resource('mapel', MataPelajaranController::class)->except(['create', 'show', 'edit']);
     Route::post('/mapel/bulk-delete', [App\Http\Controllers\MataPelajaranController::class, 'bulkDestroy'])->name('mapel.bulkDestroy');
+    // Master Mata Pelajaran (Tambah Mapel Baru, Edit, Hapus, & Bulk Delete)
+    Route::post('/mapel/bulk-delete', [App\Http\Controllers\MataPelajaranController::class, 'bulkDestroy'])->name('mapel.bulkDestroy');
+    Route::resource('mapel', App\Http\Controllers\MataPelajaranController::class)->except(['create', 'show', 'edit']);
     // Route Presensi Admin, Pengaturan Jam, & Kalender Libur
     Route::get('/presensi', [PresensiController::class, 'index'])->name('presensi.index');
     Route::post('/presensi/manual', [PresensiController::class, 'storeManual'])->name('presensi.storeManual');

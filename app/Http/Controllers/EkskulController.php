@@ -25,19 +25,24 @@ class EkskulController extends Controller
             'nama_ekskul'  => 'required|string|max:100',
             'pembina_id'   => 'nullable|exists:gtks,id',
             'hari_latihan' => 'nullable|string|max:50',
-            'jam_latihan'  => 'nullable|string|max:50',
+            'jam_mulai'    => 'nullable|string|max:10',
+            'jam_selesai'  => 'nullable|string|max:10',
             'status'       => 'required|in:Aktif,Tidak Aktif',
         ]);
+
+        $jamMulai   = $request->jam_mulai ?: '13:00';
+        $jamSelesai = $request->jam_selesai ?: '16:30';
+        $jamLatihan = $jamMulai . ' - ' . $jamSelesai;
 
         Ekskul::create([
             'nama_ekskul'  => trim($request->nama_ekskul),
             'pembina_id'   => $request->pembina_id,
-            'hari_latihan' => $request->hari_latihan,
-            'jam_latihan'  => $request->jam_latihan,
+            'hari_latihan' => $request->hari_latihan ?: 'Setiap Hari Kerja',
+            'jam_latihan'  => $jamLatihan,
             'status'       => $request->status,
         ]);
 
-        return redirect()->back()->with('success', 'Ekstrakurikuler baru berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Ekstrakurikuler baru beserta jam presensinya berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -48,19 +53,24 @@ class EkskulController extends Controller
             'nama_ekskul'  => 'required|string|max:100',
             'pembina_id'   => 'nullable|exists:gtks,id',
             'hari_latihan' => 'nullable|string|max:50',
-            'jam_latihan'  => 'nullable|string|max:50',
+            'jam_mulai'    => 'nullable|string|max:10',
+            'jam_selesai'  => 'nullable|string|max:10',
             'status'       => 'required|in:Aktif,Tidak Aktif',
         ]);
+
+        $jamMulai   = $request->jam_mulai ?: '13:00';
+        $jamSelesai = $request->jam_selesai ?: '16:30';
+        $jamLatihan = $jamMulai . ' - ' . $jamSelesai;
 
         $ekskul->update([
             'nama_ekskul'  => trim($request->nama_ekskul),
             'pembina_id'   => $request->pembina_id,
-            'hari_latihan' => $request->hari_latihan,
-            'jam_latihan'  => $request->jam_latihan,
+            'hari_latihan' => $request->hari_latihan ?: 'Setiap Hari Kerja',
+            'jam_latihan'  => $jamLatihan,
             'status'       => $request->status,
         ]);
 
-        return redirect()->back()->with('success', 'Data Ekstrakurikuler berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Data & Jam Presensi Ekstrakurikuler berhasil diperbarui!');
     }
 
     public function destroy($id)
