@@ -11,6 +11,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\MutasiSiswaController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\UserRoleController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +26,10 @@ Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])-
 Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])->name('presensi.storeManualDepan');
 
 Route::middleware('auth')->group(function () {
+    // Manajemen Role Pengguna & Toggle Hak Akses
+    Route::post('/users/toggle-permission', [App\Http\Controllers\UserRoleController::class, 'togglePermission'])->name('users.togglePermission');
+    Route::resource('users', App\Http\Controllers\UserRoleController::class)->except(['create', 'show', 'edit']);
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

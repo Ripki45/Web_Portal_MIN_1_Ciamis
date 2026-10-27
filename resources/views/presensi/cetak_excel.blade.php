@@ -10,13 +10,16 @@
     <div class="card shadow-sm border-0 p-4 text-center" style="max-width: 420px; border-radius: 16px;">
         <h5 class="fw-bold text-success mb-2" id="judulStatus">⏳ Sedang Menyusun File Excel...</h5>
         <p class="text-secondary small mb-3" id="pesanStatus">
-            Mohon tunggu sebentar, sedang memformat tabel, warna hari libur, dan tanda tangan untuk <b>{{ $kelasTerpilih->nama_kelas ?? '' }} ({{ $namaBulan }} {{$tahun }})</b>.
+            Mohon tunggu sebentar, sedang memformat tabel untuk <b>{{ $kelasTerpilih->nama_kelas ?? '' }} ({{ $namaBulan }} {{ $tahun }})</b>.
         </p>
         <button onclick="window.close()" class="btn btn-outline-secondary btn-sm">Tutup Tab Ini</button>
 
-        <!-- Gambar TTD Tersembunyi untuk Diambil ke Excel -->
+        <!-- Gambar Cap & TTD Tersembunyi untuk Diambil ke Excel -->
         <div style="display: none;">
-            @if ($kepalaMadrasah &&$kepalaMadrasah->ttd)
+            @if (file_exists(public_path('backend/assets/images/cap_min_satu.png')))
+                <img src="{{ asset('backend/assets/images/cap_min_satu.png') }}" id="imgCapMadrasah">
+            @endif
+            @if ($kepalaMadrasah && $kepalaMadrasah->ttd)
                 <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}" id="imgTtdKepala">
             @endif
             @if ($penandatanganGuru && $penandatanganGuru->ttd)
@@ -26,26 +29,31 @@
     </div>
 
     @php
-        $rekapHarianS = array_fill(1, $jumlahHari, 0);$rekapHarianI = array_fill(1, $jumlahHari, 0);$rekapHarianA = array_fill(1, $jumlahHari, 0);$grandTotalS  = 0; $grandTotalI = 0; $grandTotalA = 0;
+        $rekapHarianS = array_fill(1, $jumlahHari, 0);
+        $rekapHarianI = array_fill(1, $jumlahHari, 0);
+        $rekapHarianA = array_fill(1, $jumlahHari, 0);
+        $grandTotalS  = 0; $grandTotalI = 0; $grandTotalA = 0;
 
-        foreach ($siswas as$s) {
+        foreach ($siswas as $s) {
             for ($d = 1; $d <= $jumlahHari; $d++) {
                 if (!isset($tanggalLibur[$d])) {
-                    $kd =$matriks[$s->id][$d] ?? '';
-                    if ($kd === 'S') {$rekapHarianS[$d]++;$grandTotalS++; }
-                    elseif ($kd === 'I') {$rekapHarianI[$d]++;$grandTotalI++; }
-                    elseif ($kd === 'A') {$rekapHarianA[$d]++;$grandTotalA++; }
+                    $kd = $matriks[$s->id][$d] ?? '';
+                    if ($kd === 'S') { $rekapHarianS[$d]++; $grandTotalS++; }
+                    elseif ($kd === 'I') { $rekapHarianI[$d]++; $grandTotalI++; }
+                    elseif ($kd === 'A') { $rekapHarianA[$d]++; $grandTotalA++; }
                 }
             }
         }
 
-        $totalSiswa      = $siswas->count();$hariEfektif     = $jumlahHari - count($tanggalLibur);
-        $grandTotalAbsen =$grandTotalS + $grandTotalI +$grandTotalA;
-        $pembagiPersen   = ($totalSiswa * max(1,$hariEfektif));
-        $persenAbsen     =$totalSiswa > 0 ? round(($grandTotalAbsen * 100) /$pembagiPersen, 2) : 0;
+        $totalSiswa      = $siswas->count();
+        $hariEfektif     = max(0, $jumlahHari - count($tanggalLibur));
+        $grandTotalAbsen = $grandTotalS + $grandTotalI + $grandTotalA;
+        $pembagiPersen   = ($totalSiswa * max(1, $hariEfektif));
+        $persenAbsen     = $totalSiswa > 0 ? round(($grandTotalAbsen * 100) / $pembagiPersen, 2) : 0;
 
         $daftarSiswaJson = [];
-        foreach ($siswas as $s) {$daftarSiswaJson[] = [
+        foreach ($siswas as $s) {
+            $daftarSiswaJson[] = [
                 'id'    => $s->id,
                 'induk' => (string) ($s->nomor_induk ?? ''),
                 'nisn'  => (string) ($s->nisn ?? ''),
@@ -129,8 +137,8 @@
             ws.getCell(2, 1).alignment = { horizontal: 'center', vertical: 'middle' };
 
             // 2. INFO KELAS & KOTAK KUNING BULAN
-            ws.getCell(4, 2).value = "KELAS";
-            ws.getCell(4, 3).value = ": {{ str_replace('Kelas ', '', $kelasTerpilih->nama_kelas ?? '-') }} {{ $labelTingkat ? '(' . $labelTingkat . ')' : '' }}";
+            ws.getCell(4, 2).value = "{{ ($kategori ?? 'harian') === 'ekskul' ? 'EKSKUL' : 'KELAS' }}";
+            ws.getCell(4, 3).value = ": {{ ($kategori ?? 'harian') === 'ekskul' ? ($ekskulTerpilih->nama_ekskul ?? '-') : (str_replace('Kelas ', '', $kelasTerpilih->nama_kelas ?? '-') . ($labelTingkat ? ' (' . $labelTingkat . ')' : '')) }}";
             ws.getCell(5, 2).value = "BULAN";
             ws.getCell(5, 3).value = ": {{ $namaBulan }}";
             ws.getCell(6, 2).value = "TAHUN";
@@ -390,7 +398,7 @@
 
             const rightColStart = totalCols - 9;
             ws.mergeCells(sigStartRow, rightColStart, sigStartRow, totalCols - 1);
-            ws.getCell(sigStartRow, rightColStart).value = "Ciamis, {{ $namaBulan }} {{$tahun }}";
+            ws.getCell(sigStartRow, rightColStart).value = "Ciamis, {{ $namaBulan }} {{ $tahun }}";
             ws.getCell(sigStartRow, rightColStart).alignment = { horizontal: 'center' };
             ws.mergeCells(sigStartRow + 1, rightColStart, sigStartRow + 1, totalCols - 1);
             ws.getCell(sigStartRow + 1, rightColStart).value = "{{ $jabatanPenandatangan }}";
@@ -404,15 +412,20 @@
             ws.getCell(sigStartRow + 6, rightColStart).alignment = { horizontal: 'center' };
 
             if (D.pakaiTtd) {
+                const b64Cap = await ambilBase64('imgCapMadrasah');
+                if (b64Cap) {
+                    const idCap = workbook.addImage({ base64: b64Cap, extension: 'png' });
+                    ws.addImage(idCap, { tl: { col: 1.0, row: sigStartRow - 0.3 }, ext: { width: 115, height: 115 } });
+                }
                 const b64Kep = await ambilBase64('imgTtdKepala');
                 if (b64Kep) {
                     const idK = workbook.addImage({ base64: b64Kep, extension: 'png' });
-                    ws.addImage(idK, { tl: { col: 1.6, row: sigStartRow + 0.1 }, ext: { width: 175, height: 115 } });
+                    ws.addImage(idK, { tl: { col: 2.1, row: sigStartRow + 0.8 }, ext: { width: 135, height: 85 } });
                 }
                 const b64Wal = await ambilBase64('imgTtdWali');
                 if (b64Wal) {
                     const idW = workbook.addImage({ base64: b64Wal, extension: 'png' });
-                    ws.addImage(idW, { tl: { col: rightColStart + 1.2, row: sigStartRow + 1.0 }, ext: { width: 130, height: 90 } });
+                    ws.addImage(idW, { tl: { col: rightColStart + 1.2, row: sigStartRow + 0.8 }, ext: { width: 135, height: 85 } });
                 }
             }
 
@@ -421,7 +434,7 @@
             saveAs(new Blob([buffer]), `Rekap_Absensi_${namaKelasFile}_{{ $namaBulan }}_{{ $tahun }}.xlsx`);
 
             document.getElementById('judulStatus').innerText = "✅ File Excel Berhasil Diunduh!";
-            document.getElementById('pesanStatus').innerText = "Silakan cek folder Downloads di perangkat Anda. lalu sesuaikan pada format yang belum rapih";
+            document.getElementById('pesanStatus').innerText = "Silakan cek file difolder Downloads perangkat Bapak/Ibu kemudian sesuaikan format dengan kebutuhannya.";
         }
 
         window.onload = function() {

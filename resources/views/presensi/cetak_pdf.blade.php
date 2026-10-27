@@ -101,7 +101,11 @@
         .col-tgl { width: 20px; text-align: center; }
         .col-jml { width: 24px; text-align: center; }
         .dot-hadir { font-size: 12pt; font-weight: 900; line-height: 1; }
-        .cell-libur { background-color: #ef5350 !important; color: #fff !important; }
+        .table-min1 thead th.cell-libur,
+        .cell-libur {
+            background-color: #ef5350 !important;
+            color: #ffffff !important;
+        }
         .cell-libur-khusus {
             background-color: #ef5350 !important;
             color: #fff !important;
@@ -123,42 +127,66 @@
         .bg-row-alfa  { background-color: #ffffff !important; }
         .bg-tan-total { background-color: #c5b382 !important; font-weight: 800; }
 
+        /* Footer Tanda Tangan & Cap Terpisah */
         .footer-sig {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-top: 16px;
+            align-items: flex-start;
+            margin-top: 22px;
             font-size: 10pt;
+            width: 100%;
         }
         .sig-block {
             position: relative;
             display: inline-block;
+            width: 250px;
             text-align: center;
-            min-width: 220px;
+            margin: 0 auto;
+            padding: 6px 0;
         }
-        .sig-text { position: relative; z-index: 1; line-height: 1.2; }
-        .sig-text p { margin: 0 0 2px 0; }
-        .ttd-kepala-overlay {
+        .sig-text {
+            position: relative;
+            z-index: 1;
+            line-height: 1.3;
+        }
+        .sig-text p {
+            margin: 0 0 2px 0;
+        }
+        .img-ttd-digital {
             position: absolute;
-            top: 42%;
-            left: 50%;
-            transform: translate(-64%, -50%);
-            height: 125px;
-            width: auto;
-            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
             mix-blend-mode: multiply;
-            z-index: 2;
         }
-        .ttd-wali-overlay {
-            position: absolute;
-            top: 45%;
+        .cap-madrasah-overlay {
+            width: 148px;
+            height: 148px;
+            object-fit: contain;
+            top: 47%;
+            left: 50%;
+            transform: translate(-78%, -50%);
+            z-index: 2;
+            opacity: 0.92;
+        }
+        .ttd-kamad-overlay {
+            height: 160px;
+            width: auto;
+            max-width: none;
+            object-fit: contain;
+            top: 44%;
             left: 50%;
             transform: translate(-50%, -50%);
-            height: 95px;
+            z-index: 3;
+        }
+        .ttd-wali-overlay {
+            height: 105px;
             width: auto;
+            max-width: none;
             object-fit: contain;
-            mix-blend-mode: multiply;
-            z-index: 2;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
         }
     </style>
 </head>
@@ -179,8 +207,14 @@
     <div class="header-row">
         <table class="meta-table">
             <tr>
-                <td width="60">KELAS</td>
-                <td>: {{ str_replace('Kelas ', '', $kelasTerpilih->nama_kelas ?? '-') }} {{ $labelTingkat ? '(' . $labelTingkat . ')' : '' }}</td>
+                <td width="60">{{ ($kategori ?? 'harian') === 'ekskul' ? 'EKSKUL' : 'KELAS' }}</td>
+                <td>
+                    @if (($kategori ?? 'harian') === 'ekskul')
+                        : {{ $ekskulTerpilih->nama_ekskul ?? '-' }}
+                    @else
+                        : {{ str_replace('Kelas ', '', $kelasTerpilih->nama_kelas ?? '-') }} {{ $labelTingkat ? '(' . $labelTingkat . ')' : '' }}
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td>BULAN</td>
@@ -199,13 +233,13 @@
     </div>
 
     @php
-        $rekapHarianS = array_fill(1, $jumlahHari, 0);
-        $rekapHarianI = array_fill(1, $jumlahHari, 0);
-        $rekapHarianA = array_fill(1, $jumlahHari, 0);
-        $grandTotalS  = 0; $grandTotalI = 0; $grandTotalA = 0;
-        $totalSiswa   = $siswas->count();
-        $hariEfektif  = $jumlahHari - count($tanggalLibur);
-        $tampilkanTtd = request('ttd', '1') == '1';
+        $rekapHarianS    = array_fill(1, $jumlahHari, 0);
+        $rekapHarianI    = array_fill(1, $jumlahHari, 0);
+        $rekapHarianA    = array_fill(1, $jumlahHari, 0);
+        $grandTotalS     = 0; $grandTotalI = 0; $grandTotalA = 0; $grandTotalAbsen = 0;
+        $totalSiswa      = $siswas->count();
+        $hariEfektif     = max(0, $jumlahHari - count($tanggalLibur));
+        $tampilkanTtd    = request('ttd', '1') == '1';
     @endphp
 
     <table class="table-min1">
@@ -347,26 +381,39 @@
     @endphp
 
     <div class="footer-sig">
-        <div style="width: 35%; text-align: center;">
+        <!-- 1. SISI KIRI: MENGETAHUI KEPALA MADRASAH + CAP TERPISAH -->
+        <div style="width: 34%; text-align: center;">
             <div class="sig-block">
                 <div class="sig-text">
-                    <p class="mb-0">Mengetahui,</p>
-                    <p class="mb-0">Kepala MIN 1 Ciamis</p>
-                    <div style="height: 68px;"></div>
-                    <p class="fw-bold text-decoration-underline text-nowrap mb-0" style="font-weight: bold; text-decoration: underline;">
+                    <p>Mengetahui,</p>
+                    <p>Kepala Madrasah</p>
+                    <div style="height: 62px;"></div>
+                    <p style="font-weight: bold; text-decoration: underline; white-space: nowrap;">
                         {{ $kepalaMadrasah->nama_lengkap ?? '(Kepala Madrasah Belum Diatur)' }}
                     </p>
-                    <p class="text-nowrap mb-0">
+                    <p style="white-space: nowrap;">
                         NIP. {{ $kepalaMadrasah->nip ?? $kepalaMadrasah->nomor_induk ?? '-' }}
                     </p>
                 </div>
-                @if ($kepalaMadrasah && $kepalaMadrasah->ttd)
-                    <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}" alt="TTD Kepala" class="img-ttd-digital ttd-kamad-overlay">
+
+                @if ($tampilkanTtd)
+                    @if (file_exists(public_path('backend/assets/images/cap_min_satu.png')))
+                        <img src="{{ asset('backend/assets/images/cap_min_satu.png') }}"
+                             alt="Cap MIN 1 Ciamis"
+                             class="img-ttd-digital cap-madrasah-overlay">
+                    @endif
+
+                    @if ($kepalaMadrasah && $kepalaMadrasah->ttd)
+                        <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}"
+                             alt="TTD Kepala"
+                             class="img-ttd-digital ttd-kamad-overlay">
+                    @endif
                 @endif
             </div>
         </div>
 
-        <div style="width: 34%; text-align: center;">
+        <!-- 2. SISI TENGAH: RUMUS PROSENTASE -->
+        <div style="width: 32%; text-align: center; padding-top: 22px;">
             <div style="display: inline-flex; align-items: center; gap: 10px; font-weight: bold;">
                 <span>Prosentase Absen Bulan Ini</span>
                 <div style="text-align: center; padding: 0 6px;">
@@ -377,21 +424,25 @@
             </div>
         </div>
 
-        <div style="width: 35%; text-align: center;">
+        <!-- 3. SISI KANAN: WALI KELAS / GURU MAPEL / PEMBINA EKSKUL -->
+        <div style="width: 34%; text-align: center;">
             <div class="sig-block">
                 <div class="sig-text">
-                    <p class="mb-0">Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
-                    <p class="mb-0">{{ $jabatanPenandatangan }}</p>
-                    <div style="height: 68px;"></div>
-                    <p class="fw-bold text-decoration-underline text-nowrap mb-0" style="font-weight: bold; text-decoration: underline;">
+                    <p>Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
+                    <p>{{ $jabatanPenandatangan }}</p>
+                    <div style="height: 62px;"></div>
+                    <p style="font-weight: bold; text-decoration: underline; white-space: nowrap;">
                         {{ $penandatanganGuru->nama_lengkap ?? '(Guru Belum Dipilih)' }}
                     </p>
-                    <p class="text-nowrap mb-0">
+                    <p style="white-space: nowrap;">
                         NIP. {{ $penandatanganGuru->nip ?? $penandatanganGuru->nomor_induk ?? '-' }}
                     </p>
                 </div>
-                @if ($penandatanganGuru && $penandatanganGuru->ttd)
-                    <img src="{{ asset('storage/' . $penandatanganGuru->ttd) }}" alt="TTD Guru" class="img-ttd-digital ttd-wali-overlay">
+
+                @if ($tampilkanTtd && $penandatanganGuru && $penandatanganGuru->ttd)
+                    <img src="{{ asset('storage/' . $penandatanganGuru->ttd) }}"
+                         alt="TTD Guru"
+                         class="img-ttd-digital ttd-wali-overlay">
                 @endif
             </div>
         </div>

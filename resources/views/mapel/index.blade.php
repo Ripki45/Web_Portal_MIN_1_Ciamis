@@ -4,11 +4,23 @@
 
 @section('content')
 
-    <!-- Header -->
+<!-- Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <div>
-            <h6 class="fw-semibold mb-1">Master Mata Pelajaran & Kurikulum MIN 1 Ciamis</h6>
-            <span class="text-xs text-secondary-light">Kelola kamus mata pelajaran madrasah (Penugasan guru & kelas diatur di menu Manajemen Kelas)</span>
+            <h6 class="fw-semibold mb-1">Master Mata Pelajaran </h6>
+            <span class="text-xs text-secondary-light">Kelola mata pelajaran dari mulai mapel umum hingga mapel spesifik</span>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Manajemen Akademik & Kelas</li>
+                <li>-</li>
+                <li class="fw-medium text-primary-600">Mata Pelajaran</li>
+            </ul>
         </div>
 
         <div class="d-flex align-items-center gap-2 flex-wrap">

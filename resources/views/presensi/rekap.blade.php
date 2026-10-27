@@ -70,7 +70,13 @@
         .col-tgl { width: 22px; min-width: 22px; max-width: 22px; text-align: center; }
         .col-jml { width: 26px; min-width: 26px; text-align: center; }
         .dot-hadir { font-size: 15px; font-weight: 900; line-height: 1; display: inline-block; }
-        .cell-libur { background-color: #ef5350 !important; color: #ffffff !important; }
+        .table-min1 thead th.cell-libur,
+        /* Pastikan tanggal Minggu di Header Tabel tetap berwarna Merah & Teks Putih Jelas */
+        .table-min1 thead th.cell-libur,
+        .cell-libur {
+            background-color: #ef5350 !important;
+            color: #ffffff !important;
+        }
         .cell-libur-khusus {
             background-color: #ef5350 !important;
             color: #ffffff !important;
@@ -95,100 +101,137 @@
         .bg-row-alfa  { background-color: #ffffff !important; }
         .bg-tan-total { background-color: #c5b382 !important; font-weight: 800; }
 
-        .sig-block {
-            position: relative;
-            display: inline-block;
-            text-align: center;
-            min-width: 240px;
-            padding: 4px 12px;
-        }
-        .sig-text {
-            position: relative;
-            z-index: 1;
-            line-height: 1.2;
-        }
-        .sig-text p {
-            margin-bottom: 2px !important;
-            line-height: 1.2 !important;
-        }
-        .ttd-kepala-overlay {
-            position: absolute;
-            top: 42%;
-            left: 50%;
-            transform: translate(-64%, -50%);
-            height: 142px;
-            width: auto;
-            max-width: none;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .ttd-wali-overlay {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            height: 108px;
-            width: auto;
-            max-width: none;
-            object-fit: contain;
-            mix-blend-mode: multiply;
-            pointer-events: none;
-            z-index: 2;
-        }
-        /* Layout Footer Rekap (3 Kolom di Laptop & Cetak, Otomatis Susun Rapi di HP) */
+        /* ================================================================= */
+        /* LAYOUT FOOTER 3 KOLOM & LAYER TTD + CAP TERPISAH ANTI-NABRAK      */
+        /* ================================================================= */
         .rekap-footer-container {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             gap: 16px;
-            margin-top: 28px;
+            margin-top: 32px;
+            padding-bottom: 12px;
             width: 100%;
         }
         .rekap-footer-col {
-            width: 32%;
+            flex: 1 1 0;
+            width: 33%;
             text-align: center;
         }
         .rekap-footer-middle {
-            width: 36%;
+            flex: 1 1 0;
+            width: 34%;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding-top: 18px;
+            padding-top: 24px;
         }
 
-        /* Tampilan Khusus Layar HP & Tablet Kecil */
+        /* Kotak Kunci Ukuran Tanda Tangan (240px) agar posisi Cap & TTD selalu presisi */
+        /* Kotak Kunci Ukuran Tanda Tangan agar posisi Cap & TTD selalu presisi */
+        .sig-block {
+            position: relative;
+            display: inline-block;
+            width: 250px;
+            text-align: center;
+            margin: 0 auto;
+            padding: 6px 0;
+        }
+        .sig-text {
+            position: relative;
+            z-index: 1;
+            line-height: 1.35;
+            font-size: 12.5px;
+            color: #000;
+        }
+        .sig-text p {
+            margin: 0 0 2px 0 !important;
+        }
+
+        /* Layer Gambar TTD & Stempel */
+        .img-ttd-digital {
+            position: absolute;
+            pointer-events: none;
+            user-select: none;
+            mix-blend-mode: multiply;
+        }
+
+        /* 1. Ukuran & Posisi Cap Kemenag (Masuk ke Kata "Mengetahui" & "Iim Siti") */
+        .cap-madrasah-overlay {
+            width: 152px;
+            height: 152px;
+            object-fit: contain;
+            top: 47%;
+            left: 50%;
+            transform: translate(-78%, -50%);
+            z-index: 2;
+            opacity: 0.92;
+        }
+
+        /* 2. Ukuran & Posisi TTD Kepala Madrasah (Diperbesar & Menyatu dengan Cap) */
+        .ttd-kamad-overlay {
+            height: 165px;
+            width: auto;
+            max-width: none;
+            object-fit: contain;
+            top: 44%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+        }
+
+        /* 3. Ukuran & Posisi TTD Wali Kelas / Guru Mapel */
+        .ttd-wali-overlay {
+            height: 110px;
+            width: auto;
+            max-width: none;
+            object-fit: contain;
+            top: 52%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+        }
+
+        /* Responsif untuk Tablet & HP agar tidak pernah bertabrakan */
         @media screen and (max-width: 991px) {
+            .sheet-container {
+                padding: 16px 12px;
+            }
             .rekap-footer-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 24px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 20px;
             }
-            .rekap-footer-col,
-            .rekap-footer-middle {
-                width: 100% !important;
-                max-width: 100%;
-                padding-top: 0;
-            }
-            /* Di HP: Tampilkan kotak Rumus Prosentase paling atas agar mudah dibaca */
             .rekap-footer-middle {
                 order: 1;
+                width: 100% !important;
+                flex: 0 0 100%;
                 background: #f8fafc;
                 border: 1px dashed #cbd5e1;
                 border-radius: 12px;
-                padding: 14px 12px;
-            }
-            .rekap-col-kanan {
-                order: 2;
+                padding: 12px;
             }
             .rekap-col-kiri {
-                order: 3;
-                padding-top: 12px;
-                border-top: 1px solid #f1f5f9;
+                order: 2;
+                width: 48% !important;
+                flex: 0 0 48%;
             }
-            .sig-block {
-                margin: 0 auto !important;
+            .rekap-col-kanan {
+                order: 3;
+                width: 48% !important;
+                flex: 0 0 48%;
+            }
+        }
+
+        /* Khusus Layar HP Kecil: Susun Ke Bawah Agar Cap & Nama Panjang Tidak Nabrak */
+        @media screen and (max-width: 640px) {
+            .rekap-col-kiri,
+            .rekap-col-kanan {
+                width: 100% !important;
+                flex: 0 0 100%;
+            }
+            .rekap-col-kiri {
+                padding-left: 20px; /* Beri ruang sedikit di kiri untuk Cap Stempel */
             }
         }
     </style>
@@ -200,23 +243,23 @@
             <span class="text-xs text-secondary-light">Format Standar Buku Absen Manual MIN 1 Ciamis</span>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-3">
-            <!-- Saklar Tampilkan / Sembunyikan TTD Digital -->
+            <!-- Saklar Tampilkan / Sembunyikan TTD Digital & Cap -->
             <div class="form-switch switch-success d-flex align-items-center gap-2 bg-white px-12 py-8 radius-8 border">
                 <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="toggleTtdDigital" checked onchange="aturTampilanTtd(this.checked)">
                 <label class="form-check-label text-xs fw-bold text-primary-light cursor-pointer" for="toggleTtdDigital">
-                    Tampilkan TTD Digital
+                    Tampilkan TTD & Cap Digital
                 </label>
             </div>
 
             <!-- Tombol Menuju Halaman Khusus Export Excel -->
-            <a href="{{ route('presensi.rekap', ['kelas_id' => $selectedKelasId, 'bulan' => $bulan, 'tahun' => $tahun, 'kelas_mapel_id' => $selectedMapelId, 'export' => 'excel', 'ttd' => 1]) }}" 
+            <a href="{{ route('presensi.rekap', ['kategori' => $kategori ?? 'harian', 'kelas_id' => $selectedKelasId, 'ekskul_id' => $selectedEkskulId ?? '', 'bulan' => $bulan, 'tahun' => $tahun, 'kelas_mapel_id' => $selectedMapelId, 'export' => 'excel', 'ttd' => 1]) }}" 
                id="linkExportExcel" target="_blank"
                class="btn btn-success-600 radius-8 px-16 py-9 d-flex align-items-center gap-2 text-sm fw-bold">
                 <i class="ph-bold ph-file-xls text-lg"></i> Download Excel (.xlsx)
             </a>
 
             <!-- Tombol Menuju Halaman Khusus Cetak / PDF Utuh -->
-            <a href="{{ route('presensi.rekap', ['kelas_id' => $selectedKelasId, 'bulan' => $bulan, 'tahun' => $tahun, 'kelas_mapel_id' => $selectedMapelId, 'export' => 'pdf', 'ttd' => 1]) }}" 
+            <a href="{{ route('presensi.rekap', ['kategori' => $kategori ?? 'harian', 'kelas_id' => $selectedKelasId, 'ekskul_id' => $selectedEkskulId ?? '', 'bulan' => $bulan, 'tahun' => $tahun, 'kelas_mapel_id' => $selectedMapelId, 'export' => 'pdf', 'ttd' => 1]) }}" 
                id="linkExportPdf" target="_blank"
                class="btn btn-primary-600 radius-8 px-16 py-9 d-flex align-items-center gap-2 text-sm fw-bold">
                 <i class="ph-bold ph-printer text-lg"></i> Cetak / Simpan PDF Utuh
@@ -224,31 +267,54 @@
         </div>
     </div>
 
-    <!-- Filter Kelas, Bulan, & Tahun -->
+    <!-- Filter Kategori Sesi, Kelas, Penandatangan, Bulan, & Tahun -->
     <div class="card radius-12 mb-20">
         <div class="card-body p-16">
             <form action="{{ route('presensi.rekap') }}" method="GET" class="row gy-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold text-xs mb-4">Pilih Kelas / Rombel:</label>
-                    <select name="kelas_id" class="form-select form-select-sm radius-8 fw-bold" onchange="this.form.submit()">
-                        <?php foreach ($kelasList as $kls): ?>
-                            <option value="{{ $kls->id }}" {{ $selectedKelasId == $kls->id ? 'selected' : '' }}>
-                                {{ $kls->nama_kelas }} (Wali: {{ $kls->waliKelas->nama_lengkap ?? '-' }})
-                            </option>
-                        <?php endforeach; ?>
+                    <label class="form-label fw-semibold text-xs mb-4">Kategori Sesi Presensi:</label>
+                    <select name="kategori" class="form-select form-select-sm radius-8 fw-bold border-primary" onchange="this.form.submit()">
+                        <option value="harian" {{ ($kategori ?? 'harian') == 'harian' ? 'selected' : '' }}>🏫 1. Kehadiran Harian (KBM)</option>
+                        <option value="shalat" {{ ($kategori ?? '') == 'shalat' ? 'selected' : '' }}>🕌 2. Shalat Dzuhur Berjamaah</option>
+                        <option value="ekskul" {{ ($kategori ?? '') == 'ekskul' ? 'selected' : '' }}>⛺ 3. Kegiatan Ekstrakurikuler</option>
                     </select>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold text-xs mb-4">Penandatangan Laporan (Wali Kelas / Guru Mapel):</label>
-                    <select name="kelas_mapel_id" class="form-select form-select-sm radius-8 fw-bold text-success-600" onchange="this.form.submit()">
-                        <option value="">★ Wali Kelas ({{ $kelasTerpilih->waliKelas->nama_lengkap ?? 'Default' }})</option>
-                        <?php foreach ($daftarMapelKelas as $km): ?>
-                            <option value="{{ $km->id }}" {{ $selectedMapelId == $km->id ? 'selected' : '' }}>
-                                Guru {{ $km->mapel->nama_mapel ?? '-' }} — {{ $km->guru->nama_lengkap ?? 'Belum diset' }}
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+
+                @if (($kategori ?? 'harian') === 'ekskul')
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold text-xs mb-4">Pilih Kegiatan Ekstrakurikuler:</label>
+                        <select name="ekskul_id" class="form-select form-select-sm radius-8 fw-bold text-warning-main" onchange="this.form.submit()">
+                            <?php foreach (($ekskulList ?? []) as $eks): ?>
+                                <option value="{{ $eks->id }}" {{ ($selectedEkskulId ?? '') == $eks->id ? 'selected' : '' }}>
+                                    {{ $eks->nama_ekskul }} (Pembina: {{ $eks->pembina->nama_lengkap ?? '-' }})
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                @else
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold text-xs mb-4">Pilih Kelas:</label>
+                        <select name="kelas_id" class="form-select form-select-sm radius-8 fw-bold" onchange="this.form.submit()">
+                            <?php foreach ($kelasList as $kls): ?>
+                                <option value="{{ $kls->id }}" {{ $selectedKelasId == $kls->id ? 'selected' : '' }}>
+                                    {{ $kls->nama_kelas }}
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold text-xs mb-4">Penandatangan (Wali / Guru Mapel):</label>
+                        <select name="kelas_mapel_id" class="form-select form-select-sm radius-8 fw-bold text-success-600" onchange="this.form.submit()">
+                            <option value="">★ Wali Kelas ({{ $kelasTerpilih->waliKelas->nama_lengkap ?? 'Default' }})</option>
+                            <?php foreach ($daftarMapelKelas as $km): ?>
+                                <option value="{{ $km->id }}" {{ $selectedMapelId == $km->id ? 'selected' : '' }}>
+                                    Guru {{ $km->mapel->nama_mapel ?? '-' }} — {{ $km->guru->nama_lengkap ?? 'Belum diset' }}
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                @endif
+
                 <div class="col-md-2">
                     <label class="form-label fw-semibold text-xs mb-4">Bulan:</label>
                     <select name="bulan" class="form-select form-select-sm radius-8 fw-bold" onchange="this.form.submit()">
@@ -265,11 +331,6 @@
                         <?php endfor; ?>
                     </select>
                 </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary-600 btn-sm radius-8 w-100 py-8 fw-bold">
-                        Filter
-                    </button>
-                </div>
             </form>
         </div>
     </div>
@@ -285,8 +346,14 @@
         <div class="d-flex justify-content-between align-items-end mb-12 px-1">
             <table class="meta-table">
                 <tr>
-                    <td width="65">KELAS</td>
-                    <td>: {{ str_replace('Kelas ', '', $kelasTerpilih->nama_kelas ?? '-') }} {{ $labelTingkat ? '(' . $labelTingkat . ')' : '' }}</td>
+                    <td width="65">{{ ($kategori ?? 'harian') === 'ekskul' ? 'EKSKUL' : 'KELAS' }}</td>
+                    <td>
+                        @if (($kategori ?? 'harian') === 'ekskul')
+                            : {{ $ekskulTerpilih->nama_ekskul ?? '-' }}
+                        @else
+                            : {{ str_replace('Kelas ', '', $kelasTerpilih->nama_kelas ?? '-') }} {{ $labelTingkat ? '(' . $labelTingkat . ')' : '' }}
+                        @endif
+                    </td>
                 </tr>
                 <tr>
                     <td>BULAN</td>
@@ -305,14 +372,15 @@
         </div>
 
         @php
-            $rekapHarianS = array_fill(1, $jumlahHari, 0);
-            $rekapHarianI = array_fill(1, $jumlahHari, 0);
-            $rekapHarianA = array_fill(1, $jumlahHari, 0);
-            $grandTotalS  = 0;
-            $grandTotalI  = 0;
-            $grandTotalA  = 0;
-            $totalSiswa   = $siswas->count();
-            $hariEfektif  = $jumlahHari - count($tanggalLibur);
+            $rekapHarianS    = array_fill(1, $jumlahHari, 0);
+            $rekapHarianI    = array_fill(1, $jumlahHari, 0);
+            $rekapHarianA    = array_fill(1, $jumlahHari, 0);
+            $grandTotalS     = 0;
+            $grandTotalI     = 0;
+            $grandTotalA     = 0;
+            $grandTotalAbsen = 0;
+            $totalSiswa      = $siswas->count();
+            $hariEfektif     = max(0, $jumlahHari - count($tanggalLibur));
         @endphp
 
         <div class="table-responsive">
@@ -343,7 +411,7 @@
                     @if ($siswas->isEmpty())
                         <tr>
                             <td colspan="{{ $jumlahHari + 8 }}" class="text-center py-24 text-secondary">
-                                Belum ada data siswa aktif di kelas ini.
+                                Belum ada data siswa aktif di kelas/kegiatan ini.
                             </td>
                         </tr>
                     @else
@@ -484,43 +552,54 @@
         @endphp
 
         <!-- ===================================================================== -->
-        <!-- FOOTER REKAP: KIRI (KAMAD) | TENGAH (RUMUS PROSENTASE) | KANAN (GURU) -->
+        <!-- FOOTER REKAP: KIRI (KAMAD + CAP) | TENGAH (PROSENTASE) | KANAN (GURU) -->
         <!-- ===================================================================== -->
         <div class="rekap-footer-container">
 
-            <!-- 1. SISI KIRI: MENGETAHUI KEPALA MADRASAH -->
+            <!-- 1. SISI KIRI: MENGETAHUI KEPALA MADRASAH + CAP TERPISAH -->
             <div class="rekap-footer-col rekap-col-kiri">
                 <div class="sig-block">
                     <div class="sig-text">
-                        <p class="mb-0">Mengetahui,</p>
-                        <p class="mb-0">Kepala MIN 1 Ciamis</p>
-                        <div style="height: 68px;"></div>
-                        <p class="fw-bold text-decoration-underline mb-0" style="font-weight: bold; text-decoration: underline;">
+                        <p>Mengetahui,</p>
+                        <p>Kepala Madrasah</p>
+                        <div style="height: 64px;"></div>
+                        <p style="font-weight: bold; text-decoration: underline; white-space: nowrap;">
                             {{ $kepalaMadrasah->nama_lengkap ?? '(Kepala Madrasah Belum Diatur)' }}
                         </p>
-                        <p class="mb-0">
+                        <p style="white-space: nowrap;">
                             NIP. {{ $kepalaMadrasah->nip ?? $kepalaMadrasah->nomor_induk ?? '-' }}
                         </p>
                     </div>
+
+                    <!-- Layer 1: Cap Resmi MIN 1 Ciamis (Terpisah & Dinamis) -->
+                    @if (file_exists(public_path('backend/assets/images/cap_min_satu.png')))
+                        <img src="{{ asset('backend/assets/images/cap_min_satu.png') }}"
+                             alt="Cap MIN 1 Ciamis"
+                             class="img-ttd-digital cap-madrasah-overlay">
+                    @endif
+
+                    <!-- Layer 2: Tanda Tangan Dinamis Kepala Madrasah dari Database GTK -->
                     @if ($kepalaMadrasah && $kepalaMadrasah->ttd)
-                        <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}" alt="TTD Kepala" class="img-ttd-digital ttd-kamad-overlay">
+                        <img src="{{ asset('storage/' . $kepalaMadrasah->ttd) }}"
+                             alt="TTD Kepala Madrasah"
+                             class="img-ttd-digital ttd-kamad-overlay">
                     @endif
                 </div>
             </div>
 
             <!-- 2. SISI TENGAH: RUMUS PROSENTASE ABSEN BULAN INI -->
             <div class="rekap-footer-middle">
-                <div class="d-inline-flex flex-wrap align-items-center justify-content-center gap-3" style="font-size: 12px; color: #0f172a;">
+                <div class="d-inline-flex flex-wrap align-items-center justify-content-center gap-2" style="font-size: 12px; color: #000;">
                     <span class="fw-bold">Prosentase Absen Bulan Ini</span>
                     <div class="text-center fw-bold">
-                        <div style="border-bottom: 1.5px solid #0f172a; padding: 0 8px 2px 8px;">
+                        <div style="border-bottom: 1.5px solid #000; padding: 0 8px 2px 8px;">
                             {{ $grandTotalAbsen }} &times; 100
                         </div>
                         <div style="padding: 2px 8px 0 8px;">
-                            {{ $siswas->count() }} &times; {{ $hariEfektif }} = {{ $siswas->count() * $hariEfektif }}
+                            {{ $totalSiswa }} &times; {{ $hariEfektif }} = {{ $pembagiPersen }}
                         </div>
                     </div>
-                    <span class="fw-extrabold text-primary-600" style="font-size: 13px;">
+                    <span class="fw-extrabold" style="font-size: 13px;">
                         = {{ $persenAbsen }}%
                     </span>
                 </div>
@@ -530,18 +609,21 @@
             <div class="rekap-footer-col rekap-col-kanan">
                 <div class="sig-block">
                     <div class="sig-text">
-                        <p class="mb-0">Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
-                        <p class="mb-0">{{ $jabatanPenandatangan }}</p>
-                        <div style="height: 68px;"></div>
-                        <p class="fw-bold text-decoration-underline mb-0" style="font-weight: bold; text-decoration: underline;">
+                        <p>Ciamis, {{ $namaBulan }} {{ $tahun }}</p>
+                        <p>{{ $jabatanPenandatangan }}</p>
+                        <div style="height: 64px;"></div>
+                        <p style="font-weight: bold; text-decoration: underline; white-space: nowrap;">
                             {{ $penandatanganGuru->nama_lengkap ?? '(Guru Belum Dipilih)' }}
                         </p>
-                        <p class="mb-0">
+                        <p style="white-space: nowrap;">
                             NIP. {{ $penandatanganGuru->nip ?? $penandatanganGuru->nomor_induk ?? '-' }}
                         </p>
                     </div>
+
                     @if ($penandatanganGuru && $penandatanganGuru->ttd)
-                        <img src="{{ asset('storage/' . $penandatanganGuru->ttd) }}" alt="TTD Guru" class="img-ttd-digital ttd-wali-overlay">
+                        <img src="{{ asset('storage/' . $penandatanganGuru->ttd) }}"
+                             alt="TTD Guru"
+                             class="img-ttd-digital ttd-wali-overlay">
                     @endif
                 </div>
             </div>
@@ -559,7 +641,6 @@
             img.style.display = tampilkan ? 'block' : 'none';
         });
 
-        // Update parameter ttd=1 atau ttd=0 pada tombol PDF & Excel
         const nilaiTtd = tampilkan ? '1' : '0';
         const linkExcel = document.getElementById('linkExportExcel');
         const linkPdf   = document.getElementById('linkExportPdf');

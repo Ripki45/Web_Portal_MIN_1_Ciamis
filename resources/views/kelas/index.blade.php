@@ -4,6 +4,7 @@
 
 @section('content')
 
+    <!-- Breadcrumb Header -->
     <!-- Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <div>
@@ -11,6 +12,18 @@
             <span class="text-xs text-secondary-light">
                 Tahun Ajaran Aktif: <b class="text-success-600">{{ $tahunAktif->tahun_ajaran ?? '2026/2027' }} ({{ $tahunAktif->semester ?? 'Ganjil' }})</b>
             </span>
+            <ul class="d-flex align-items-center gap-2">
+                <li class="fw-medium">
+                    <a href="{{ route('dashboard') }}" class="d-flex align-items-center gap-1 hover-text-primary">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="fw-medium">Manajemen Kelas & Kelas</li>
+                <li>-</li>
+                <li class="fw-medium text-primary-600">Manajemen Kelas</li>
+            </ul>
         </div>
 
         <div class="d-flex align-items-center gap-2 flex-wrap">

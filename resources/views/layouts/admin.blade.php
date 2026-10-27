@@ -1,88 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
-
-<!-- main css -->
-  <link rel="stylesheet" href="{{ asset('backend/assets/css/style.css') }}">
-
-  <!-- Override Warna Biru menjadi Hijau MIN 1 Ciamis -->
-  <style>
-    :root, [data-theme="light"], [data-theme="dark"] {
-      --primary-50:  #f0fdf4 !important;
-      --primary-100: #dcfce7 !important;
-      --primary-200: #bbf7d0 !important;
-      --primary-300: #86efac !important;
-      --primary-400: #4ade80 !important;
-      --primary-500: #22c55e !important;
-      --primary-600: #16a34a !important; /* Warna Hijau Utama dari kode yang kamu temukan */
-      --primary-700: #15803d !important;
-      --primary-800: #166534 !important;
-      --primary-900: #14532d !important;
-    }
-  </style>
-
-  <style>
-    :root, [data-theme="light"], [data-theme="dark"] {
-      --primary-50:  #f0fdf4 !important;
-      --primary-100: #dcfce7 !important;
-      --primary-200: #bbf7d0 !important;
-      --primary-300: #86efac !important;
-      --primary-400: #4ade80 !important;
-      --primary-500: #22c55e !important;
-      --primary-600: #16a34a !important;
-      --primary-700: #15803d !important;
-      --primary-800: #166534 !important;
-      --primary-900: #14532d !important;
-    }
-
-    /* Merapikan & Mengecilkan Ukuran SweetAlert2 */
-    .swal2-popup {
-      width: 24em !important; /* Lebar kotak lebih ramping (defaultnya 32em) */
-      padding: 1.25rem !important;
-      border-radius: 12px !important;
-    }
-    .swal2-icon {
-      transform: scale(0.8); /* Mengecilkan ikon tanda seru/centang */
-      margin: 0.5em auto 0.2em !important;
-    }
-    .swal2-title {
-      font-size: 1.25rem !important; /* Ukuran judul normal (sekitar 20px) */
-      font-weight: 600 !important;
-      padding-top: 0.2em !important;
-    }
-    .swal2-html-container {
-      font-size: 0.9rem !important; /* Ukuran teks deskripsi lebih manis */
-      margin: 0.5em 1em 0 !important;
-    }
-    .swal2-actions {
-      margin-top: 1.25rem !important;
-      gap: 8px;
-    }
-    .swal2-styled {
-      font-size: 0.875rem !important; /* Ukuran tombol lebih proporsional */
-      padding: 8px 18px !important;
-      border-radius: 8px !important;
-    }
-  </style>
-
-  <style>
-    /* Kursor Tangan Saat Menggeser Tabel */
-    .table-responsive {
-        cursor: grab;
-    }
-    .table-responsive.active-drag {
-        cursor: grabbing !important;
-        user-select: none;
-    }
-  </style>
-</head>
-
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title', 'Dashboard') - Sistem Informasi MIN 1 Ciamis</title>
   
   <link rel="icon" type="image/png" href="{{ asset('backend/assets/images/favicon.png') }}" sizes="16x16">
-  <!-- Semua CSS dari _template-top.php -->
   <link rel="stylesheet" href="{{ asset('backend/assets/css/remixicon.css') }}">
   <link rel="stylesheet" href="{{ asset('backend/assets/css/lib/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ asset('backend/assets/css/lib/apexcharts.css') }}">
@@ -99,10 +22,63 @@
   <link rel="stylesheet" href="{{ asset('backend/assets/css/lib/file-upload.css') }}">
   <link rel="stylesheet" href="{{ asset('backend/assets/css/lib/audioplayer.css') }}">
   <link rel="stylesheet" href="{{ asset('backend/assets/css/style.css') }}">
+
+  <!-- Override Warna Biru menjadi Hijau MIN 1 Ciamis & Custom UI -->
+  <style>
+    :root, [data-theme="light"], [data-theme="dark"] {
+      --primary-50:  #f0fdf4 !important;
+      --primary-100: #dcfce7 !important;
+      --primary-200: #bbf7d0 !important;
+      --primary-300: #86efac !important;
+      --primary-400: #4ade80 !important;
+      --primary-500: #22c55e !important;
+      --primary-600: #16a34a !important;
+      --primary-700: #15803d !important;
+      --primary-800: #166534 !important;
+      --primary-900: #14532d !important;
+    }
+
+    /* Merapikan & Mengecilkan Ukuran SweetAlert2 */
+    .swal2-popup {
+      width: 24em !important;
+      padding: 1.25rem !important;
+      border-radius: 12px !important;
+    }
+    .swal2-icon {
+      transform: scale(0.8);
+      margin: 0.5em auto 0.2em !important;
+    }
+    .swal2-title {
+      font-size: 1.25rem !important;
+      font-weight: 600 !important;
+      padding-top: 0.2em !important;
+    }
+    .swal2-html-container {
+      font-size: 0.9rem !important;
+      margin: 0.5em 1em 0 !important;
+    }
+    .swal2-actions {
+      margin-top: 1.25rem !important;
+      gap: 8px;
+    }
+    .swal2-styled {
+      font-size: 0.875rem !important;
+      padding: 8px 18px !important;
+      border-radius: 8px !important;
+    }
+
+    /* Kursor Tangan Saat Menggeser Tabel */
+    .table-responsive {
+        cursor: grab;
+    }
+    .table-responsive.active-drag {
+        cursor: grabbing !important;
+        user-select: none;
+    }
+  </style>
 </head>
 
 <body class="position-relative z-1">
-
 
   <!-- Sidebar -->
   @include('layouts.sidebar')
@@ -111,7 +87,7 @@
     <!-- Navbar / Header Atas -->
     @include('layouts.navbar')
 
-    <!-- Konten Utama Halaman (Di sinilah isi dari setiap halaman akan muncul dinamis) -->
+    <!-- Konten Utama Halaman -->
     <div class="dashboard-main-body">
         @yield('content')
     </div>
@@ -120,7 +96,7 @@
     @include('layouts.footer')
   </main>
 
-  <!-- Semua JS dari _template-bottom.php -->
+  <!-- Semua JS -->
   <script src="{{ asset('backend/assets/js/lib/jquery-3.7.1.min.js') }}"></script>
   <script src="{{ asset('backend/assets/js/lib/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('backend/assets/js/lib/apexcharts.min.js') }}"></script>
@@ -136,27 +112,22 @@
   <script src="{{ asset('backend/assets/js/lib/file-upload.js') }}"></script>
   <script src="{{ asset('backend/assets/js/lib/audioplayer.js') }}"></script>
   <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-
-  <!-- SweetAlert2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Script Global SweetAlert (Notifikasi & Konfirmasi Hapus) -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-        
-        // 1. Pop-up Otomatis saat Berhasil (Simpan / Edit / Hapus)
         @if (session('success'))
             Swal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
                 text: '{{ session("success") }}',
-                confirmButtonColor: '#16a34a', // Hijau MIN 1 Ciamis
+                confirmButtonColor: '#16a34a',
                 timer: 2500,
                 timerProgressBar: true
             });
         @endif
 
-        // 2. Pop-up Otomatis saat Gagal / Error
         @if (session('error'))
             Swal.fire({
                 icon: 'error',
@@ -166,10 +137,9 @@
             });
         @endif
 
-        // 3. Konfirmasi Sebelum Menghapus Data (Bekerja di dalam DataTable juga)
         document.body.addEventListener('submit', function (e) {
             if (e.target && e.target.classList.contains('form-delete')) {
-                e.preventDefault(); // Tahan dulu proses hapusnya
+                e.preventDefault();
                 const form = e.target;
                 const itemName = form.getAttribute('data-nama') || 'data ini';
 
@@ -178,24 +148,23 @@
                     html: `Data <b>"${itemName}"</b> yang dihapus tidak dapat dikembalikan!`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#dc2626', // Merah
-                    cancelButtonColor: '#6b7280',  // Abu-abu
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
                     confirmButtonText: 'Ya, Hapus!',
                     cancelButtonText: 'Batal',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        form.submit(); // Lanjutkan hapus jika user klik "Ya, Hapus!"
+                        form.submit();
                     }
                 });
             }
         });
-
     });
   </script>
 
+  <!-- Fitur Global: Klik Tahan & Geser Tabel ke Kanan/Kiri dengan Mouse -->
   <script>
-    // Fitur Global: Klik Tahan & Geser Tabel ke Kanan/Kiri dengan Mouse
     document.addEventListener('DOMContentLoaded', function () {
         const sliders = document.querySelectorAll('.table-responsive');
         sliders.forEach(slider => {
@@ -204,7 +173,6 @@
             let scrollLeft;
 
             slider.addEventListener('mousedown', (e) => {
-                // Jangan geser jika yang diklik adalah tombol, input, select, atau checkbox
                 if (['BUTTON', 'INPUT', 'SELECT', 'A', 'LABEL'].includes(e.target.tagName)) return;
                 isDown = true;
                 slider.classList.add('active-drag');
@@ -226,14 +194,13 @@
                 if (!isDown) return;
                 e.preventDefault();
                 const x = e.pageX - slider.offsetLeft;
-                const walk = (x - startX) * 1.5; // Kecepatan geser
+                const walk = (x - startX) * 1.5;
                 slider.scrollLeft = scrollLeft - walk;
             });
         });
     });
   </script>
 
-  <!-- Tempat untuk script JS khusus per halaman (misal: script chart untuk dashboard) -->
   @stack('scripts')
 
 </body>
