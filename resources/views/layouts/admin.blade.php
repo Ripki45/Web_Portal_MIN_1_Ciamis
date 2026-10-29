@@ -37,6 +37,29 @@
       --primary-800: #166534 !important;
       --primary-900: #14532d !important;
     }
+    /* 1. Buat area body dashboard transparan agar bias warna tidak terpotong di bawah navbar */
+    .dashboard-main,
+    .dashboard-main-body {
+        background: transparent !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* 2. Pancarkan bias warna kuning hangat & biru/hijau lembut ke seluruh latar belakang */
+    /* 2. Bias Kuning Hangat Full di Atas -> Melebur Halus ke Putih Bersih di Bawah */
+    body {
+        background-color: #ffffff !important;
+        background-image: linear-gradient(
+            180deg,
+            rgba(253, 230, 138, 0.55) 0%,    /* Kuning hangat merata full di bagian paling atas */
+            rgba(254, 243, 199, 0.35) 22%,   /* Kuning lembut di area judul & atas kartu */
+            rgba(255, 251, 235, 0.15) 48%,   /* Transisi krem tipis di bagian tengah */
+            #ffffff 75%,                     /* Masuk ke putih bersih */
+            #ffffff 100%                     /* Putih bersih penuh sampai bagian paling bawah */
+        ) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
 
     /* Merapikan & Mengecilkan Ukuran SweetAlert2 */
     .swal2-popup {
@@ -74,6 +97,97 @@
     .table-responsive.active-drag {
         cursor: grabbing !important;
         user-select: none;
+    }
+    /* 1. Perbaiki Ketebalan Navbar (Atas-Bawah Seimbang) & Kunci Agar Tidak Ditembus Konten */
+    .navbar-header {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        padding-top: 14px !important;
+        padding-bottom: 14px !important;
+        min-height: 76px !important;
+        display: flex !important;
+        align-items: center !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+    }
+
+    /* Warna Navbar saat Mode Terang (Menyatu dengan Bias Kuning Hangat) */
+    html[data-theme="light"] .navbar-header {
+        background: rgba(254, 243, 199, 0.65) !important;
+        border-bottom: 1px solid rgba(253, 230, 138, 0.5) !important;
+    }
+
+    /* Warna Navbar saat Mode Malam (Gelap Elegan & Rapi) */
+    html[data-theme="dark"] .navbar-header {
+        background: rgba(15, 23, 42, 0.88) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* 2. Kontainer Utama Dashboard */
+    .dashboard-main,
+    .dashboard-main-body {
+        background: transparent !important;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* 3. Background Bias Kuning Hangat ke Putih (KHUSUS MODE TERANG) */
+    html[data-theme="light"] body {
+        background-color: #ffffff !important;
+        background-image: linear-gradient(
+            180deg,
+            rgba(253, 230, 138, 0.55) 0%,
+            rgba(254, 243, 199, 0.35) 22%,
+            rgba(255, 251, 235, 0.15) 48%,
+            #ffffff 75%,
+            #ffffff 100%
+        ) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    /* 4. Background Gelap Berbias Halus (KHUSUS MODE MALAM / DARK MODE) */
+    html[data-theme="dark"] body {
+        background-color: #0f172a !important;
+        background-image: linear-gradient(
+            180deg,
+            rgba(22, 101, 52, 0.25) 0%,
+            rgba(30, 41, 59, 0.6) 30%,
+            #0f172a 75%,
+            #0f172a 100%
+        ) !important;
+        background-attachment: fixed !important;
+        min-height: 100vh;
+    }
+
+    /* ==========================================
+      PERBAIKAN POSISI NAVBAR KANAN
+      ========================================== */
+    /* Navbar menggunakan seluruh lebar yang tersedia */
+    .navbar-header {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    /* Kontainer isi navbar */
+    .navbar-header > .row,
+    .navbar-header > .container-fluid {
+        width: 100% !important;
+    }
+    /* Dorong kelompok ikon dan profil ke kanan */
+    .navbar-header .navbar-header-right {
+        margin-left: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+    /* Jaga jarak antar ikon tetap rapi */
+    .navbar-header .navbar-header-right .d-flex {
+        align-items: center !important;
+    }
+    /* Pastikan profil tidak terpotong */
+    .navbar-header .navbar-header-right .dropdown {
+        flex-shrink: 0;
     }
   </style>
 </head>

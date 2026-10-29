@@ -17,9 +17,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 // ROUTE HALAMAN DEPAN PRESENSI (TANPA LOGIN: SCANNER & INPUT SAKIT/IZIN/ALFA GURU)
 Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
 Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])->name('presensi.prosesScan');
