@@ -162,5 +162,82 @@ class User extends Authenticatable
             default          => 'Super Admin',
         };
     }
+
+    /**
+     * Mengambil array ID kelas yang diampu oleh Guru (baik sebagai Wali Kelas maupun Guru Mapel)
+     */
+    public function getKelasAmpuanIds(): array
+    {
+        $gtkId = $this->gtk_id;
+
+        // Fallback otomatis: jika gtk_id belum dipilih di menu Role, cari berdasarkan kecocokan nama
+        if (!$gtkId && !empty($this->name)) {
+            $gtkId = \App\Models\Gtk::where('nama_lengkap', 'like', '%' . trim($this->name) . '%')->value('id');
+        }
+
+        if (!$gtkId) {
+            return [];
+        }
+
+        $waliIds  = \App\Models\Kelas::where('wali_kelas_id', $gtkId)->pluck('id')->toArray();
+        $mapelIds = \App\Models\KelasMapel::where('guru_id', $gtkId)->pluck('kelas_id')->toArray();
+
+        return array_values(array_unique(array_merge($waliIds, $mapelIds)));
+    }
+
+    /**
+     * Mengambil koleksi Kelas yang boleh diakses oleh user saat ini
+     */
+    public function getDaftarKelasAmpuan()
+    {
+        if (in_array($this->role, ['superadmin', 'admin']) || empty($this->role)) {
+            return \App\Models\Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        }
+
+        $ids = $this->getKelasAmpuanIds();
+        return \App\Models\Kelas::with('waliKelas')
+            ->whereIn('id', $ids)
+            ->orderBy('tingkat', 'asc')
+            ->orderBy('nama_kelas', 'asc')
+            ->get();
+    }
+
+    /**
+     * Mengambil array ID Ekstrakurikuler yang dibina oleh Pembina Ekskul
+     */
+    public function getEkskulBinaanIds(): array
+    {
+        $gtkId = $this->gtk_id;
+
+        // Fallback otomatis: jika gtk_id belum dipilih, cari berdasarkan kecocokan nama di tabel GTK
+        if (!$gtkId && !empty($this->name)) {
+            $gtkId = \App\Models\Gtk::where('nama_lengkap', 'like', '%' . trim($this->name) . '%')->value('id');
+        }
+
+        if (!$gtkId) {
+            return [];
+        }
+
+        return \App\Models\Ekskul::where('pembina_id', $gtkId)->pluck('id')->toArray();
+    }
+
+    /**
+     * Mengambil koleksi Ekstrakurikuler yang boleh diakses oleh user saat ini
+     */
+    public function getDaftarEkskulBinaan()
+    {
+        if (in_array($this->role, ['superadmin', 'admin']) || empty($this->role)) {
+            return \App\Models\Ekskul::with('pembina')
+                ->where('status', 'Aktif')
+                ->orderBy('nama_ekskul', 'asc')
+                ->get();
+        }
+
+        $ids = $this->getEkskulBinaanIds();
+        return \App\Models\Ekskul::with('pembina')
+            ->whereIn('id', $ids)
+            ->orderBy('nama_ekskul', 'asc')
+            ->get();
+    }
     
 }

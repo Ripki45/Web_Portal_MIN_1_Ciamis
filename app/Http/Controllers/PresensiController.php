@@ -154,10 +154,19 @@ class PresensiController extends Controller
      */
     public function scanner(Request $request)
     {
-        $tanggal          = Carbon::now('Asia/Jakarta')->format('Y-m-d');
-        $kategori         = $request->get('kategori', 'harian');
-        $ekskuls          = Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
-        $selectedEkskulId = $request->get('ekskul_id', $ekskuls->first()->id ?? null);
+        $user      = auth()->user();
+        $isPembina = $user && $user->role === 'pembina_ekskul';
+
+        $tanggal  = Carbon::now('Asia/Jakarta')->format('Y-m-d');
+        $kategori = $isPembina ? 'ekskul' : $request->get('kategori', 'harian');
+       $ekskuls = $isPembina
+            ? $user->getDaftarEkskulBinaan()
+            : Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
+        $allowedEkskulIds = $ekskuls->pluck('id')->toArray();
+        $reqEkskul        = $request->get('ekskul_id');
+        $selectedEkskulId = ($reqEkskul && in_array($reqEkskul, $allowedEkskulIds))
+            ? $reqEkskul
+            : ($ekskuls->first()->id ?? null);
 
         $operasional = $this->cekStatusOperasional($tanggal, $kategori, $selectedEkskulId);
         $setting     = $operasional['setting'];
@@ -434,10 +443,15 @@ class PresensiController extends Controller
      */
     public function index(Request $request)
     {
+        $user            = auth()->user();
+        $isGuru          = $user && $user->role === 'guru';
         $tanggal         = $request->get('tanggal', Carbon::now('Asia/Jakarta')->format('Y-m-d'));
-        $kelasList       = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        $kelasList       = $user ? $user->getDaftarKelasAmpuan() : Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
         $tahunAktif      = TahunAjaran::where('is_active', true)->first();
-        $selectedKelasId = $request->get('kelas_id', $kelasList->first()->id ?? null);
+
+        $allowedIds      = $kelasList->pluck('id')->toArray();
+        $reqKelas        = $request->get('kelas_id');
+        $selectedKelasId = ($reqKelas && in_array($reqKelas, $allowedIds)) ? $reqKelas : ($kelasList->first()->id ?? null);
 
         $operasional = $this->cekStatusOperasional($tanggal);
         $setting     = $operasional['setting'];
@@ -620,8 +634,15 @@ class PresensiController extends Controller
     {
         $this->pastikanKolomPengaturanLengkap();
 
-        $kelasList  = Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
-        $ekskulList = Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
+        $user       = auth()->user();
+        $isGuru    = $user && $user->role === 'guru';
+        $isPembina = $user && $user->role === 'pembina_ekskul';
+        $kelasList  = $user ? $user->getDaftarKelasAmpuan() : Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        $allowedIds = $kelasList->pluck('id')->toArray();
+        $reqKelas   = $request->get('kelas_id');
+        $ekskulList = $isPembina
+            ? $user->getDaftarEkskulBinaan()
+            : Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
 
         // Tentukan Bulan & Tahun Default berdasarkan Tahun Ajaran Aktif (bukan bulan kalender berjalan!)
@@ -632,20 +653,28 @@ class PresensiController extends Controller
             if (!empty($tahunAktif->bulan_mulai)) {
                 $defaultBulan = (int) $tahunAktif->bulan_mulai;
             } elseif (stripos($tahunAktif->semester ?? '', 'Genap') !== false) {
-                $defaultBulan = 1; // Semester Genap dimulai Januari
+                $defaultBulan = 1;
             } else {
-                $defaultBulan = 7; // Semester Ganjil dimulai Juli
+                $defaultBulan = 7;
             }
 
-            // Ambil tahun dari string Tahun Ajaran (misal "2026/2027" -> Ganjil: 2026, Genap: 2027)
             if (preg_match('/(\d{4})\s*\/\s*(\d{4})/', $tahunAktif->tahun_ajaran ?? '', $mTahun)) {
                 $defaultTahun = ($defaultBulan >= 7) ? (int) $mTahun[1] : (int) $mTahun[2];
             }
         }
 
-        $kategori         = $request->get('kategori', 'harian');
-        $selectedKelasId  = $request->get('kelas_id', $kelasList->first()->id ?? null);
-        $selectedEkskulId = $request->get('ekskul_id', $ekskulList->first()->id ?? null);
+        $kategori = $request->get('kategori', 'harian');
+            if ($isPembina) {
+                $kategori = 'ekskul';
+            } elseif ($isGuru && $kategori === 'ekskul') {
+                $kategori = 'harian';
+            }
+        $allowedKelasIds  = $kelasList->pluck('id')->toArray();
+        $reqKelas         = $request->get('kelas_id');
+        $selectedKelasId  = ($reqKelas && in_array($reqKelas, $allowedKelasIds)) ? $reqKelas : ($kelasList->first()->id ?? null);
+        $allowedEkskulIds = $ekskulList->pluck('id')->toArray();
+        $reqEkskul        = $request->get('ekskul_id');
+        $selectedEkskulId = ($reqEkskul && in_array($reqEkskul, $allowedEkskulIds)) ? $reqEkskul : ($ekskulList->first()->id ?? null);
         $bulan            = (int) $request->get('bulan', $defaultBulan);
         $tahun            = (int) $request->get('tahun', $defaultTahun);
         $selectedMapelId  = $request->get('kelas_mapel_id', '');

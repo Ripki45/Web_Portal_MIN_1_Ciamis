@@ -270,37 +270,70 @@
     <!-- Filter Kategori Sesi, Kelas, Penandatangan, Bulan, & Tahun -->
     <div class="card radius-12 mb-20">
         <div class="card-body p-16">
+            @php
+                $userRekap      = auth()->user();
+                $isGuruRekap    = $userRekap && $userRekap->role === 'guru';
+                $isPembinaRekap = $userRekap && $userRekap->role === 'pembina_ekskul';
+            @endphp
             <form action="{{ route('presensi.rekap') }}" method="GET" class="row gy-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold text-xs mb-4">Kategori Sesi Presensi:</label>
-                    <select name="kategori" class="form-select form-select-sm radius-8 fw-bold border-primary" onchange="this.form.submit()">
-                        <option value="harian" {{ ($kategori ?? 'harian') == 'harian' ? 'selected' : '' }}>🏫 1. Kehadiran Harian (KBM)</option>
-                        <option value="shalat" {{ ($kategori ?? '') == 'shalat' ? 'selected' : '' }}>🕌 2. Shalat Dzuhur Berjamaah</option>
-                        <option value="ekskul" {{ ($kategori ?? '') == 'ekskul' ? 'selected' : '' }}>⛺ 3. Kegiatan Ekstrakurikuler</option>
-                    </select>
+                    @if ($isPembinaRekap)
+                        {{-- Jika Pembina Ekskul: Kunci Kategori ke Ekstrakurikuler Tanpa Dropdown --}}
+                        <label class="form-label fw-semibold text-xs mb-4">Kategori Sesi Presensi:</label>
+                        <input type="hidden" name="kategori" value="ekskul">
+                        <div class="form-control form-control-sm radius-8 bg-warning-focus text-warning-main border-warning fw-bold">
+                            ⛺ Kegiatan Ekstrakurikuler
+                        </div>
+                    @else
+                        <label class="form-label fw-semibold text-xs mb-4">Kategori Sesi Presensi:</label>
+                        <select name="kategori" class="form-select form-select-sm radius-8 fw-bold border-primary" onchange="this.form.submit()">
+                            <option value="harian" {{ ($kategori ?? 'harian') == 'harian' ? 'selected' : '' }}>🏫 1. Kehadiran Harian (KBM)</option>
+                            <option value="shalat" {{ ($kategori ?? '') == 'shalat' ? 'selected' : '' }}>🕌 2. Shalat Dzuhur Berjamaah</option>
+                            @if (!$isGuruRekap)
+                                <option value="ekskul" {{ ($kategori ?? '') == 'ekskul' ? 'selected' : '' }}>⛺ 3. Kegiatan Ekstrakurikuler</option>
+                            @endif
+                        </select>
+                    @endif
                 </div>
 
                 @if (($kategori ?? 'harian') === 'ekskul')
                     <div class="col-md-5">
-                        <label class="form-label fw-semibold text-xs mb-4">Pilih Kegiatan Ekstrakurikuler:</label>
-                        <select name="ekskul_id" class="form-select form-select-sm radius-8 fw-bold text-warning-main" onchange="this.form.submit()">
-                            <?php foreach (($ekskulList ?? []) as $eks): ?>
-                                <option value="{{ $eks->id }}" {{ ($selectedEkskulId ?? '') == $eks->id ? 'selected' : '' }}>
-                                    {{ $eks->nama_ekskul }} (Pembina: {{ $eks->pembina->nama_lengkap ?? '-' }})
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        @if ($isPembinaRekap && ($ekskulList ?? collect())->count() <= 1)
+                            {{-- Jika Pembina hanya memegang 1 Ekskul: Kunci Tanpa Dropdown --}}
+                            <label class="form-label fw-semibold text-xs mb-4">Ekstrakurikuler Dibina:</label>
+                            <input type="hidden" name="ekskul_id" value="{{ $selectedEkskulId }}">
+                            <div class="form-control form-control-sm radius-8 bg-primary-50 text-primary-600 border-primary fw-bold">
+                                {{ $ekskulTerpilih->nama_ekskul ?? 'Belum Diplot' }} (Pembina: {{ $ekskulTerpilih->pembina->nama_lengkap ?? '-' }})
+                            </div>
+                        @else
+                            <label class="form-label fw-semibold text-xs mb-4">Pilih Kegiatan Ekstrakurikuler:</label>
+                            <select name="ekskul_id" class="form-select form-select-sm radius-8 fw-bold text-warning-main" onchange="this.form.submit()">
+                                <?php foreach (($ekskulList ?? []) as $eks): ?>
+                                    <option value="{{ $eks->id }}" {{ ($selectedEkskulId ?? '') == $eks->id ? 'selected' : '' }}>
+                                        {{ $eks->nama_ekskul }} (Pembina: {{ $eks->pembina->nama_lengkap ?? '-' }})
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        @endif
                     </div>
                 @else
                     <div class="col-md-2">
-                        <label class="form-label fw-semibold text-xs mb-4">Pilih Kelas:</label>
-                        <select name="kelas_id" class="form-select form-select-sm radius-8 fw-bold" onchange="this.form.submit()">
-                            <?php foreach ($kelasList as $kls): ?>
-                                <option value="{{ $kls->id }}" {{ $selectedKelasId == $kls->id ? 'selected' : '' }}>
-                                    {{ $kls->nama_kelas }}
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        @if ($isGuruRekap && $kelasList->count() <= 1)
+                            <label class="form-label fw-semibold text-xs mb-4">Kelas Diampu:</label>
+                            <input type="hidden" name="kelas_id" value="{{ $selectedKelasId }}">
+                            <div class="form-control form-control-sm radius-8 bg-primary-50 text-primary-600 border-primary fw-bold">
+                                {{ $kelasTerpilih->nama_kelas ?? '-' }}
+                            </div>
+                        @else
+                            <label class="form-label fw-semibold text-xs mb-4">{{ $isGuruRekap ? 'Kelas Ampuan:' : 'Pilih Kelas:' }}</label>
+                            <select name="kelas_id" class="form-select form-select-sm radius-8 fw-bold" onchange="this.form.submit()">
+                                <?php foreach ($kelasList as $kls): ?>
+                                    <option value="{{ $kls->id }}" {{ $selectedKelasId == $kls->id ? 'selected' : '' }}>
+                                        {{ $kls->nama_kelas }}
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        @endif
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-semibold text-xs mb-4">Penandatangan (Wali / Guru Mapel):</label>

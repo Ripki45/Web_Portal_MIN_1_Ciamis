@@ -12,14 +12,29 @@ class SiswaController extends Controller
 {
     public function index(Request $request)
     {
+        $user       = auth()->user();
+        $isGuru     = $user && $user->role === 'guru';
         $tahunAktif = \App\Models\TahunAjaran::where('is_active', true)->first();
-        $kelasList  = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
-        
-        // 1. Query Siswa Aktif (Tab 1) dengan filter Kelas jika dipilih
+
+        // 1. Ambil daftar kelas sesuai Role (Semua kelas untuk Admin, hanya kelas ampuan untuk Guru)
+        $kelasList = $user ? $user->getDaftarKelasAmpuan() : Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+
         $query = Siswa::with('kelas')->where('status', 'Aktif');
-        
-        if ($request->filled('kelas_id')) {
-            $query->where('kelas_id', $request->kelas_id);
+        $selectedKelasId = $request->get('kelas_id');
+
+        if ($isGuru) {
+            $allowedIds = $kelasList->pluck('id')->toArray();
+
+            // Jika guru belum memilih kelas atau mencoba akses kelas lain, kunci ke kelas pertamanya
+            if (empty($selectedKelasId) || !in_array($selectedKelasId, $allowedIds)) {
+                $selectedKelasId = $kelasList->first()->id ?? 0;
+            }
+
+            $query->where('kelas_id', $selectedKelasId);
+        } else {
+            if (!empty($selectedKelasId)) {
+                $query->where('kelas_id', $selectedKelasId);
+            }
         }
 
         $siswas = $query->orderBy('kelas_id', 'asc')->orderBy('nama_siswa', 'asc')->get();
@@ -27,28 +42,32 @@ class SiswaController extends Controller
         $totalL = $siswas->where('jenis_kelamin', 'L')->count();
         $totalP = $siswas->where('jenis_kelamin', 'P')->count();
 
-        // 2. Data Buku Mutasi Masuk (Tab 2)
-        $mutasiMasuk = \App\Models\MutasiSiswa::with(['siswa', 'kelasTujuan'])
-            ->where('jenis_mutasi', 'Masuk')
-            ->latest('id')
-            ->get();
+        // 2. Data Buku Mutasi Masuk & Keluar (Hanya dimuat untuk Superadmin / Admin TU)
+        $mutasiMasuk     = collect();
+        $mutasiKeluar    = collect();
+        $siswaAktifSemua = collect();
 
-        // 3. Data Buku Mutasi Keluar (Tab 3)
-        $mutasiKeluar = \App\Models\MutasiSiswa::with(['siswa'])
-            ->where('jenis_mutasi', 'Keluar')
-            ->latest('id')
-            ->get();
+        if (!$isGuru) {
+            $mutasiMasuk = \App\Models\MutasiSiswa::with(['siswa', 'kelasTujuan'])
+                ->where('jenis_mutasi', 'Masuk')
+                ->latest('id')
+                ->get();
 
-        // Daftar seluruh siswa aktif untuk pilihan dropdown pada Modal Mutasi Keluar
-        $siswaAktifSemua = Siswa::with('kelas')
-            ->where('status', 'Aktif')
-            ->orderBy('kelas_id', 'asc')
-            ->orderBy('nama_siswa', 'asc')
-            ->get();
+            $mutasiKeluar = \App\Models\MutasiSiswa::with(['siswa'])
+                ->where('jenis_mutasi', 'Keluar')
+                ->latest('id')
+                ->get();
+
+            $siswaAktifSemua = Siswa::with('kelas')
+                ->where('status', 'Aktif')
+                ->orderBy('kelas_id', 'asc')
+                ->orderBy('nama_siswa', 'asc')
+                ->get();
+        }
 
         return view('siswa.index', compact(
-            'tahunAktif', 'siswas', 'kelasList', 'totalL', 'totalP',
-            'mutasiMasuk', 'mutasiKeluar', 'siswaAktifSemua'
+            'tahunAktif', 'siswas', 'kelasList', 'selectedKelasId', 'totalL', 'totalP',
+            'mutasiMasuk', 'mutasiKeluar', 'siswaAktifSemua', 'isGuru'
         ));
     }
 
@@ -126,7 +145,6 @@ class SiswaController extends Controller
             'status'         => $request->status,
         ];
 
-        // Jika upload pasfoto siswa baru
         if ($request->hasFile('foto')) {
             if ($siswa->foto && Storage::disk('public')->exists($siswa->foto)) {
                 Storage::disk('public')->delete($siswa->foto);
@@ -141,6 +159,10 @@ class SiswaController extends Controller
 
     public function destroy(Siswa $siswa)
     {
+        if (auth()->user()->role === 'guru') {
+            return redirect()->back()->with('error', 'Guru tidak diizinkan menghapus data induk siswa!');
+        }
+
         if ($siswa->foto && Storage::disk('public')->exists($siswa->foto)) {
             Storage::disk('public')->delete($siswa->foto);
         }
@@ -149,11 +171,12 @@ class SiswaController extends Controller
         return redirect()->back()->with('success', 'Data siswa berhasil dihapus!');
     }
 
-    /**
-     * HAPUS BANYAK DATA SISWA SEKALIGUS (FITUR CEKLIS)
-     */
     public function bulkDestroy(Request $request)
     {
+        if (auth()->user()->role === 'guru') {
+            return redirect()->back()->with('error', 'Guru tidak diizinkan menghapus data induk siswa!');
+        }
+
         $ids = $request->input('ids', []);
         if (empty($ids)) {
             return redirect()->back()->with('error', 'Pilih minimal 1 data siswa yang ingin dihapus!');
@@ -170,10 +193,6 @@ class SiswaController extends Controller
         return redirect()->back()->with('success', count($siswas) . ' Data siswa terpilih berhasil dihapus!');
     }
 
-    /**
-     * FITUR SMART COPY-PASTE DARI EXCEL / GOOGLE SHEETS
-     * Membaca blok kolom A s/d K atau B s/d K langsung dari tabel Excel MIN 1 Ciamis
-     */
     public function importPaste(Request $request)
     {
         $request->validate([
@@ -187,10 +206,7 @@ class SiswaController extends Controller
         foreach ($lines as $line) {
             if (empty(trim($line))) continue;
 
-            // Pisahkan berdasarkan karakter Tab (\t) dari Excel
             $cols = explode("\t", $line);
-
-            // Deteksi apakah user ikut memblok Kolom A (Nomor Urut 1, 2, 3...) atau mulai dari Kolom B (INDUK)
             $firstCol = trim($cols[0] ?? '');
             $offset = (is_numeric($firstCol) && strlen($firstCol) <= 4) ? 1 : 0;
 
@@ -205,10 +221,8 @@ class SiswaController extends Controller
             $alamat     = trim($cols[$offset + 8] ?? '');
             $pekerjaan  = trim($cols[$offset + 9] ?? '');
 
-            // Lewati jika baris kosong
             if (empty($namaSiswa)) continue;
 
-            // Konversi format tanggal Excel
             $tglLahir = $this->parseTanggalIndo($tglRaw);
 
             Siswa::create([
