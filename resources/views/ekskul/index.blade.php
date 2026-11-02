@@ -1,37 +1,47 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Ekstrakurikuler - MIN 1 Ciamis')
+@php
+    $isPembina = $isPembina ?? (auth()->check() && auth()->user()->role === 'pembina_ekskul');
+@endphp
+
+@section('title', $isPembina ? 'Ekstrakurikuler Binaan Saya - MIN 1 Ciamis' : 'Manajemen Ekstrakurikuler - MIN 1 Ciamis')
 
 @section('content')
 
     <!-- Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <div>
-            <h6 class="fw-semibold mb-1">Manajemen Ekstrakurikuler Madrasah</h6>
-            <span class="text-xs text-secondary-light">Kelola kegiatan Pramuka, Keagamaan, Olahraga (Voli, Futsal), Kesenian, & Daftar Anggotanya</span>
+            <h6 class="fw-semibold mb-1">
+                {{ $isPembina ? 'Manajemen Ekstrakurikuler Binaan Anda' : 'Manajemen Ekstrakurikuler Madrasah' }}
+            </h6>
+            <span class="text-xs text-secondary-light">
+                {{ $isPembina ? 'Kelola jadwal latihan, jam buka presensi QR, dan daftar anggota ekstrakurikuler yang Anda bina' : 'Kelola kegiatan Pramuka, Keagamaan, Olahraga (Voli, Futsal), Kesenian, & Daftar Anggotanya' }}
+            </span>
         </div>
 
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <!-- Form Hapus Banyak Ekskul -->
-            <form action="{{ route('ekskul.bulkDestroy') }}" method="POST" id="formBulkDeleteEkskul" class="d-inline">
-                @csrf
-                <div id="hiddenIdsEkskul"></div>
-                <button type="button" id="btnBulkEkskul" onclick="konfirmasiHapusBanyakEkskul()" class="btn btn-danger-600 radius-8 px-14 py-9 d-none align-items-center gap-2 text-sm fw-bold">
-                    <i class="ph-bold ph-trash text-lg"></i> Hapus Terpilih (<span id="countSelectedEkskul">0</span>)
+        {{-- Tombol Tambah & Hapus Massal HANYA Muncul untuk Superadmin & Admin TU --}}
+        @if (!$isPembina)
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <form action="{{ route('ekskul.bulkDestroy') }}" method="POST" id="formBulkDeleteEkskul" class="d-inline">
+                    @csrf
+                    <div id="hiddenIdsEkskul"></div>
+                    <button type="button" id="btnBulkEkskul" onclick="konfirmasiHapusBanyakEkskul()" class="btn btn-danger-600 radius-8 px-14 py-9 d-none align-items-center gap-2 text-sm fw-bold">
+                        <i class="ph-bold ph-trash text-lg"></i> Hapus Terpilih (<span id="countSelectedEkskul">0</span>)
+                    </button>
+                </form>
+
+                <button type="button" class="btn btn-primary-600 radius-8 px-16 py-9 d-flex align-items-center gap-2 text-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addEkskulModal">
+                    <i class="ph-bold ph-plus-circle text-lg"></i> + Tambah Ekstrakurikuler
                 </button>
-            </form>
-
-            <button type="button" class="btn btn-primary-600 radius-8 px-16 py-9 d-flex align-items-center gap-2 text-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addEkskulModal">
-                <i class="ph-bold ph-plus-circle text-lg"></i> + Tambah Ekstrakurikuler
-            </button>
-        </div>
+            </div>
+        @endif
     </div>
 
     <!-- Kartu Ringkasan Ekstrakurikuler -->
     @if ($ekskuls->isNotEmpty())
         <div class="row g-3 mb-24">
             <?php foreach ($ekskuls as $eks): ?>
-                <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="col-xxl-4 col-lg-4 col-sm-6">
                     <div class="card radius-16 border shadow-sm h-100 hover-border-success">
                         <div class="card-body p-20 d-flex flex-column justify-content-between">
                             <div>
@@ -45,17 +55,22 @@
                                     Pembina: <b class="text-primary-light">{{ $eks->pembina->nama_lengkap ?? 'Belum Ditentukan' }}</b>
                                 </span>
                                 <span class="text-xs text-secondary-light d-block mb-16">
-                                    Jadwal: <b>{{ $eks->hari_latihan ?: '-' }} {{ $eks->jam_latihan ? '(' . $eks->jam_latihan . ')' : '' }}</b>
+                                    Jadwal & Jam Scan: <b class="text-success-600">{{ $eks->hari_latihan ?: '-' }} {{ $eks->jam_latihan ? '(' . $eks->jam_latihan . ' WIB)' : '' }}</b>
                                 </span>
                             </div>
 
-                            <div class="pt-12 border-top d-flex align-items-center justify-content-between">
+                            <div class="pt-12 border-top d-flex flex-wrap align-items-center justify-content-between gap-2">
                                 <span class="badge bg-info-focus text-info-main fw-bold text-xs px-10 py-6">
-                                    {{ $eks->anggotas->count() }} Anggota Terdaftar
+                                    {{ $eks->anggotas->count() }} Anggota
                                 </span>
-                                <a href="{{ route('ekskul.show', $eks->id) }}" class="btn btn-primary-600 btn-sm radius-8 px-12 py-6 d-inline-flex align-items-center gap-1 fw-bold text-xs">
-                                    Kelola Anggota <i class="ph-bold ph-arrow-right"></i>
-                                </a>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a href="{{ route('presensi.scanner', ['kategori' => 'ekskul', 'ekskul_id' => $eks->id]) }}" target="_blank" class="btn btn-warning-600 btn-sm radius-8 px-10 py-6 d-inline-flex align-items-center gap-1 fw-bold text-xs">
+                                        <i class="ph-bold ph-qr-code"></i> Scan QR
+                                    </a>
+                                    <a href="{{ route('ekskul.show', $eks->id) }}" class="btn btn-primary-600 btn-sm radius-8 px-12 py-6 d-inline-flex align-items-center gap-1 fw-bold text-xs">
+                                        Kelola Anggota <i class="ph-bold ph-arrow-right"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -64,21 +79,23 @@
         </div>
     @endif
 
-    <!-- Tabel Daftar Ekstrakurikuler (Dengan Ceklis Hapus Massal) -->
+    <!-- Tabel Daftar Ekstrakurikuler -->
     <div class="card basic-data-table radius-12">
         <div class="card-body p-24">
             <div class="table-responsive">
                 <table class="table bordered-table mb-0" id="dataTableEkskul">
                     <thead>
                         <tr>
-                            <th width="4%" class="text-center">
-                                <input type="checkbox" class="form-check-input border-secondary cursor-pointer" id="checkAllEkskul">
-                            </th>
+                            @if (!$isPembina)
+                                <th width="4%" class="text-center">
+                                    <input type="checkbox" class="form-check-input border-secondary cursor-pointer" id="checkAllEkskul">
+                                </th>
+                            @endif
                             <th width="5%">No</th>
                             <th>Nama Ekstrakurikuler</th>
                             <th>Pembina / Pelatih</th>
                             <th>TTD Pembina</th>
-                            <th>Jadwal Latihan</th>
+                            <th>Jadwal & Jam Scan</th>
                             <th>Jumlah Anggota</th>
                             <th>Status</th>
                             <th class="text-center" width="14%">Aksi</th>
@@ -87,14 +104,16 @@
                     <tbody>
                         <?php foreach ($ekskuls as $idx => $eks): ?>
                             <tr>
-                                <td class="text-center">
-                                    <input type="checkbox" class="form-check-input check-item-ekskul border-secondary cursor-pointer" value="{{ $eks->id }}">
-                                </td>
+                                @if (!$isPembina)
+                                    <td class="text-center">
+                                        <input type="checkbox" class="form-check-input check-item-ekskul border-secondary cursor-pointer" value="{{ $eks->id }}">
+                                    </td>
+                                @endif
                                 <td>{{ $idx + 1 }}</td>
                                 <td class="fw-bold text-primary-light">{{ $eks->nama_ekskul }}</td>
                                 <td>
                                     <span class="fw-semibold d-block">{{ $eks->pembina->nama_lengkap ?? 'Belum Ditentukan' }}</span>
-                                    <span class="text-xs text-secondary-light">NIP: {{ $eks->pembina->nomor_induk ?? '-' }}</span>
+                                    <span class="text-xs text-secondary-light">NIP: {{ $eks->pembina->nip ?? $eks->pembina->nomor_induk ?? '-' }}</span>
                                 </td>
                                 <td>
                                     @if ($eks->pembina && $eks->pembina->ttd)
@@ -106,12 +125,12 @@
                                 <td class="text-xs fw-semibold">
                                     {{ $eks->hari_latihan ?: '-' }}
                                     @if ($eks->jam_latihan)
-                                        <span class="d-block text-secondary-light">{{ $eks->jam_latihan }}</span>
+                                        <span class="d-block text-success-600 fw-bold">{{ $eks->jam_latihan }} WIB</span>
                                     @endif
                                 </td>
                                 <td>
                                     <a href="{{ route('ekskul.show', $eks->id) }}" class="badge bg-primary-50 text-primary-600 fw-bold px-12 py-6">
-                                        {{ $eks->anggotas->count() }} Siswa (Lihat Daftar)
+                                        {{ $eks->anggotas->count() }} Siswa (Kelola Anggota)
                                     </a>
                                 </td>
                                 <td>
@@ -131,16 +150,18 @@
                                                 class="bg-success-focus text-success-600 w-34-px h-34-px rounded-circle d-flex align-items-center justify-content-center border-0"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#editEkskulModal{{ $eks->id }}"
-                                                title="Edit Ekskul">
+                                                title="{{ $isPembina ? 'Atur Hari & Jam Presensi' : 'Edit Ekskul' }}">
                                             <iconify-icon icon="lucide:edit"></iconify-icon>
                                         </button>
 
-                                        <button type="button"
-                                                onclick="hapusSatuEkskul('{{ route('ekskul.destroy', $eks->id) }}', '{{ addslashes($eks->nama_ekskul) }}')"
-                                                class="bg-danger-focus text-danger-600 w-34-px h-34-px rounded-circle d-flex align-items-center justify-content-center border-0"
-                                                title="Hapus Ekskul">
-                                            <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
-                                        </button>
+                                        @if (!$isPembina)
+                                            <button type="button"
+                                                    onclick="hapusSatuEkskul('{{ route('ekskul.destroy', $eks->id) }}', '{{ addslashes($eks->nama_ekskul) }}')"
+                                                    class="bg-danger-focus text-danger-600 w-34-px h-34-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                    title="Hapus Ekskul">
+                                                <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
+                                            </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -156,75 +177,77 @@
         @method('DELETE')
     </form>
 
-    <!-- Modal Tambah Ekskul -->
-    <div class="modal fade" id="addEkskulModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content radius-16 bg-base">
-                <div class="modal-header py-16 px-24 border-bottom">
-                    <h1 class="modal-title fs-5 fw-bold">Tambah Ekstrakurikuler Baru</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('ekskul.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-body p-24">
-                        <div class="row gy-3">
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold text-sm mb-6">Nama Ekstrakurikuler <span class="text-danger-600">*</span></label>
-                                <input type="text" name="nama_ekskul" class="form-control radius-8 fw-bold" placeholder="Contoh: Pramuka / Futsal / Voli / Keagamaan" required>
-                            </div>
-                            <div class="col-md-12">
-                                <label class="form-label fw-semibold text-sm mb-6">Pilih Pembina / Pelatih (Dari Master GTK)</label>
-                                <select name="pembina_id" class="form-select radius-8">
-                                    <option value="">-- Pilih Pembina Ekskul --</option>
-                                    <?php foreach ($gtks as $g): ?>
-                                        <option value="{{ $g->id }}">{{ $g->nama_lengkap }}</option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
-                                <select name="hari_latihan" class="form-select radius-8 fw-semibold">
-                                    <option value="Setiap Hari Kerja">Fleksibel (Senin - Sabtu)</option>
-                                    <option value="Senin">Senin</option>
-                                    <option value="Selasa">Selasa</option>
-                                    <option value="Rabu">Rabu</option>
-                                    <option value="Kamis">Kamis</option>
-                                    <option value="Jumat">Jumat</option>
-                                    <option value="Sabtu">Sabtu</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold text-sm mb-6">Status</label>
-                                <select name="status" class="form-select radius-8">
-                                    <option value="Aktif" selected>Aktif</option>
-                                    <option value="Tidak Aktif">Tidak Aktif</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Buka Presensi Ekskul</label>
-                                <input type="time" name="jam_mulai" class="form-control radius-8 fw-bold border-success" value="13:00" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Tutup Presensi Ekskul</label>
-                                <input type="time" name="jam_selesai" class="form-control radius-8 fw-bold border-success" value="16:30" required>
-                            </div>
-                            <div class="col-md-12">
-                                <small class="text-xs text-secondary-light">
-                                    * Scanner QR untuk ekskul ini otomatis terbuka sesuai rentang jam di atas (Default: 13:00 s/d 16:30 WIB).
-                                </small>
+    {{-- Modal Tambah Ekskul HANYA untuk Superadmin & Admin TU --}}
+    @if (!$isPembina)
+        <div class="modal fade" id="addEkskulModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content radius-16 bg-base">
+                    <div class="modal-header py-16 px-24 border-bottom">
+                        <h1 class="modal-title fs-5 fw-bold">Tambah Ekstrakurikuler Baru</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form action="{{ route('ekskul.store') }}" method="POST">
+                        @csrf
+                        <div class="modal-body p-24">
+                            <div class="row gy-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold text-sm mb-6">Nama Ekstrakurikuler <span class="text-danger-600">*</span></label>
+                                    <input type="text" name="nama_ekskul" class="form-control radius-8 fw-bold" placeholder="Contoh: Pramuka / Futsal / Voli / Keagamaan" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold text-sm mb-6">Pilih Pembina / Pelatih (Dari Master GTK)</label>
+                                    <select name="pembina_id" class="form-select radius-8">
+                                        <option value="">-- Pilih Pembina Ekskul --</option>
+                                        <?php foreach ($gtks as $g): ?>
+                                            <option value="{{ $g->id }}">{{ $g->nama_lengkap }}</option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
+                                    <select name="hari_latihan" class="form-select radius-8 fw-semibold">
+                                        <option value="Setiap Hari Kerja">Fleksibel (Senin - Sabtu)</option>
+                                        <option value="Senin">Senin</option>
+                                        <option value="Selasa">Selasa</option>
+                                        <option value="Rabu">Rabu</option>
+                                        <option value="Kamis">Kamis</option>
+                                        <option value="Jumat">Jumat</option>
+                                        <option value="Sabtu">Sabtu</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-sm mb-6">Status</label>
+                                    <select name="status" class="form-select radius-8">
+                                        <option value="Aktif" selected>Aktif</option>
+                                        <option value="Tidak Aktif">Tidak Aktif</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Buka Presensi Ekskul</label>
+                                    <input type="time" name="jam_mulai" class="form-control radius-8 fw-bold border-success" value="13:00" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Tutup Presensi Ekskul</label>
+                                    <input type="time" name="jam_selesai" class="form-control radius-8 fw-bold border-success" value="16:30" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <small class="text-xs text-secondary-light">
+                                        * Scanner QR untuk ekskul ini otomatis terbuka sesuai rentang jam di atas (Default: 13:00 s/d 16:30 WIB).
+                                    </small>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer px-24 pb-24 border-0">
-                        <button type="button" class="btn btn-secondary radius-8" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary-600 radius-8 fw-bold">Simpan Ekstrakurikuler</button>
-                    </div>
-                </form>
+                        <div class="modal-footer px-24 pb-24 border-0">
+                            <button type="button" class="btn btn-secondary radius-8" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary-600 radius-8 fw-bold">Simpan Ekstrakurikuler</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
+    @endif
 
-    <!-- Modal Edit Ekskul -->
+    <!-- Modal Edit Ekskul (Untuk Pembina: Fokus Atur Hari & Jam Latihan) -->
     <?php foreach ($ekskuls as $eks): ?>
         @php
             $jamParts = explode('-', $eks->jam_latihan ?? '');
@@ -235,7 +258,9 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content radius-16 bg-base">
                     <div class="modal-header py-16 px-24 border-bottom">
-                        <h1 class="modal-title fs-5 fw-bold">Edit Ekstrakurikuler: {{ $eks->nama_ekskul }}</h1>
+                        <h1 class="modal-title fs-5 fw-bold">
+                            {{ $isPembina ? 'Atur Jadwal & Jam Presensi: ' . $eks->nama_ekskul : 'Edit Ekstrakurikuler: ' . $eks->nama_ekskul }}
+                        </h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <form action="{{ route('ekskul.update', $eks->id) }}" method="POST">
@@ -245,34 +270,51 @@
                             <div class="row gy-3">
                                 <div class="col-md-12">
                                     <label class="form-label fw-semibold text-sm mb-6">Nama Ekstrakurikuler <span class="text-danger-600">*</span></label>
-                                    <input type="text" name="nama_ekskul" class="form-control radius-8 fw-bold" value="{{ $eks->nama_ekskul }}" required>
+                                    <input type="text" name="nama_ekskul" class="form-control radius-8 fw-bold {{ $isPembina ? 'bg-neutral-100' : '' }}" value="{{ $eks->nama_ekskul }}" {{ $isPembina ? 'readonly' : 'required' }}>
                                 </div>
-                                <div class="col-md-12">
-                                    <label class="form-label fw-semibold text-sm mb-6">Pembina / Pelatih</label>
-                                    <select name="pembina_id" class="form-select radius-8">
-                                        <option value="">-- Belum Ditentukan --</option>
-                                        <?php foreach ($gtks as $g): ?>
-                                            <option value="{{ $g->id }}" {{ $eks->pembina_id == $g->id ? 'selected' : '' }}>{{ $g->nama_lengkap }}</option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
-                                    <select name="hari_latihan" class="form-select radius-8 fw-semibold">
-                                        <?php foreach (['Setiap Hari Kerja', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hr): ?>
-                                            <option value="{{ $hr }}" {{ ($eks->hari_latihan ?? 'Setiap Hari Kerja') == $hr ? 'selected' : '' }}>
-                                                {{ $hr == 'Setiap Hari Kerja' ? 'Fleksibel (Senin - Sabtu)' : $hr }}
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-sm mb-6">Status</label>
-                                    <select name="status" class="form-select radius-8">
-                                        <option value="Aktif" {{ $eks->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                                        <option value="Tidak Aktif" {{ $eks->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
-                                    </select>
-                                </div>
+
+                                @if ($isPembina)
+                                    <input type="hidden" name="pembina_id" value="{{ $eks->pembina_id }}">
+                                    <input type="hidden" name="status" value="{{ $eks->status }}">
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
+                                        <select name="hari_latihan" class="form-select radius-8 fw-semibold">
+                                            <?php foreach (['Setiap Hari Kerja', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hr): ?>
+                                                <option value="{{ $hr }}" {{ ($eks->hari_latihan ?? 'Setiap Hari Kerja') == $hr ? 'selected' : '' }}>
+                                                    {{ $hr == 'Setiap Hari Kerja' ? 'Fleksibel (Senin - Sabtu)' : $hr }}
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                @else
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-semibold text-sm mb-6">Pembina / Pelatih</label>
+                                        <select name="pembina_id" class="form-select radius-8">
+                                            <option value="">-- Belum Ditentukan --</option>
+                                            <?php foreach ($gtks as $g): ?>
+                                                <option value="{{ $g->id }}" {{ $eks->pembina_id == $g->id ? 'selected' : '' }}>{{ $g->nama_lengkap }}</option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold text-sm mb-6">Hari Latihan</label>
+                                        <select name="hari_latihan" class="form-select radius-8 fw-semibold">
+                                            <?php foreach (['Setiap Hari Kerja', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hr): ?>
+                                                <option value="{{ $hr }}" {{ ($eks->hari_latihan ?? 'Setiap Hari Kerja') == $hr ? 'selected' : '' }}>
+                                                    {{ $hr == 'Setiap Hari Kerja' ? 'Fleksibel (Senin - Sabtu)' : $hr }}
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold text-sm mb-6">Status</label>
+                                        <select name="status" class="form-select radius-8">
+                                            <option value="Aktif" {{ $eks->status == 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                                            <option value="Tidak Aktif" {{ $eks->status == 'Tidak Aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                                        </select>
+                                    </div>
+                                @endif
+
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold text-xs text-success-600 mb-6">⏰ Jam Buka Presensi Ekskul</label>
                                     <input type="time" name="jam_mulai" class="form-control radius-8 fw-bold border-success" value="{{ $jMulai }}" required>
@@ -297,16 +339,23 @@
 
 @push('scripts')
 <script>
-    let tableEks = new DataTable('#dataTableEkskul', {
-        columnDefs: [{ orderable: false, targets: [0, 8] }]
-    });
+    @if ($isPembina)
+        let tableEks = new DataTable('#dataTableEkskul', {
+            columnDefs: [{ orderable: false, targets: [7] }]
+        });
+    @else
+        let tableEks = new DataTable('#dataTableEkskul', {
+            columnDefs: [{ orderable: false, targets: [0, 8] }]
+        });
+    @endif
 
-    const checkAllEks = document.getElementById('checkAllEkskul');
-    const btnBulkEks  = document.getElementById('btnBulkEkskul');
-    const spanCountEks= document.getElementById('countSelectedEkskul');
+    const checkAllEks  = document.getElementById('checkAllEkskul');
+    const btnBulkEks   = document.getElementById('btnBulkEkskul');
+    const spanCountEks = document.getElementById('countSelectedEkskul');
 
     function updateBulkEks() {
         const checked = document.querySelectorAll('.check-item-ekskul:checked');
+        if (!spanCountEks || !btnBulkEks) return;
         spanCountEks.innerText = checked.length;
         if (checked.length > 0) {
             btnBulkEks.classList.remove('d-none');

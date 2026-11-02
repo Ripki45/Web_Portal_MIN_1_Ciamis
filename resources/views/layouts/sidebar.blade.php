@@ -214,7 +214,7 @@
                     @endif
                     @if ($user->canAccess('jadwal'))
                         <li>
-                            <a href="#">
+                            <a href="{{ route('jadwal.index') }}">
                                 <i class="ph ph-calendar"></i><span>Jadwal Pelajaran</span>
                             </a>
                         </li>

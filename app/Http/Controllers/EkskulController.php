@@ -13,14 +13,28 @@ class EkskulController extends Controller
 {
     public function index()
     {
-        $ekskuls = Ekskul::with(['pembina.jabatan', 'anggotas'])->orderBy('id', 'asc')->get();
+        $user      = auth()->user();
+        $isPembina = $user && $user->role === 'pembina_ekskul';
+
+        $query = Ekskul::with(['pembina.jabatan', 'anggotas'])->orderBy('id', 'asc');
+
+        if ($isPembina) {
+            $binaanIds = $user->getEkskulBinaanIds();
+            $query->whereIn('id', $binaanIds);
+        }
+
+        $ekskuls = $query->get();
         $gtks    = Gtk::with(['jabatan', 'posisi'])->orderBy('nama_lengkap', 'asc')->get();
 
-        return view('ekskul.index', compact('ekskuls', 'gtks'));
+        return view('ekskul.index', compact('ekskuls', 'gtks', 'isPembina'));
     }
 
     public function store(Request $request)
     {
+        if (auth()->check() && auth()->user()->role === 'pembina_ekskul') {
+            return redirect()->back()->with('error', 'Pembina Ekskul tidak diizinkan menambah master ekstrakurikuler baru!');
+        }
+
         $request->validate([
             'nama_ekskul'  => 'required|string|max:100',
             'pembina_id'   => 'nullable|exists:gtks,id',
@@ -47,7 +61,13 @@ class EkskulController extends Controller
 
     public function update(Request $request, $id)
     {
-        $ekskul = Ekskul::findOrFail($id);
+        $user      = auth()->user();
+        $isPembina = $user && $user->role === 'pembina_ekskul';
+        $ekskul    = Ekskul::findOrFail($id);
+
+        if ($isPembina && !in_array($ekskul->id, $user->getEkskulBinaanIds())) {
+            return redirect()->back()->with('error', 'Anda hanya dapat mengubah jadwal ekstrakurikuler yang Anda bina!');
+        }
 
         $request->validate([
             'nama_ekskul'  => 'required|string|max:100',
@@ -62,19 +82,29 @@ class EkskulController extends Controller
         $jamSelesai = $request->jam_selesai ?: '16:30';
         $jamLatihan = $jamMulai . ' - ' . $jamSelesai;
 
-        $ekskul->update([
-            'nama_ekskul'  => trim($request->nama_ekskul),
-            'pembina_id'   => $request->pembina_id,
+        // Jika Pembina Ekskul yang mengedit, kunci nama, pembina_id, dan status agar tidak berubah
+        $dataUpdate = [
             'hari_latihan' => $request->hari_latihan ?: 'Setiap Hari Kerja',
             'jam_latihan'  => $jamLatihan,
-            'status'       => $request->status,
-        ]);
+        ];
 
-        return redirect()->back()->with('success', 'Data & Jam Presensi Ekstrakurikuler berhasil diperbarui!');
+        if (!$isPembina) {
+            $dataUpdate['nama_ekskul'] = trim($request->nama_ekskul);
+            $dataUpdate['pembina_id']  = $request->pembina_id;
+            $dataUpdate['status']      = $request->status;
+        }
+
+        $ekskul->update($dataUpdate);
+
+        return redirect()->back()->with('success', 'Jadwal & Jam Presensi Ekstrakurikuler berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
+        if (auth()->check() && auth()->user()->role === 'pembina_ekskul') {
+            return redirect()->back()->with('error', 'Pembina Ekskul tidak diizinkan menghapus ekstrakurikuler!');
+        }
+
         $ekskul = Ekskul::findOrFail($id);
         $ekskul->delete();
 
@@ -83,6 +113,10 @@ class EkskulController extends Controller
 
     public function bulkDestroy(Request $request)
     {
+        if (auth()->check() && auth()->user()->role === 'pembina_ekskul') {
+            return redirect()->back()->with('error', 'Pembina Ekskul tidak diizinkan menghapus ekstrakurikuler!');
+        }
+
         $ids = $request->input('ids', []);
         if (empty($ids)) {
             return redirect()->back()->with('error', 'Pilih minimal 1 ekstrakurikuler yang ingin dihapus!');
@@ -98,7 +132,15 @@ class EkskulController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $ekskul = Ekskul::with(['pembina', 'anggotas.siswa.kelas'])->findOrFail($id);
+        $user      = auth()->user();
+        $isPembina = $user && $user->role === 'pembina_ekskul';
+
+        if ($isPembina && !in_array((int) $id, $user->getEkskulBinaanIds())) {
+            return redirect()->route('ekskul.index')
+                ->with('error', 'Akses ditolak! Anda hanya dapat mengelola anggota ekstrakurikuler yang Anda bina.');
+        }
+
+        $ekskul    = Ekskul::with(['pembina', 'anggotas.siswa.kelas'])->findOrFail($id);
         $kelasList = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
 
         // Ambil semua siswa aktif untuk ditampilkan di Modal Pendaftaran Anggota
@@ -118,6 +160,13 @@ class EkskulController extends Controller
      */
     public function storeAnggota(Request $request, $id)
     {
+        $user      = auth()->user();
+        $isPembina = $user && $user->role === 'pembina_ekskul';
+
+        if ($isPembina && !in_array((int) $id, $user->getEkskulBinaanIds())) {
+            return redirect()->route('ekskul.index')->with('error', 'Akses ditolak!');
+        }
+
         $ekskul = Ekskul::findOrFail($id);
 
         $request->validate([

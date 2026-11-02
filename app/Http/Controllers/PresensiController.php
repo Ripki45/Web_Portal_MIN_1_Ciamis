@@ -155,13 +155,22 @@ class PresensiController extends Controller
     public function scanner(Request $request)
     {
         $user      = auth()->user();
+        $isGuru    = $user && $user->role === 'guru';
         $isPembina = $user && $user->role === 'pembina_ekskul';
 
         $tanggal  = Carbon::now('Asia/Jakarta')->format('Y-m-d');
-        $kategori = $isPembina ? 'ekskul' : $request->get('kategori', 'harian');
-       $ekskuls = $isPembina
+        $kategori = $request->get('kategori', 'harian');
+
+        if ($isPembina) {
+            $kategori = 'ekskul';
+        } elseif ($isGuru && $kategori === 'ekskul') {
+            $kategori = 'harian';
+        }
+
+        $ekskuls = $isPembina
             ? $user->getDaftarEkskulBinaan()
             : Ekskul::with('pembina')->where('status', 'Aktif')->orderBy('nama_ekskul', 'asc')->get();
+
         $allowedEkskulIds = $ekskuls->pluck('id')->toArray();
         $reqEkskul        = $request->get('ekskul_id');
         $selectedEkskulId = ($reqEkskul && in_array($reqEkskul, $allowedEkskulIds))
@@ -171,21 +180,28 @@ class PresensiController extends Controller
         $operasional = $this->cekStatusOperasional($tanggal, $kategori, $selectedEkskulId);
         $setting     = $operasional['setting'];
 
-        $kelasList       = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
-        $selectedKelasId = $request->get('kelas_id', $kelasList->first()->id ?? null);
+        // Jika Guru login: Hanya tampilkan kelas yang menjadi jadwal mengajarnya HARI INI (atau kelas perwaliannya)
+        if ($isGuru) {
+            $jadwalHariIniIds = $user->getKelasJadwalHariIniIds();
+            $kelasList = Kelas::whereIn('id', $jadwalHariIniIds)->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        } else {
+            $kelasList = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        }
 
+        $allowedKelasIds = $kelasList->pluck('id')->toArray();
+        $reqKelas        = $request->get('kelas_id');
+        $selectedKelasId = ($reqKelas && in_array($reqKelas, $allowedKelasIds))
+            ? $reqKelas
+            : ($kelasList->first()->id ?? null);
+
+        // Daftar siswa untuk fitur "Lupa Bawa Kartu" (Datalist) juga dikunci sesuai hak akses!
         if ($kategori === 'ekskul' && $selectedEkskulId) {
             $anggotaIds = EkskulAnggota::where('ekskul_id', $selectedEkskulId)->pluck('siswa_id');
-            $semuaSiswaAktif = Siswa::with('kelas')
-                ->whereIn('id', $anggotaIds)
-                ->where('status', 'Aktif')
-                ->orderBy('nama_siswa', 'asc')
-                ->get();
+            $semuaSiswaAktif = Siswa::with('kelas')->whereIn('id', $anggotaIds)->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
+        } elseif ($isGuru) {
+            $semuaSiswaAktif = Siswa::with('kelas')->whereIn('kelas_id', $allowedKelasIds)->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
         } else {
-            $semuaSiswaAktif = Siswa::with('kelas')
-                ->where('status', 'Aktif')
-                ->orderBy('nama_siswa', 'asc')
-                ->get();
+            $semuaSiswaAktif = Siswa::with('kelas')->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
         }
 
         $siswas      = collect();
@@ -193,37 +209,21 @@ class PresensiController extends Controller
 
         if ($kategori === 'ekskul' && $selectedEkskulId) {
             $anggotaIds = EkskulAnggota::where('ekskul_id', $selectedEkskulId)->pluck('siswa_id');
-            $siswas = Siswa::with('kelas')
-                ->whereIn('id', $anggotaIds)
-                ->where('status', 'Aktif')
-                ->orderBy('kelas_id', 'asc')
-                ->orderBy('nama_siswa', 'asc')
-                ->get();
+            $siswas = Siswa::with('kelas')->whereIn('id', $anggotaIds)->where('status', 'Aktif')->orderBy('kelas_id', 'asc')->orderBy('nama_siswa', 'asc')->get();
 
-            $presensis = Presensi::where('tanggal', $tanggal)
-                ->where('kategori', 'ekskul')
-                ->where('ekskul_id', $selectedEkskulId)
-                ->get();
-
+            $presensis = Presensi::where('tanggal', $tanggal)->where('kategori', 'ekskul')->where('ekskul_id', $selectedEkskulId)->get();
             foreach ($presensis as $p) {
                 $presensiMap[$p->siswa_id] = $p;
             }
         } elseif ($selectedKelasId) {
-            $siswas = Siswa::where('kelas_id', $selectedKelasId)
-                ->where('status', 'Aktif')
-                ->orderBy('nama_siswa', 'asc')
-                ->get();
+            $siswas = Siswa::where('kelas_id', $selectedKelasId)->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
 
             $presensis = Presensi::where('kelas_id', $selectedKelasId)
                 ->where('tanggal', $tanggal)
                 ->where(function ($q) use ($kategori) {
-                    if ($kategori === 'harian') {
-                        $q->where('kategori', 'harian')->orWhereNull('kategori');
-                    } else {
-                        $q->where('kategori', $kategori);
-                    }
-                })
-                ->get();
+                    if ($kategori === 'harian') $q->where('kategori', 'harian')->orWhereNull('kategori');
+                    else $q->where('kategori', $kategori);
+                })->get();
 
             foreach ($presensis as $p) {
                 $presensiMap[$p->siswa_id] = $p;
@@ -232,16 +232,12 @@ class PresensiController extends Controller
 
         $riwayatHariIni = Presensi::with(['siswa', 'kelas', 'ekskul'])
             ->where('tanggal', $tanggal)
+            ->when($isGuru, fn($q) => $q->whereIn('kelas_id', $allowedKelasIds))
             ->where(function ($q) use ($kategori) {
-                if ($kategori === 'harian') {
-                    $q->where('kategori', 'harian')->orWhereNull('kategori');
-                } else {
-                    $q->where('kategori', $kategori);
-                }
+                if ($kategori === 'harian') $q->where('kategori', 'harian')->orWhereNull('kategori');
+                else $q->where('kategori', $kategori);
             })
-            ->when($kategori === 'ekskul' && $selectedEkskulId, function ($q) use ($selectedEkskulId) {
-                $q->where('ekskul_id', $selectedEkskulId);
-            })
+            ->when($kategori === 'ekskul' && $selectedEkskulId, fn($q) => $q->where('ekskul_id', $selectedEkskulId))
             ->orderBy('updated_at', 'desc')
             ->take(15)
             ->get();
@@ -295,6 +291,32 @@ class PresensiController extends Controller
                 'status'  => 'error',
                 'message' => 'Data siswa tidak ditemukan!',
             ]);
+        }
+        // =====================================================================
+        // VALIDASI HAK SCAN BERDASARKAN ROLE & JADWAL MENGAJAR HARI INI
+        // =====================================================================
+        if (auth()->check()) {
+            $userScan = auth()->user();
+
+            // A. Jika Guru (Wali Kelas / Guru Mapel) yang men-scan:
+            if ($userScan->role === 'guru') {
+                $jadwalKelasIds = $userScan->getKelasJadwalHariIniIds();
+
+                if (!in_array($siswa->kelas_id, $jadwalKelasIds)) {
+                    return response()->json([
+                        'status'  => 'error',
+                        'message' => 'Ditolak! ' . $siswa->nama_siswa . ' berasal dari ' . ($siswa->kelas->nama_kelas ?? '-') . ' (Bukan kelas perwalian / jadwal mengajar Anda hari ini)!',
+                    ]);
+                }
+            }
+
+            // B. Jika Pembina Ekskul yang men-scan:
+            if ($userScan->role === 'pembina_ekskul' && $kategori !== 'ekskul') {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Ditolak! Akun Pembina Ekskul hanya dapat melakukan scan pada sesi Ekstrakurikuler.',
+                ]);
+            }
         }
 
         $labelSesi = 'Hadir';

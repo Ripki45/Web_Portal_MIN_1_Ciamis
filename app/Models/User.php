@@ -239,5 +239,61 @@ class User extends Authenticatable
             ->orderBy('nama_ekskul', 'asc')
             ->get();
     }
+
+    /**
+     * Otomatis menambahkan kolom hari & jam_pelajaran pada tabel kelas_mapels
+     */
+    public static function pastikanKolomJadwalAda(): void
+    {
+        if (Schema::hasTable('kelas_mapels') && !Schema::hasColumn('kelas_mapels', 'hari')) {
+            Schema::table('kelas_mapels', function (Blueprint $table) {
+                $table->string('hari', 30)->default('Setiap Hari')->nullable();
+                $table->string('jam_pelajaran', 50)->default('07:30 - 09:00')->nullable();
+            });
+        }
+    }
+
+    /**
+     * Mengambil ID Kelas yang berhak di-scan oleh Guru HARI INI
+     * (Gabungan Kelas Perwalian + Kelas Jadwal Mengajar Mapel Hari Ini)
+     */
+    public function getKelasJadwalHariIniIds(): array
+    {
+        self::pastikanKolomJadwalAda();
+
+        $gtkId = $this->gtk_id;
+        if (!$gtkId && !empty($this->name)) {
+            $gtkId = \App\Models\Gtk::where('nama_lengkap', 'like', '%' . trim($this->name) . '%')->value('id');
+        }
+        if (!$gtkId) {
+            return [];
+        }
+
+        $hariIndo = match ((int) now('Asia/Jakarta')->format('N')) {
+            1 => 'Senin',
+            2 => 'Selasa',
+            3 => 'Rabu',
+            4 => 'Kamis',
+            5 => 'Jumat',
+            6 => 'Sabtu',
+            default => 'Minggu',
+        };
+
+        // 1. Wali Kelas selalu aktif setiap hari kerja untuk kelasnya sendiri
+        $waliIds = \App\Models\Kelas::where('wali_kelas_id', $gtkId)->pluck('id')->toArray();
+
+        // 2. Guru Mapel hanya aktif pada kelas yang dijadwalkan hari ini (atau jika diset 'Setiap Hari')
+        $mapelHariIniIds = \App\Models\KelasMapel::where('guru_id', $gtkId)
+            ->where(function ($q) use ($hariIndo) {
+                $q->whereNull('hari')
+                  ->orWhere('hari', '')
+                  ->orWhere('hari', 'Setiap Hari')
+                  ->orWhere('hari', 'like', '%' . $hariIndo . '%');
+            })
+            ->pluck('kelas_id')
+            ->toArray();
+
+        return array_values(array_unique(array_merge($waliIds, $mapelHariIniIds)));
+    }
     
 }

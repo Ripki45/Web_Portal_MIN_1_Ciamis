@@ -122,29 +122,57 @@
 
     <div class="container pb-40">
 
+        @php
+            $userScanner    = auth()->user();
+            $isGuruScan     = $userScanner && $userScanner->role === 'guru';
+            $isPembinaScan  = $userScanner && $userScanner->role === 'pembina_ekskul';
+        @endphp
+
         <!-- ========================================================================= -->
-        <!-- PILIHAN 3 KATEGORI SESI PRESENSI: 1. HARIAN KBM | 2. SHALAT | 3. EKSKUL   -->
+        <!-- PILIHAN KATEGORI SESI PRESENSI (MENYESUAIKAN ROLE GURU / PEMBINA / ADMIN) -->
         <!-- ========================================================================= -->
         <div class="row g-2 mb-16">
-            <div class="col-md-4">
-                <a href="{{ route('presensi.scanner', ['kategori' => 'harian', 'kelas_id' => $selectedKelasId, 'tab' => request('tab')]) }}"
-                   class="sesi-pill {{ ($kategori ?? 'harian') == 'harian' ? 'active' : '' }}">
-                    <i class="ph-bold ph-student text-lg"></i> 1. Kehadiran Sekolah (KBM)
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="{{ route('presensi.scanner', ['kategori' => 'shalat', 'kelas_id' => $selectedKelasId, 'tab' => request('tab')]) }}"
-                   class="sesi-pill {{ ($kategori ?? '') == 'shalat' ? 'active' : '' }}">
-                    <i class="ph-bold ph-mosque text-lg"></i> 2. Shalat Dzuhur Berjamaah
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a href="{{ route('presensi.scanner', ['kategori' => 'ekskul', 'ekskul_id' => $selectedEkskulId, 'tab' => request('tab')]) }}"
-                   class="sesi-pill {{ ($kategori ?? '') == 'ekskul' ? 'active' : '' }}">
-                    <i class="ph-bold ph-tent text-lg"></i> 3. Kegiatan Ekstrakurikuler
-                </a>
-            </div>
+            @if (!$isPembinaScan)
+                <div class="{{ $isGuruScan ? 'col-md-6' : 'col-md-4' }}">
+                    <a href="{{ route('presensi.scanner', ['kategori' => 'harian', 'kelas_id' => $selectedKelasId, 'tab' => request('tab')]) }}"
+                       class="sesi-pill {{ ($kategori ?? 'harian') == 'harian' ? 'active' : '' }}">
+                        <i class="ph-bold ph-student text-lg"></i> 1. Kehadiran Sekolah (KBM)
+                    </a>
+                </div>
+                <div class="{{ $isGuruScan ? 'col-md-6' : 'col-md-4' }}">
+                    <a href="{{ route('presensi.scanner', ['kategori' => 'shalat', 'kelas_id' => $selectedKelasId, 'tab' => request('tab')]) }}"
+                       class="sesi-pill {{ ($kategori ?? '') == 'shalat' ? 'active' : '' }}">
+                        <i class="ph-bold ph-mosque text-lg"></i> 2. Shalat Dzuhur Berjamaah
+                    </a>
+                </div>
+            @endif
+
+            @if (!$isGuruScan)
+                <div class="{{ $isPembinaScan ? 'col-md-12' : 'col-md-4' }}">
+                    <a href="{{ route('presensi.scanner', ['kategori' => 'ekskul', 'ekskul_id' => $selectedEkskulId, 'tab' => request('tab')]) }}"
+                       class="sesi-pill {{ ($kategori ?? '') == 'ekskul' ? 'active' : '' }}">
+                        <i class="ph-bold ph-tent text-lg"></i> 3. Kegiatan Ekstrakurikuler
+                    </a>
+                </div>
+            @endif
         </div>
+
+        {{-- Banner Info Kelas Jadwal Hari Ini Khusus Role Guru --}}
+        @if ($isGuruScan)
+            <div class="alert bg-white border-success radius-12 p-12 mb-16 d-flex flex-wrap align-items-center justify-content-between gap-2 shadow-sm" style="border-left: 5px solid #16a34a;">
+                <div class="text-xs fw-bold text-primary-light">
+                    <i class="ph-fill ph-shield-check text-success-600 text-md me-1"></i>
+                    Mode Scanner Guru Aktif ({{ $userScanner->name }}) — Hanya menerima kartu siswa dari kelas jadwal Anda hari ini:
+                </div>
+                <div class="d-flex flex-wrap gap-1">
+                    @forelse ($kelasList as $kls)
+                        <span class="badge bg-success-focus text-success-main fw-bold text-xs px-10 py-3">{{ $kls->nama_kelas }}</span>
+                    @empty
+                        <span class="badge bg-danger-focus text-danger-main fw-bold text-xs px-10 py-3">Tidak ada jadwal mengajar hari ini</span>
+                    @endforelse
+                </div>
+            </div>
+        @endif
 
         <!-- Dropdown Pilih Kegiatan Ekstrakurikuler (Muncul Jika Mode = Ekskul) -->
         @if (($kategori ?? 'harian') === 'ekskul')

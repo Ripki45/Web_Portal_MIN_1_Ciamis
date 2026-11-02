@@ -135,7 +135,7 @@
                                                     'admin'          => 'bg-primary-50 text-primary-600 border-primary',
                                                     'guru'           => 'bg-success-focus text-success-main border-success',
                                                     'pembina_ekskul' => 'bg-warning-focus text-warning-main border-warning',
-                                                    default          => 'bg-danger-focus text-danger-main',
+                                                    default          => 'bg-danger-focus  text-danger-main',
                                                 };
                                             @endphp
                                             <tr>

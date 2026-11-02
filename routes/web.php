@@ -12,6 +12,7 @@ use App\Http\Controllers\MutasiSiswaController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\UserRoleController;
+use App\Http\Controllers\JadwalController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -92,6 +93,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/kenaikan-kelas/proses', [App\Http\Controllers\KenaikanKelasController::class, 'prosesNaikKelas'])->name('kenaikan.proses');
     Route::post('/kenaikan-kelas/alumni/bulk-delete', [App\Http\Controllers\KenaikanKelasController::class, 'bulkDeleteAlumni'])->name('kenaikan.bulkDeleteAlumni');
     Route::post('/kenaikan-kelas/magic-action', [App\Http\Controllers\KenaikanKelasController::class, 'magicAction'])->name('kenaikan.magicAction');
+
+    Route::resource('jadwal', App\Http\Controllers\JadwalController::class);
 });
 
 require __DIR__.'/auth.php';
