@@ -59,14 +59,6 @@
                         <p class="fw-normal text-xs text-white opacity-90 mb-20">
                             Wali Kelas: <b>{{ $kelasTerpilih->waliKelas->nama_lengkap ?? '-' }}</b> • Tahun Ajaran <b>{{ $taTerpilih->tahun_ajaran ?? '-' }} ({{ $taTerpilih->semester ?? '-' }})</b>
                         </p>
-                        <div class="d-flex align-items-center flex-wrap gap-10">
-                            <a href="{{ route('presensi.scanner', ['kelas_id' => $kelasTerpilih->id ?? '', 'tab' => 'manual']) }}" target="_blank" class="py-10 px-18 bg-warning-400 rounded-pill text-dark fw-bold text-xs d-inline-flex align-items-center gap-2 shadow-sm">
-                                <i class="ph-bold ph-pencil-simple-line text-md"></i> Input Absen Kelas
-                            </a>
-                            <a href="{{ route('presensi.rekap', ['kelas_id' => $kelasTerpilih->id ?? '']) }}" class="py-10 px-18 bg-white rounded-pill text-success-700 fw-bold text-xs d-inline-flex align-items-center gap-2">
-                                <i class="ph-bold ph-printer text-md"></i> Cetak Rekap {{ $kelasTerpilih->nama_kelas ?? '' }}
-                            </a>
-                        </div>
                     </div>
                     <div class="text-center d-lg-block d-none flex-shrink-0 pe-12">
                         <img src="{{ asset('backend/assets/images/icon_min.png') }}" alt="MIN 1 Ciamis" style="width: 110px; height: 110px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));">
@@ -288,19 +280,19 @@
 
                     <div class="mb-20">
                         <div class="d-flex align-items-center justify-content-between py-8 border-bottom">
-                            <span class="text-xs fw-bold text-primary-light">🏫 1. Scan KBM Pagi</span>
+                            <span class="text-xs fw-bold text-primary-light">🏫 1. KBM Pagi</span>
                             <span class="badge bg-success-50 text-success-600 fw-bold text-xs">
                                 {{ substr($setting->jam_buka ?? '07:15', 0, 5) }} - {{ substr($setting->jam_tutup ?? '09:00', 0, 5) }} WIB
                             </span>
                         </div>
                         <div class="d-flex align-items-center justify-content-between py-8 border-bottom">
-                            <span class="text-xs fw-bold text-primary-light">🕌 2. Scan Shalat Dzuhur</span>
+                            <span class="text-xs fw-bold text-primary-light">🕌 2. Shalat Dzuhur</span>
                             <span class="badge bg-info-focus text-info-main fw-bold text-xs">
                                 {{ substr($setting->jam_buka_shalat ?? '11:30', 0, 5) }} - {{ substr($setting->jam_tutup_shalat ?? '12:30', 0, 5) }} WIB
                             </span>
                         </div>
                         <div class="d-flex align-items-center justify-content-between py-8 border-bottom">
-                            <span class="text-xs fw-bold text-primary-light">⛺ 3. Scan Ekstrakurikuler</span>
+                            <span class="text-xs fw-bold text-primary-light">⛺ 3. Ekstrakurikuler</span>
                             <span class="badge bg-warning-focus text-warning-main fw-bold text-xs">
                                 Sesuai Jadwal (13:00 - 16:30)
                             </span>
@@ -309,12 +301,6 @@
                             <span class="text-xs fw-bold text-secondary-light">📝 Batas Input Wali Kelas</span>
                             <span class="text-xs fw-bold text-danger-600">
                                 s/d {{ substr($setting->jam_tutup_manual ?? '14:00', 0, 5) }} WIB
-                            </span>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between pt-8">
-                            <span class="text-xs fw-bold text-primary-600">🔑 PIN Akses Wali Kelas</span>
-                            <span class="badge bg-primary-50 text-primary-600 fw-extrabold text-xs px-10 py-4">
-                                {{ $setting->pin_akses ?? '1234' }}
                             </span>
                         </div>
                     </div>
@@ -358,11 +344,11 @@
                     </a>
                 </div>
 
-                <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                     <table class="table table-hover bordered-table mb-0 align-middle">
                         <thead>
                             <tr>
-                                <th width="6%" class="text-center">No</th>
+                                <th width="3%" class="text-center">No</th>
                                 <th>Nama Siswa</th>
                                 <th class="text-center">Status Hari Ini</th>
                                 <th class="text-center">Total Hadir</th>
@@ -401,16 +387,16 @@
                                         @endif
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-success-50 text-success-600 fw-extrabold px-10 py-5">{{ $rk['hadir'] }}</span>
+                                        <span class="badge bg-success-50 text-success-600 fw-extrabold px-10 py-3">{{ $rk['hadir'] }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-warning-50 text-warning-600 fw-extrabold px-10 py-5">{{ $rk['sakit'] }}</span>
+                                        <span class="badge bg-warning-50 text-warning-600 fw-extrabold px-10 py-3">{{ $rk['sakit'] }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-info-focus text-info-main fw-extrabold px-10 py-5">{{ $rk['izin'] }}</span>
+                                        <span class="badge bg-info-focus text-info-main fw-extrabold px-10 py-3">{{ $rk['izin'] }}</span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge {{ $rk['alfa'] >= 3 ? 'bg-danger-600 text-white' : 'bg-danger-focus text-danger-main' }} fw-extrabold px-10 py-5">
+                                        <span class="badge {{ $rk['alfa'] >= 3 ? 'bg-danger-600 text-white' : 'bg-danger-focus text-danger-main' }} fw-extrabold px-10 py-3">
                                             {{ $rk['alfa'] }}
                                         </span>
                                     </td>

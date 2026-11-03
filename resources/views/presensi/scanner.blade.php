@@ -123,6 +123,7 @@
     </div>
 
     <div class="container pb-40">
+    @if($aksesTerbuka ?? (auth()->check() || session('pin_presensi_terverifikasi')))
 
         @php
             $userScanner    = auth()->user();
@@ -281,11 +282,11 @@
                                         </label>
                                         <div class="d-flex gap-2">
                                             <input type="text" id="inputCariNama" list="listSiswaAktif" class="form-control form-control-sm radius-8 bg-white" placeholder="Ketik nama siswa (misal: ANIPAN)...">
-                                            <datalist id="listSiswaAktif">
-                                                <?php foreach ($semuaSiswaAktif as $sa): ?>
-                                                    <option value="{{ $sa->nisn ?: $sa->nomor_induk }}">{{ $sa->nama_siswa }} — {{ $sa->kelas->nama_kelas ?? '' }}</option>
-                                                <?php endforeach; ?>
-                                            </datalist>
+                                                <datalist id="listSiswaAktif">
+                                                    <?php foreach ($semuaSiswaAktif as $sa): ?>
+                                                        <option value="#{{ $sa->id }} - {{ $sa->nama_siswa }} ({{ $sa->kelas->nama_kelas ?? '' }})"></option>
+                                                    <?php endforeach; ?>
+                                                </datalist>
                                             <button type="button" id="btnHadirkanNama" class="btn btn-warning-600 btn-sm radius-8 px-16 fw-bold text-nowrap">
                                                 Hadirkan
                                             </button>
@@ -463,7 +464,7 @@
                 </div>
             </div>
         </div>
-
+    @endif
     </div>
 
     <script src="{{ asset('backend/assets/js/lib/bootstrap.bundle.min.js') }}"></script>

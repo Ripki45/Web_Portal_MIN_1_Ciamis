@@ -154,9 +154,12 @@ class PresensiController extends Controller
      */
     public function scanner(Request $request)
     {
-        $user      = auth()->user();
-        $isGuru    = $user && $user->role === 'guru';
-        $isPembina = $user && $user->role === 'pembina_ekskul';
+        $this->pastikanKolomPengaturanLengkap();
+
+        $aksesTerbuka = $this->apakahAksesScannerTerbuka();
+        $user         = auth()->user();
+        $isGuru       = $user && $user->role === 'guru';
+        $isPembina    = $user && $user->role === 'pembina_ekskul';
 
         $tanggal  = Carbon::now('Asia/Jakarta')->format('Y-m-d');
         $kategori = $request->get('kategori', 'harian');
@@ -165,6 +168,25 @@ class PresensiController extends Controller
             $kategori = 'ekskul';
         } elseif ($isGuru && $kategori === 'ekskul') {
             $kategori = 'harian';
+        }
+
+        $operasional      = $this->cekStatusOperasional($tanggal, $kategori, $request->get('ekskul_id'));
+        $setting          = $operasional['setting'];
+        $ekskuls          = collect();
+        $kelasList        = collect();
+        $selectedEkskulId = null;
+        $selectedKelasId  = null;
+        $siswas           = collect();
+        $presensiMap      = [];
+        $riwayatHariIni   = collect();
+        $semuaSiswaAktif  = collect();
+
+        // KEAMANAN: Jangan muat data siswa/NISN sedikit pun jika belum Login dan belum verifikasi PIN!
+        if (!$aksesTerbuka) {
+            return view('presensi.scanner', compact(
+                'aksesTerbuka', 'operasional', 'setting', 'kategori', 'ekskuls', 'selectedEkskulId',
+                'kelasList', 'selectedKelasId', 'siswas', 'presensiMap', 'riwayatHariIni', 'semuaSiswaAktif'
+            ));
         }
 
         $ekskuls = $isPembina
@@ -178,9 +200,7 @@ class PresensiController extends Controller
             : ($ekskuls->first()->id ?? null);
 
         $operasional = $this->cekStatusOperasional($tanggal, $kategori, $selectedEkskulId);
-        $setting     = $operasional['setting'];
 
-        // Jika Guru login: Hanya tampilkan kelas yang menjadi jadwal mengajarnya HARI INI (atau kelas perwaliannya)
         if ($isGuru) {
             $jadwalHariIniIds = $user->getKelasJadwalHariIniIds();
             $kelasList = Kelas::whereIn('id', $jadwalHariIniIds)->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
@@ -194,18 +214,29 @@ class PresensiController extends Controller
             ? $reqKelas
             : ($kelasList->first()->id ?? null);
 
-        // Daftar siswa untuk fitur "Lupa Bawa Kartu" (Datalist) juga dikunci sesuai hak akses!
+        // Hanya muat kolom id, nama_siswa, dan kelas_id (Tanpa mengekspos NISN di HTML Datalist)
         if ($kategori === 'ekskul' && $selectedEkskulId) {
             $anggotaIds = EkskulAnggota::where('ekskul_id', $selectedEkskulId)->pluck('siswa_id');
-            $semuaSiswaAktif = Siswa::with('kelas')->whereIn('id', $anggotaIds)->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
+            $semuaSiswaAktif = Siswa::with('kelas:id,nama_kelas')
+                ->select('id', 'nama_siswa', 'kelas_id')
+                ->whereIn('id', $anggotaIds)
+                ->where('status', 'Aktif')
+                ->orderBy('nama_siswa', 'asc')
+                ->get();
         } elseif ($isGuru) {
-            $semuaSiswaAktif = Siswa::with('kelas')->whereIn('kelas_id', $allowedKelasIds)->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
+            $semuaSiswaAktif = Siswa::with('kelas:id,nama_kelas')
+                ->select('id', 'nama_siswa', 'kelas_id')
+                ->whereIn('kelas_id', $allowedKelasIds)
+                ->where('status', 'Aktif')
+                ->orderBy('nama_siswa', 'asc')
+                ->get();
         } else {
-            $semuaSiswaAktif = Siswa::with('kelas')->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
+            $semuaSiswaAktif = Siswa::with('kelas:id,nama_kelas')
+                ->select('id', 'nama_siswa', 'kelas_id')
+                ->where('status', 'Aktif')
+                ->orderBy('nama_siswa', 'asc')
+                ->get();
         }
-
-        $siswas      = collect();
-        $presensiMap = [];
 
         if ($kategori === 'ekskul' && $selectedEkskulId) {
             $anggotaIds = EkskulAnggota::where('ekskul_id', $selectedEkskulId)->pluck('siswa_id');
@@ -243,7 +274,7 @@ class PresensiController extends Controller
             ->get();
 
         return view('presensi.scanner', compact(
-            'operasional', 'setting', 'kategori', 'ekskuls', 'selectedEkskulId',
+            'aksesTerbuka', 'operasional', 'setting', 'kategori', 'ekskuls', 'selectedEkskulId',
             'kelasList', 'selectedKelasId', 'siswas', 'presensiMap', 'riwayatHariIni', 'semuaSiswaAktif'
         ));
     }
@@ -253,55 +284,56 @@ class PresensiController extends Controller
      */
     public function prosesScan(Request $request)
     {
-        $kategori = $request->input('kategori', 'harian');
-        $ekskulId = $request->input('ekskul_id');
-        $siswaId  = $request->input('siswa_id');
+        // 1. CEK GERBANG KEAMANAN SERVER (Wajib Login atau Sudah Verifikasi PIN)
+        if (!$this->apakahAksesScannerTerbuka()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Akses ditolak! Silakan buka kunci PIN atau Login terlebih dahulu.',
+            ], 403);
+        }
 
-        $operasional = $this->cekStatusOperasional(null, $kategori, $ekskulId);
+        $kode     = trim((string) $request->kode_barcode);
+        $kategori = $request->get('kategori', 'harian');
+        $ekskulId = $request->get('ekskul_id') ? (int) $request->get('ekskul_id') : null;
+        $metode   = $request->get('metode', 'Scan QR');
+        $tanggal  = Carbon::now('Asia/Jakarta')->format('Y-m-d');
 
+        $operasional = $this->cekStatusOperasional($tanggal, $kategori, $ekskulId);
         if (!$operasional['buka_scan']) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Gagal! ' . $operasional['alasan_scan'],
+                'message' => 'Scan Ditolak: ' . $operasional['alasan_scan'],
             ]);
         }
 
-        $kode = trim($request->kode_barcode ?? '');
-
-        if (preg_match('/NISN\s*:\s*([0-9]+)/i', $kode, $matches)) {
-            $kode = trim($matches[1]);
-        } elseif (preg_match('/INDUK\s*:\s*([0-9]+)/i', $kode, $matches)) {
-            $kode = trim($matches[1]);
-        }
-
-        $query = Siswa::with('kelas')->where('status', 'Aktif');
-        if (!empty($siswaId)) {
-            $siswa = $query->where('id', $siswaId)->first();
+        // 2. Cari siswa berdasarkan NISN, Nomor Induk, Format "#ID - Nama", atau Nama Lengkap
+        $siswa = null;
+        if (preg_match('/^#(\d+)\s*-/', $kode, $matches)) {
+            $siswa = Siswa::with('kelas')->where('id', (int) $matches[1])->where('status', 'Aktif')->first();
         } else {
-            if (empty($kode)) {
-                return response()->json(['status' => 'error', 'message' => 'Kode barcode kosong!']);
-            }
-            $siswa = $query->where(function ($q) use ($kode) {
-                $q->where('nisn', $kode)->orWhere('nomor_induk', $kode);
-            })->first();
+            $siswa = Siswa::with('kelas')
+                ->where('status', 'Aktif')
+                ->where(function ($q) use ($kode) {
+                    $q->where('nisn', $kode)
+                      ->orWhere('nomor_induk', $kode)
+                      ->orWhere('nama_siswa', $kode);
+                })
+                ->first();
         }
 
         if (!$siswa) {
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Data siswa tidak ditemukan!',
+                'message' => 'Data Siswa tidak ditemukan atau sudah tidak aktif!',
             ]);
         }
-        // =====================================================================
-        // VALIDASI HAK SCAN BERDASARKAN ROLE & JADWAL MENGAJAR HARI INI
-        // =====================================================================
+
+        // 3. Validasi Hak Scan Berdasarkan Role & Jadwal Mengajar Hari Ini
         if (auth()->check()) {
             $userScan = auth()->user();
 
-            // A. Jika Guru (Wali Kelas / Guru Mapel) yang men-scan:
             if ($userScan->role === 'guru') {
                 $jadwalKelasIds = $userScan->getKelasJadwalHariIniIds();
-
                 if (!in_array($siswa->kelas_id, $jadwalKelasIds)) {
                     return response()->json([
                         'status'  => 'error',
@@ -310,7 +342,6 @@ class PresensiController extends Controller
                 }
             }
 
-            // B. Jika Pembina Ekskul yang men-scan:
             if ($userScan->role === 'pembina_ekskul' && $kategori !== 'ekskul') {
                 return response()->json([
                     'status'  => 'error',
@@ -319,84 +350,61 @@ class PresensiController extends Controller
             }
         }
 
-        $labelSesi = 'Hadir';
-        if ($kategori === 'shalat') {
-            $labelSesi = 'Shalat Dzuhur';
-        } elseif ($kategori === 'ekskul') {
-            if (empty($ekskulId)) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Pilih kegiatan Ekstrakurikuler terlebih dahulu!',
-                ]);
+        // 4. Jika Mode Ekskul, pastikan siswa terdaftar sebagai anggota ekskul tersebut
+        if ($kategori === 'ekskul') {
+            if (!$ekskulId) {
+                return response()->json(['status' => 'error', 'message' => 'Pilih kegiatan ekstrakurikuler terlebih dahulu!']);
             }
-            $eksObj = Ekskul::find($ekskulId);
-            $terdaftar = EkskulAnggota::where('ekskul_id', $ekskulId)
-                ->where('siswa_id', $siswa->id)
-                ->exists();
-
+            $terdaftar = EkskulAnggota::where('ekskul_id', $ekskulId)->where('siswa_id', $siswa->id)->exists();
             if (!$terdaftar) {
                 return response()->json([
                     'status'  => 'error',
-                    'message' => 'Ditolak! ' . $siswa->nama_siswa . ' belum terdaftar di anggota ekskul ' . ($eksObj->nama_ekskul ?? '') . '!',
+                    'message' => $siswa->nama_siswa . ' belum terdaftar sebagai anggota di ekstrakurikuler ini!',
                 ]);
             }
-            $labelSesi = 'Ekskul ' . ($eksObj->nama_ekskul ?? '');
         }
 
-        $now        = Carbon::now('Asia/Jakarta');
-        $tanggal    = $now->format('Y-m-d');
-        $waktuSkrg  = $now->format('H:i:s');
-        $tahunAktif = TahunAjaran::where('is_active', true)->first();
-
+        // 5. Cek apakah sudah tercatat hadir hari ini di sesi yang sama (Anti Double-Scan)
+        $kategoriNormal = empty($kategori) ? 'harian' : $kategori;
         $sudahAbsen = Presensi::where('siswa_id', $siswa->id)
             ->where('tanggal', $tanggal)
-            ->where(function ($q) use ($kategori) {
-                if ($kategori === 'harian') {
-                    $q->where('kategori', 'harian')->orWhereNull('kategori');
+            ->where(function ($q) use ($kategoriNormal) {
+                if ($kategoriNormal === 'harian') {
+                    $q->where('kategori', 'harian')->orWhereNull('kategori')->orWhere('kategori', '');
                 } else {
-                    $q->where('kategori', $kategori);
+                    $q->where('kategori', $kategoriNormal);
                 }
             })
-            ->when($kategori === 'ekskul', function ($q) use ($ekskulId) {
-                $q->where('ekskul_id', $ekskulId);
-            })
+            ->when($kategoriNormal === 'ekskul', fn($q) => $q->where('ekskul_id', $ekskulId))
             ->first();
 
-        if ($sudahAbsen) {
+        if ($sudahAbsen && $sudahAbsen->status === 'Hadir') {
             return response()->json([
                 'status'  => 'warning',
-                'message' => $siswa->nama_siswa . ' sudah tercatat (' . $sudahAbsen->status . ') pukul ' . $sudahAbsen->waktu_masuk,
-                'siswa'   => [
-                    'nama'  => $siswa->nama_siswa,
-                    'kelas' => $siswa->kelas->nama_kelas ?? '-',
-                ]
+                'message' => $siswa->nama_siswa . ' sudah tercatat HADIR sebelumnya pada pukul ' . substr($sudahAbsen->waktu_masuk, 0, 5) . ' WIB.',
             ]);
         }
 
-        Presensi::create([
-            'siswa_id'        => $siswa->id,
-            'kelas_id'        => $siswa->kelas_id,
+        $tahunAktif = TahunAjaran::where('is_active', true)->first();
+        $waktuMasuk = Carbon::now('Asia/Jakarta')->format('H:i:s');
+
+        // 6. Simpan secara Atomik & Anti Double-Data
+        $this->simpanSatuPresensiAman($siswa->id, $siswa->kelas_id, $tanggal, $kategoriNormal, $ekskulId, [
             'tahun_ajaran_id' => $tahunAktif->id ?? null,
-            'tanggal'         => $tanggal,
-            'kategori'        => $kategori,
-            'ekskul_id'       => $kategori === 'ekskul' ? $ekskulId : null,
-            'waktu_masuk'     => $waktuSkrg,
+            'waktu_masuk'     => $waktuMasuk,
             'status'          => 'Hadir',
-            'metode'          => $request->metode ?? 'Scan Kamera HP',
-            'keterangan'      => $kategori !== 'harian' ? $labelSesi : null,
+            'metode'          => $metode,
         ]);
 
         return response()->json([
             'status'  => 'success',
-            'message' => 'Berhasil! ' . $siswa->nama_siswa . ' tercatat HADIR (' . $labelSesi . ').',
+            'message' => 'Presensi berhasil dicatat!',
             'siswa'   => [
                 'nama'   => $siswa->nama_siswa,
                 'kelas'  => $siswa->kelas->nama_kelas ?? '-',
-                'waktu'  => $waktuSkrg,
-                'status' => 'Hadir',
-                'metode' => $request->metode ?? 'Scan Kamera HP',
-                'sesi'   => $labelSesi,
-            ]
+                'waktu'  => $waktuMasuk,
+                'metode' => $metode,
+            ],
         ]);
     }
 
@@ -405,59 +413,39 @@ class PresensiController extends Controller
      */
     public function storeManualDepan(Request $request)
     {
-        $kategori    = $request->input('kategori', 'harian');
-        $ekskulId    = $request->input('ekskul_id');
-        $operasional = $this->cekStatusOperasional(null, $kategori, $ekskulId);
+        if (!$this->apakahAksesScannerTerbuka()) {
+            abort(403, 'Akses ditolak! Silakan buka kunci PIN atau Login terlebih dahulu.');
+        }
 
+        $tanggal     = Carbon::now('Asia/Jakarta')->format('Y-m-d');
+        $kategori    = $request->get('kategori', 'harian');
+        $ekskulId    = $request->get('ekskul_id') ? (int) $request->get('ekskul_id') : null;
+        $kelasId     = (int) $request->get('kelas_id');
+        $statuses    = $request->input('status', []);
+        $keterangans = $request->input('keterangan', []);
+        $tahunAktif  = TahunAjaran::where('is_active', true)->first();
+
+        $operasional = $this->cekStatusOperasional($tanggal, $kategori, $ekskulId);
         if (!$operasional['buka_manual']) {
-            return redirect()->back()->with('error', 'Gagal menyimpan! ' . $operasional['alasan_manual']);
+            return redirect()->back()->with('error', 'Gagal: ' . $operasional['alasan_manual']);
         }
 
-        $request->validate([
-            'status' => 'nullable|array',
-        ]);
+        foreach ($statuses as $siswaId => $st) {
+            if (empty($st)) continue;
 
-        $now        = Carbon::now('Asia/Jakarta');
-        $tanggal    = $now->format('Y-m-d');
-        $waktuSkrg  = $now->format('H:i:s');
-        $tahunAktif = TahunAjaran::where('is_active', true)->first();
+            $siswaObj = Siswa::find($siswaId);
+            if (!$siswaObj) continue;
 
-        $disimpan = 0;
-        if ($request->filled('status')) {
-            foreach ($request->status as $siswaId => $statusPilihan) {
-                if (empty($statusPilihan)) continue;
-
-                $siswaObj = Siswa::find($siswaId);
-                if (!$siswaObj) continue;
-
-                $ket = $request->keterangan[$siswaId] ?? null;
-
-                Presensi::updateOrCreate(
-                    [
-                        'siswa_id'  => $siswaId,
-                        'tanggal'   => $tanggal,
-                        'kategori'  => $kategori,
-                        'ekskul_id' => $kategori === 'ekskul' ? $ekskulId : null,
-                    ],
-                    [
-                        'kelas_id'        => $siswaObj->kelas_id,
-                        'tahun_ajaran_id' => $tahunAktif->id ?? null,
-                        'waktu_masuk'     => $waktuSkrg,
-                        'status'          => $statusPilihan,
-                        'metode'          => 'Input Wali Kelas',
-                        'keterangan'      => $ket,
-                    ]
-                );
-                $disimpan++;
-            }
+            $this->simpanSatuPresensiAman((int) $siswaId, (int) $siswaObj->kelas_id, $tanggal, $kategori, $ekskulId, [
+                'tahun_ajaran_id' => $tahunAktif->id ?? null,
+                'waktu_masuk'     => Carbon::now('Asia/Jakarta')->format('H:i:s'),
+                'status'          => $st,
+                'metode'          => $kategori === 'ekskul' ? 'Input Pembina' : 'Input Wali Kelas',
+                'keterangan'      => $keterangans[$siswaId] ?? null,
+            ]);
         }
 
-        return redirect()->route('presensi.scanner', [
-            'kategori'  => $kategori,
-            'kelas_id'  => $request->kelas_id,
-            'ekskul_id' => $ekskulId,
-            'tab'       => 'manual'
-        ])->with('success', $disimpan . ' Status kehadiran siswa berhasil disimpan!');
+        return redirect()->back()->with('success', 'Data kehadiran manual berhasil disimpan!');
     }
 
     /**
@@ -567,47 +555,41 @@ class PresensiController extends Controller
 
     public function storeManual(Request $request)
     {
-        $request->validate([
-            'kelas_id' => 'required|exists:kelas,id',
-            'tanggal'  => 'required|date',
-            'status'   => 'nullable|array',
-        ]);
-
+        $user       = auth()->user();
+        $kelasId    = (int) $request->kelas_id;
+        $tanggal    = $request->tanggal;
+        $statuses   = $request->input('status', []);
+        $keterangans= $request->input('keterangan', []);
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
 
-        if ($request->filled('status')) {
-            foreach ($request->status as $siswaId => $statusKehadiran) {
-                if (empty($statusKehadiran)) {
-                    Presensi::where('siswa_id', $siswaId)
-                        ->where('tanggal', $request->tanggal)
-                        ->where(function ($q) {
-                            $q->where('kategori', 'harian')->orWhereNull('kategori');
-                        })
-                        ->delete();
-                    continue;
-                }
-
-                $ket = $request->keterangan[$siswaId] ?? null;
-
-                Presensi::updateOrCreate(
-                    [
-                        'siswa_id' => $siswaId,
-                        'tanggal'  => $request->tanggal,
-                        'kategori' => 'harian',
-                    ],
-                    [
-                        'kelas_id'        => $request->kelas_id,
-                        'tahun_ajaran_id' => $tahunAktif->id ?? null,
-                        'waktu_masuk'     => Carbon::now('Asia/Jakarta')->format('H:i:s'),
-                        'status'          => $statusKehadiran,
-                        'metode'          => 'Admin Dashboard',
-                        'keterangan'      => $ket,
-                    ]
-                );
+        // Validasi Otorisasi Kelas untuk Guru
+        if ($user && $user->role === 'guru') {
+            if (!in_array($kelasId, $user->getKelasAmpuanIds())) {
+                abort(403, 'Anda tidak berhak mengubah presensi kelas lain!');
             }
         }
 
-        return redirect()->back()->with('success', 'Data presensi berhasil diperbarui oleh Admin!');
+        foreach ($statuses as $siswaId => $st) {
+            if (empty($st)) {
+                Presensi::where('siswa_id', $siswaId)
+                    ->where('tanggal', $tanggal)
+                    ->where(function ($q) {
+                        $q->where('kategori', 'harian')->orWhereNull('kategori')->orWhere('kategori', '');
+                    })
+                    ->delete();
+                continue;
+            }
+
+            $this->simpanSatuPresensiAman((int) $siswaId, $kelasId, $tanggal, 'harian', null, [
+                'tahun_ajaran_id' => $tahunAktif->id ?? null,
+                'waktu_masuk'     => Carbon::now('Asia/Jakarta')->format('H:i:s'),
+                'status'          => $st,
+                'metode'          => $user && $user->role === 'guru' ? 'Input Wali Kelas' : 'Koreksi Admin',
+                'keterangan'      => $keterangans[$siswaId] ?? null,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Data kehadiran siswa berhasil disimpan tanpa duplikasi!');
     }
 
     /**
@@ -915,5 +897,63 @@ class PresensiController extends Controller
     {
         $request->session()->forget(['pin_presensi_terverifikasi', 'pin_verified_at']);
         return redirect()->route('presensi.scanner')->with('success', 'Layar PIN berhasil dikunci kembali.');
+    }
+    /**
+     * Mengecek apakah pengguna saat ini sudah Login ATAU sudah lolos verifikasi PIN Server
+     */
+    private function apakahAksesScannerTerbuka(): bool
+    {
+        return auth()->check() || session('pin_presensi_terverifikasi') === true;
+    }
+
+    /**
+     * Mesin Penyimpanan Presensi Tunggal (Anti Double-Data / Anti Tumpang Tindih)
+     */
+    private function simpanSatuPresensiAman(int $siswaId, int $kelasId, string $tanggal, string $kategori, ?int $ekskulId, array $atribut): Presensi
+    {
+        $kategoriNormal = empty($kategori) ? 'harian' : $kategori;
+        $ekskulNormal   = ($kategoriNormal === 'ekskul') ? $ekskulId : null;
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($siswaId, $kelasId, $tanggal, $kategoriNormal, $ekskulNormal, $atribut) {
+            // Cari semua baris presensi siswa ini di tanggal & sesi yang sama (termasuk data lama yang kategorinya NULL)
+            $existingRows = Presensi::where('siswa_id', $siswaId)
+                ->where('tanggal', $tanggal)
+                ->where(function ($q) use ($kategoriNormal) {
+                    if ($kategoriNormal === 'harian') {
+                        $q->where('kategori', 'harian')->orWhereNull('kategori')->orWhere('kategori', '');
+                    } else {
+                        $q->where('kategori', $kategoriNormal);
+                    }
+                })
+                ->when($kategoriNormal === 'ekskul', function ($q) use ($ekskulNormal) {
+                    $q->where('ekskul_id', $ekskulNormal);
+                })
+                ->orderBy('id', 'asc')
+                ->lockForUpdate()
+                ->get();
+
+            $payload = array_merge([
+                'siswa_id'  => $siswaId,
+                'kelas_id'  => $kelasId,
+                'tanggal'   => $tanggal,
+                'kategori'  => $kategoriNormal,
+                'ekskul_id' => $ekskulNormal,
+            ], $atribut);
+
+            if ($existingRows->isNotEmpty()) {
+                $utama = $existingRows->first();
+                $utama->update($payload);
+
+                // Jika ternyata ada baris duplikat sisa data lama, bersihkan otomatis!
+                if ($existingRows->count() > 1) {
+                    $duplikatIds = $existingRows->slice(1)->pluck('id')->toArray();
+                    Presensi::whereIn('id', $duplikatIds)->delete();
+                }
+
+                return $utama;
+            }
+
+            return Presensi::create($payload);
+        });
     }
 }
