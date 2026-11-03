@@ -109,9 +109,14 @@
 
                   <button type="submit" class="btn btn-success text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"> Sign In</button>
                   
-                  <div class="mt-32 text-center text-sm">
-                      <p class="mb-0">Belum punya akun? <a href="{{ route('register') }}" class="text-primary-600 fw-semibold">Sign Up</a></p>
-                  </div>
+                    <div class="mt-32 text-center text-sm">
+                        <p class="mb-8 text-secondary-light">
+                            Belum memiliki akun? Silakan hubungi <b>Operator TU / Superadmin MIN 1 Ciamis</b>.
+                        </p>
+                        <a href="{{ url('/') }}" class="text-primary-600 fw-bold hover-text-decoration-underline">
+                            &larr; Kembali ke Beranda Website
+                        </a>
+                     </div>
               </form>
           </div>
       </div>

@@ -62,27 +62,29 @@
     <!-- ========================================================================= -->
     <!-- FITUR 1: LAYAR KUNCI PIN PETUGAS / GURU (DIINGAT 30 HARI DI BROWSER HP)   -->
     <!-- ========================================================================= -->
-    @guest
-    <div id="pinLockOverlay" style="display: none;">
-        <div class="pin-card">
-            <div class="w-64-px h-64-px bg-success-focus text-success-600 rounded-circle d-inline-flex align-items-center justify-content-center text-3xl mb-16">
-                <i class="ph-duotone ph-shield-check"></i>
-            </div>
-            <h5 class="fw-bold text-dark mb-4">PIN Akses Presensi</h5>
-            <p class="text-xs text-secondary mb-20">Masukkan PIN Keamanan Guru/Petugas MIN 1 Ciamis. Perangkat ini akan diingat selama 30 hari.</p>
-            
-            <form id="formVerifyPin">
-                <input type="password" id="inputPinPetugas" class="form-control pin-input mb-16" placeholder="••••" inputmode="numeric" required autofocus>
-                <button type="submit" class="btn btn-success-600 w-100 py-12 radius-12 fw-bold text-md">
-                    Buka Portal Presensi
-                </button>
-            </form>
-            <div class="mt-16">
-                <a href="{{ route('login') }}" class="text-xs text-secondary hover-text-primary">Login sebagai Super Admin</a>
+    @if(!auth()->check() && !session('pin_presensi_terverifikasi'))
+        <div id="pinLockOverlay">
+            <div class="pin-card">
+                <div class="w-64-px h-64-px bg-success-focus text-success-600 rounded-circle d-inline-flex align-items-center justify-content-center text-3xl mb-16">
+                    <i class="ph-duotone ph-shield-check"></i>
+                </div>
+                <h5 class="fw-bold text-dark mb-4">PIN Akses Presensi</h5>
+                <p class="text-xs text-secondary mb-20">Masukkan PIN Keamanan Petugas MIN 1 Ciamis atau Login menggunakan Akun Guru Anda.</p>
+                
+                <form id="formVerifyPin">
+                    <input type="password" id="inputPinPetugas" class="form-control pin-input mb-16" placeholder="••••" inputmode="numeric" required autofocus>
+                    <button type="submit" class="btn btn-success-600 w-100 py-12 radius-12 fw-bold text-md">
+                        Buka Portal Presensi
+                    </button>
+                </form>
+                <div class="mt-16">
+                    <a href="{{ route('login') }}" class="text-xs fw-bold text-success-600 hover-text-primary">
+                        <i class="ph-bold ph-sign-in"></i> Login Akun Guru / Wali Kelas
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    @endguest
+    @endif
 
     <!-- Header Atas dengan Jam Live WIB -->
     <div class="scanner-header py-16 px-24 shadow-sm mb-24">
@@ -469,7 +471,6 @@
         // =========================================================================
         // 1. LOGIKA PIN KEAMANAN GURU (DIINGAT 30 HARI DI LOCALSTORAGE HP)
         // =========================================================================
-        const SERVER_PIN = "{{ $setting->pin_akses ?? '1234' }}";
         const STORAGE_KEY = "min1_pin_verified_until";
         const pinOverlay = document.getElementById('pinLockOverlay');
 
@@ -487,8 +488,10 @@
         }
 
         function kunciUlangPin() {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
+            fetch("{{ route('presensi.kunciPin') }}", {
+                method: "POST",
+                headers: { "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content }
+            }).then(() => location.reload());
         }
 
         const formPin = document.getElementById('formVerifyPin');
@@ -496,15 +499,28 @@
             formPin.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const inputVal = document.getElementById('inputPinPetugas').value.trim();
-                if (inputVal === SERVER_PIN) {
-                    const expireTime = new Date().getTime() + (30 * 24 * 60 * 60 * 1000);
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify({ pin: SERVER_PIN, expire: expireTime }));
-                    pinOverlay.style.display = 'none';
-                    Swal.fire({ icon: 'success', title: 'Akses Dibuka!', text: 'Perangkat ini diingat selama 30 hari.', timer: 1500, showConfirmButton: false });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'PIN Salah!', text: 'Silakan masukkan PIN Keamanan Madrasah yang benar.', timer: 1800, showConfirmButton: false });
-                    document.getElementById('inputPinPetugas').value = '';
-                }
+
+                fetch("{{ route('presensi.verifikasiPin') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({ pin: inputVal })
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (res.ok && data.status === 'success') {
+                        Swal.fire({ icon: 'success', title: 'Akses Dibuka!', timer: 1200, showConfirmButton: false })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Ditolak!', text: data.message || 'Terlalu banyak percobaan, tunggu 1 menit.', timer: 2000, showConfirmButton: false });
+                        document.getElementById('inputPinPetugas').value = '';
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({ icon: 'error', title: 'Terlalu Banyak Percobaan!', text: 'Tunggu 1 menit sebelum mencoba kembali.' });
+                });
             });
         }
         cekPinTersimpan();

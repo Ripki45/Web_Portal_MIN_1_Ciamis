@@ -25,6 +25,11 @@ Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'inde
 Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
 Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])->name('presensi.prosesScan');
 Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])->name('presensi.storeManualDepan');
+Route::post('/scan-presensi/verifikasi-pin', [App\Http\Controllers\PresensiController::class, 'verifikasiPinServer'])
+    ->middleware('throttle:5,1')
+    ->name('presensi.verifikasiPin');
+Route::post('/scan-presensi/kunci-pin', [App\Http\Controllers\PresensiController::class, 'kunciPinServer'])
+    ->name('presensi.kunciPin');
 
 Route::middleware('auth')->group(function () {
     // Manajemen Role Pengguna & Toggle Hak Akses

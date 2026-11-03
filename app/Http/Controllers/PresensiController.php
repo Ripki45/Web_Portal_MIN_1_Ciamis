@@ -877,4 +877,43 @@ class PresensiController extends Controller
 
         return view('presensi.rekap', $dataView);
     }
+
+    /**
+     * Verifikasi PIN Keamanan di Sisi Server (Aman dari Inspect Element / View Source)
+     */
+    public function verifikasiPinServer(Request $request)
+    {
+        $request->validate([
+            'pin' => 'required|string|max:10',
+        ]);
+
+        $setting   = PengaturanPresensi::first();
+        $pinResmi  = (string) ($setting->pin_akses ?? '1234');
+        $pinInput  = trim((string) $request->pin);
+
+        // Gunakan hash_equals untuk mencegah Timing Attack
+        if (hash_equals($pinResmi, $pinInput)) {
+            $request->session()->put('pin_presensi_terverifikasi', true);
+            $request->session()->put('pin_verified_at', now()->timestamp);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Akses PIN berhasil diverifikasi oleh server!',
+            ]);
+        }
+
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'PIN Keamanan salah!',
+        ], 422);
+    }
+
+    /**
+     * Kunci ulang sesi PIN dari Server
+     */
+    public function kunciPinServer(Request $request)
+    {
+        $request->session()->forget(['pin_presensi_terverifikasi', 'pin_verified_at']);
+        return redirect()->route('presensi.scanner')->with('success', 'Layar PIN berhasil dikunci kembali.');
+    }
 }

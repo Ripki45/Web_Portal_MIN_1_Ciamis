@@ -124,10 +124,14 @@ class User extends Authenticatable
     public function hasRole(array|string $roles): bool
     {
         self::pastikanTabelRoleSiap();
-        $userRole = $this->role ?: 'superadmin';
+
+        // KEAMANAN: Jangan pernah menjadikan 'superadmin' sebagai default jika kolom role kosong!
+        $userRole = $this->role ?: 'guru';
+
         if ($userRole === 'superadmin') {
             return true;
         }
+
         $rolesArray = is_array($roles) ? $roles : explode(',', $roles);
         return in_array($userRole, array_map('trim', $rolesArray));
     }
@@ -138,7 +142,9 @@ class User extends Authenticatable
     public function canAccess(string $menuKey): bool
     {
         self::pastikanTabelRoleSiap();
-        $userRole = $this->role ?: 'superadmin';
+
+        // KEAMANAN: Default ke 'guru' jika role kosong
+        $userRole = $this->role ?: 'guru';
 
         if ($userRole === 'superadmin') {
             return true;
@@ -159,7 +165,7 @@ class User extends Authenticatable
             'admin'          => 'Admin / Operator TU',
             'guru'           => 'Guru (Wali Kelas / Mapel)',
             'pembina_ekskul' => 'Pembina Ekstrakurikuler',
-            default          => 'Super Admin',
+            default          => 'Guru / Pengguna',
         };
     }
 
