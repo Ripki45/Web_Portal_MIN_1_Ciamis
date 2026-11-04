@@ -37,7 +37,7 @@
                 <h2 class="h6 text-lg text-primary-light fw-semibold mb-0">Message</h2>
               </div>
               <span
-                class="text-primary-600 fw-semibold text-lg w-44-px h-44-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
+                class="text-primary-600 fw-semibold text-lg w-44-px h-44-px rounded-circle bg-base d-flex justify-content-center align-items-center">0</span>
             </div>
 
             <div class="max-h-400-px overflow-y-auto scroll-sm pe-4">
@@ -50,8 +50,8 @@
                     <span class="w-8-px h-8-px bg-success-main rounded-circle position-absolute end-0 bottom-0"></span>
                   </span>
                   <div>
-                    <h2 class="h6 text-md fw-semibold mb-4">Kathryn Murphy</h2>
-                    <p class="mb-0 text-sm text-secondary-light text-w-100-px">hey! there i’m...</p>
+                    <h2 class="h6 text-md fw-semibold mb-4">Ripki Ramdani</h2>
+                    <p class="mb-0 text-sm text-secondary-light text-w-100-px">Hai, apa kabar?</p>
                   </div>
                 </div>
                 <div class="d-flex flex-column align-items-end">
@@ -109,8 +109,8 @@
                     <img src="{{ asset('backend/assets/images/notification/profile-1.png') }}" alt="Image">
                   </span>
                   <div>
-                    <h2 class="h6 text-md fw-semibold mb-4">Ronald Richards</h2>
-                    <p class="mb-0 text-sm text-secondary-light text-w-200-px">You can stitch between artboards</p>
+                    <h2 class="h6 text-md fw-semibold mb-4">Ripki Ramdani</h2>
+                    <p class="mb-0 text-sm text-secondary-light text-w-200-px">Fitur ini sedang dalam pengembangan.</p>
                   </div>
                 </div>
                 <span class="text-sm text-secondary-light flex-shrink-0">23 Mins ago</span>

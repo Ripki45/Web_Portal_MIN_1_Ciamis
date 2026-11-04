@@ -98,4 +98,11 @@ class JadwalController extends Controller
         KelasMapel::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Jadwal pelajaran berhasil dihapus!');
     }
+
+    private function pastikanAdmin(): void
+    {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['superadmin', 'admin'])) {
+            abort(403, 'Akses Ditolak! Perubahan jadwal pelajaran hanya dapat dilakukan oleh Admin/Kurikulum.');
+        }
+    }
 }

@@ -61,12 +61,17 @@ class User extends Authenticatable
      */
     public static function pastikanTabelRoleSiap(): void
     {
+        // OPTIMASI: Hanya jalankan pengecekan skema 1 kali per request halaman
+        static $sudahDicek = false;
+        if ($sudahDicek) {
+            return;
+        }
+        $sudahDicek = true;
         // 1. Cek kolom role secara mandiri
         if (!Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->string('role', 30)->default('superadmin')->nullable();
+                $table->string('role', 30)->default('guru')->nullable();
             });
-            self::query()->whereNull('role')->update(['role' => 'superadmin']);
         }
 
         // 2. Cek kolom gtk_id secara mandiri (Agar tetap dibuat meskipun kolom role sudah ada duluan)
@@ -111,6 +116,15 @@ class User extends Authenticatable
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]);
+                }
+            }
+        }
+        if (!self::where('role', 'superadmin')->exists()) {
+            $firstUser = self::orderBy('id', 'asc')->first();
+            if ($firstUser) {
+                $firstUser->update(['role' => 'superadmin']);
+                if (auth()->check() && auth()->id() === $firstUser->id) {
+                    auth()->user()->role = 'superadmin';
                 }
             }
         }
@@ -251,6 +265,11 @@ class User extends Authenticatable
      */
     public static function pastikanKolomJadwalAda(): void
     {
+        static $jadwalDicek = false;
+        if ($jadwalDicek) {
+            return;
+        }
+        $jadwalDicek = true;
         if (Schema::hasTable('kelas_mapels') && !Schema::hasColumn('kelas_mapels', 'hari')) {
             Schema::table('kelas_mapels', function (Blueprint $table) {
                 $table->string('hari', 30)->default('Setiap Hari')->nullable();
@@ -300,6 +319,11 @@ class User extends Authenticatable
             ->toArray();
 
         return array_values(array_unique(array_merge($waliIds, $mapelHariIniIds)));
+    }
+    public function isSuperOrAdmin(): bool
+    {
+        $r = strtolower(trim((string) $this->role));
+        return in_array($r, ['superadmin', 'admin', 'super admin']) || session()->has('impersonate_original_id');
     }
     
 }

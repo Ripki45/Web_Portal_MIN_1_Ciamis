@@ -16,20 +16,18 @@ class SiswaController extends Controller
         $isGuru     = $user && $user->role === 'guru';
         $tahunAktif = \App\Models\TahunAjaran::where('is_active', true)->first();
 
-        // 1. Ambil daftar kelas sesuai Role (Semua kelas untuk Admin, hanya kelas ampuan untuk Guru)
-        $kelasList = $user ? $user->getDaftarKelasAmpuan() : Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+        $kelasList = ($isGuru && method_exists($user, 'getDaftarKelasAmpuan'))
+            ? $user->getDaftarKelasAmpuan()
+            : Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
 
         $query = Siswa::with('kelas')->where('status', 'Aktif');
         $selectedKelasId = $request->get('kelas_id');
 
         if ($isGuru) {
             $allowedIds = $kelasList->pluck('id')->toArray();
-
-            // Jika guru belum memilih kelas atau mencoba akses kelas lain, kunci ke kelas pertamanya
-            if (empty($selectedKelasId) || !in_array($selectedKelasId, $allowedIds)) {
+            if (empty($selectedKelasId) || !in_array((int) $selectedKelasId, $allowedIds)) {
                 $selectedKelasId = $kelasList->first()->id ?? 0;
             }
-
             $query->where('kelas_id', $selectedKelasId);
         } else {
             if (!empty($selectedKelasId)) {
@@ -42,7 +40,6 @@ class SiswaController extends Controller
         $totalL = $siswas->where('jenis_kelamin', 'L')->count();
         $totalP = $siswas->where('jenis_kelamin', 'P')->count();
 
-        // 2. Data Buku Mutasi Masuk & Keluar (Hanya dimuat untuk Superadmin / Admin TU)
         $mutasiMasuk     = collect();
         $mutasiKeluar    = collect();
         $siswaAktifSemua = collect();
@@ -97,7 +94,7 @@ class SiswaController extends Controller
             'kelas_id'       => $request->kelas_id,
             'nomor_induk'    => $request->nomor_induk,
             'nisn'           => $request->nisn,
-            'nama_siswa'     => strtoupper($request->nama_siswa),
+            'nama_siswa'     => strtoupper(trim($request->nama_siswa)),
             'jenis_kelamin'  => $request->jenis_kelamin,
             'tempat_lahir'   => $request->tempat_lahir,
             'tanggal_lahir'  => $request->tanggal_lahir,
@@ -114,8 +111,11 @@ class SiswaController extends Controller
 
     public function update(Request $request, Siswa $siswa)
     {
+        $user   = auth()->user();
+        $isGuru = $user && $user->role === 'guru';
+
         $request->validate([
-            'kelas_id'       => 'required|exists:kelas,id',
+            'kelas_id'       => 'nullable|exists:kelas,id',
             'nomor_induk'    => 'nullable|string|max:30',
             'nisn'           => 'nullable|string|max:20',
             'nama_siswa'     => 'required|string|max:150',
@@ -127,14 +127,14 @@ class SiswaController extends Controller
             'alamat_ortu'    => 'nullable|string',
             'pekerjaan_ortu' => 'nullable|string|max:100',
             'foto'           => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status'         => 'required|in:Aktif,Mutasi Keluar,Lulus',
+            'status'         => 'nullable|in:Aktif,Mutasi Keluar,Lulus',
         ]);
 
         $data = [
-            'kelas_id'       => $request->kelas_id,
+            'kelas_id'       => ($isGuru || !$request->filled('kelas_id')) ? $siswa->kelas_id : $request->kelas_id,
             'nomor_induk'    => $request->nomor_induk,
             'nisn'           => $request->nisn,
-            'nama_siswa'     => strtoupper($request->nama_siswa),
+            'nama_siswa'     => strtoupper(trim($request->nama_siswa)),
             'jenis_kelamin'  => $request->jenis_kelamin,
             'tempat_lahir'   => $request->tempat_lahir,
             'tanggal_lahir'  => $request->tanggal_lahir,
@@ -142,7 +142,7 @@ class SiswaController extends Controller
             'nama_ibu'       => $request->nama_ibu,
             'alamat_ortu'    => $request->alamat_ortu,
             'pekerjaan_ortu' => $request->pekerjaan_ortu,
-            'status'         => $request->status,
+            'status'         => ($isGuru || !$request->filled('status')) ? $siswa->status : $request->status,
         ];
 
         if ($request->hasFile('foto')) {
@@ -159,10 +159,6 @@ class SiswaController extends Controller
 
     public function destroy(Siswa $siswa)
     {
-        if (auth()->user()->role === 'guru') {
-            return redirect()->back()->with('error', 'Guru tidak diizinkan menghapus data induk siswa!');
-        }
-
         if ($siswa->foto && Storage::disk('public')->exists($siswa->foto)) {
             Storage::disk('public')->delete($siswa->foto);
         }
@@ -173,10 +169,6 @@ class SiswaController extends Controller
 
     public function bulkDestroy(Request $request)
     {
-        if (auth()->user()->role === 'guru') {
-            return redirect()->back()->with('error', 'Guru tidak diizinkan menghapus data induk siswa!');
-        }
-
         $ids = $request->input('ids', []);
         if (empty($ids)) {
             return redirect()->back()->with('error', 'Pilih minimal 1 data siswa yang ingin dihapus!');

@@ -189,6 +189,17 @@
     .navbar-header .navbar-header-right .dropdown {
         flex-shrink: 0;
     }
+
+    /* Perbaikan Global agar Bayangan Hitam Tidak Menutupi Modal Pop-up */
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    .modal {
+        z-index: 1060 !important;
+    }
+    .swal2-container {
+        z-index: 99999 !important;
+    }
   </style>
 </head>
 
@@ -311,6 +322,12 @@
                 const walk = (x - startX) * 1.5;
                 slider.scrollLeft = scrollLeft - walk;
             });
+        });
+    });
+    // Pindahkan semua elemen Modal ke langsung di bawah <body> agar tidak terjebak bayangan hitam
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.modal').forEach(function (modalEl) {
+            document.body.appendChild(modalEl);
         });
     });
   </script>

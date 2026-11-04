@@ -509,46 +509,60 @@ class PresensiController extends Controller
      */
     public function updateSettingJam(Request $request)
     {
+        // KEAMANAN: Hanya Superadmin & Admin TU yang boleh mengubah jam operasional & PIN
+        if (!auth()->check() || !in_array(auth()->user()->role, ['superadmin', 'admin'])) {
+            abort(403, 'Akses Ditolak! Pengaturan jam & PIN hanya dapat diubah oleh Admin.');
+        }
+
         $this->pastikanKolomPengaturanLengkap();
 
         $request->validate([
-            'jam_buka'         => 'required',
-            'jam_tutup'        => 'required',
-            'jam_buka_shalat'  => 'nullable',
-            'jam_tutup_shalat' => 'nullable',
-            'jam_tutup_manual' => 'required',
-            'pin_akses'        => 'required|string|min:4|max:10',
+            'jam_buka'          => 'required',
+            'jam_tutup'         => 'required',
+            'jam_tutup_manual'  => 'required',
+            'pin_akses'         => 'required|string|min:4|max:10',
         ]);
 
-        $setting = PengaturanPresensi::first();
-        $setting->update([
-            'jam_buka'         => $request->jam_buka,
-            'jam_tutup'        => $request->jam_tutup,
-            'jam_buka_shalat'  => $request->jam_buka_shalat ?? '11:30:00',
-            'jam_tutup_shalat' => $request->jam_tutup_shalat ?? '12:30:00',
-            'jam_tutup_manual' => $request->jam_tutup_manual,
-            'pin_akses'        => trim($request->pin_akses),
-            'libur_minggu'     => $request->has('libur_minggu'),
-        ]);
+        $setting = PengaturanPresensi::first() ?? new PengaturanPresensi();
+        $setting->jam_buka          = $request->jam_buka;
+        $setting->jam_tutup         = $request->jam_tutup;
+        $setting->jam_buka_shalat   = $request->jam_buka_shalat ?? '11:30';
+        $setting->jam_tutup_shalat  = $request->jam_tutup_shalat ?? '12:30';
+        $setting->jam_tutup_manual  = $request->jam_tutup_manual;
+        $setting->pin_akses         = trim($request->pin_akses);
+        $setting->libur_minggu      = $request->has('libur_minggu');
+        $setting->save();
 
-        return redirect()->back()->with('success', 'Pengaturan Jam Operasional (KBM & Shalat Dzuhur) berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Pengaturan jam operasional & PIN keamanan berhasil diperbarui!');
     }
 
     public function storeHariLibur(Request $request)
     {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['superadmin', 'admin'])) {
+            abort(403, 'Akses Ditolak! Kalender hari libur hanya dapat dikelola oleh Admin.');
+        }
+
         $request->validate([
             'tanggal_mulai'   => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'keterangan'      => 'required|string|max:150',
         ]);
 
-        HariLibur::create($request->only(['tanggal_mulai', 'tanggal_selesai', 'keterangan']));
+        HariLibur::create([
+            'tanggal_mulai'   => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'keterangan'      => strip_tags(trim($request->keterangan)),
+        ]);
 
-        return redirect()->back()->with('success', 'Hari libur berhasil ditambahkan ke kalender!');
+        return redirect()->back()->with('success', 'Hari libur baru berhasil ditambahkan!');
     }
 
     public function destroyHariLibur($id)
     {
+        if (!auth()->check() || !in_array(auth()->user()->role, ['superadmin', 'admin'])) {
+            abort(403, 'Akses Ditolak!');
+        }
+
         HariLibur::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Data hari libur berhasil dihapus!');
     }

@@ -12,7 +12,7 @@
                 Atur akun pengguna (`Superadmin`, `Admin`, `Guru`, `Pembina Ekskul`) dan nyalakan/matikan hak akses tiap role dengan 1 klik
             </span>
         </div>
-        <span class="badge bg-primary-50 text-primary-600 fw-bold px-14 py-8 radius-8 text-xs">
+        <span class="bg-primary-50 text-primary-600 border border-primary fw-bold px-14 py-6 radius-8 text-xs d-inline-block">
             Total Akun: {{ $users->count() }} Pengguna
         </span>
     </div>
@@ -35,7 +35,7 @@
                 </li>
             </ul>
 
-            <span id="badgeStatusSimpanToggle" class="badge bg-success-focus text-success-main px-12 py-6 rounded-pill fw-bold text-xs d-none">
+            <span id="badgeStatusSimpanToggle" class="bg-success-focus text-success-main px-12 py-6 rounded-pill fw-bold text-xs d-none">
                 ✓ Perubahan Tersimpan Otomatis
             </span>
         </div>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="card-body p-24">
                             <div class="table-responsive">
-                                <table class="table bordered-table mb-0" id="tableUsers">
+                                <table class="table bordered-table align-middle mb-0" id="tableUsers">
                                     <thead>
                                         <tr>
                                             <th width="6%">No</th>
@@ -135,7 +135,7 @@
                                                     'admin'          => 'bg-primary-50 text-primary-600 border-primary',
                                                     'guru'           => 'bg-success-focus text-success-main border-success',
                                                     'pembina_ekskul' => 'bg-warning-focus text-warning-main border-warning',
-                                                    default          => 'bg-danger-focus  text-danger-main',
+                                                    default          => 'bg-neutral-200 text-secondary-light',
                                                 };
                                             @endphp
                                             <tr>
@@ -143,16 +143,17 @@
                                                 <td class="fw-bold text-primary-light">
                                                     {{ $u->name }}
                                                     @if ($u->id === auth()->id())
-                                                        <span class="badge bg-info-focus text-info-main text-xs ms-1">Aktif</span>
+                                                        <span class="bg-info-focus text-info-main px-8 py-2 rounded-pill text-xs fw-bold ms-1 d-inline-block">Aktif</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-xs fw-semibold">{{ $u->email }}</td>
-                                                <td>
-                                                    <span class="badge {{ $badgeColor }} border px-10 py-5 rounded-pill text-xs fw-bold">
+                                                <td class="text-nowrap">
+                                                    {{-- Tanpa class .badge agar tidak menggelembung jadi lingkaran besar --}}
+                                                    <span class="{{ $badgeColor }} border px-12 py-4 rounded-pill text-xs fw-bold d-inline-block text-nowrap">
                                                         {{ $u->label_role }}
                                                     </span>
                                                 </td>
-                                                <td class="text-xs">
+                                                <td class="text-xs text-nowrap">
                                                     @if ($u->gtk)
                                                         <span class="text-success-600 fw-semibold">✓ {{ $u->gtk->nama_lengkap }}</span>
                                                     @else
@@ -162,7 +163,7 @@
                                                 <td class="text-center">
                                                     <div class="d-flex align-items-center justify-content-center gap-2">
                                                         <button type="button"
-                                                                class="bg-success-focus text-success-600 w-32-px h-32-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                                class="bg-success-focus text-success-600 bg-hover-success-200 w-32-px h-32-px rounded-circle d-flex align-items-center justify-content-center border-0"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#editUserModal{{ $u->id }}"
                                                                 title="Edit Role / Password">
@@ -170,13 +171,12 @@
                                                         </button>
 
                                                         @if ($u->id !== auth()->id())
-                                                            <form action="{{ route('users.destroy', $u->id) }}" method="POST" onsubmit="return confirm('Hapus akun {{ addslashes($u->name) }}?')">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="bg-danger-focus text-danger-600 w-32-px h-32-px rounded-circle d-flex align-items-center justify-content-center border-0" title="Hapus Akun">
-                                                                    <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
-                                                                </button>
-                                                            </form>
+                                                            <button type="button"
+                                                                    onclick="konfirmasiHapusUser('{{ route('users.destroy', $u->id) }}', '{{ addslashes($u->name) }}')"
+                                                                    class="bg-danger-focus text-danger-600 bg-hover-danger-200 w-32-px h-32-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                                    title="Hapus Akun">
+                                                                <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
+                                                            </button>
                                                         @endif
                                                     </div>
                                                 </td>
@@ -204,7 +204,7 @@
                             Geser tombol <b>Switch</b> ke kanan (Hijau) untuk mengaktifkan akses menu pada role terkait. Perubahan langsung tersimpan otomatis!
                         </span>
                     </div>
-                    <span class="badge bg-danger-focus text-danger-main px-12 py-6 rounded-pill text-xs fw-bold">
+                    <span class="bg-danger-focus text-danger-main px-12 py-6 rounded-pill text-xs fw-bold d-inline-block">
                         👑 Super Admin: Selalu Aktif di Semua Modul
                     </span>
                 </div>
@@ -229,7 +229,7 @@
                                     <tr>
                                         <td class="text-center fw-bold">{{ $no++ }}</td>
                                         <td>
-                                            <span class="badge bg-info-focus text-info-main px-10 py-4 rounded-pill text-xs fw-semibold">
+                                            <span class="bg-info-focus text-info-main px-10 py-4 rounded-pill text-xs fw-semibold d-inline-block text-nowrap">
                                                 {{ $info['kategori'] }}
                                             </span>
                                         </td>
@@ -270,6 +270,12 @@
 
     </div>
 
+    <!-- Form Tersembunyi untuk Hapus Akun via SweetAlert -->
+    <form id="formDeleteUserGlobal" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+
     <!-- Modal Edit Akun -->
     <?php foreach ($users as $u): ?>
         <div class="modal fade" id="editUserModal{{ $u->id }}" tabindex="-1" aria-hidden="true">
@@ -279,7 +285,7 @@
                         <h1 class="modal-title fs-5 fw-bold">Edit Akun: {{ $u->name }}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <form action="{{ route('users.update', $u->id) }}" method="POST">
+                    <form action="{{ route('users.update', $u->id) }}" method="POST" id="formEditUser{{ $u->id }}">
                         @csrf
                         @method('PUT')
                         <div class="modal-body p-24">
@@ -318,7 +324,11 @@
                         </div>
                         <div class="modal-footer px-24 pb-24 border-0">
                             <button type="button" class="btn btn-secondary radius-8" data-bs-dismiss="modal">Batal</button>
-                            <button type="submit" class="btn btn-primary-600 radius-8 fw-bold">Simpan Perubahan</button>
+                            <button type="button"
+                                    onclick="konfirmasiUpdateUser('formEditUser{{ $u->id }}', '{{ addslashes($u->name) }}')"
+                                    class="btn btn-primary-600 radius-8 fw-bold">
+                                Simpan Perubahan
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -330,7 +340,9 @@
 
 @push('scripts')
 <script>
-    new DataTable('#tableUsers');
+    new DataTable('#tableUsers', {
+        columnDefs: [{ orderable: false, targets: [5] }]
+    });
 
     function isiNamaDariGtk(selectEl) {
         const opt = selectEl.options[selectEl.selectedIndex];
@@ -340,7 +352,70 @@
         }
     }
 
-    // Simpan otomatis saat Toggle Switch digeser
+    // 1. SweetAlert Konfirmasi Hapus Akun
+    function konfirmasiHapusUser(url, nama) {
+        Swal.fire({
+            title: 'Hapus Akun ' + nama + '?',
+            text: 'Akun pengguna ini tidak akan bisa login lagi setelah dihapus!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus Akun!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.getElementById('formDeleteUserGlobal');
+                form.action = url;
+                form.submit();
+            }
+        });
+    }
+
+    // 2. SweetAlert Konfirmasi Update Akun & Role
+    function konfirmasiUpdateUser(formId, nama) {
+        const form = document.getElementById(formId);
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        Swal.fire({
+            title: 'Perbarui Akun ' + nama + '?',
+            text: 'Perubahan data profil, role, atau password akan langsung diterapkan.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#16a34a',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Simpan Perubahan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    // 3. SweetAlert Notifikasi Sukses / Gagal dari Session Server
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: @json(session('success')),
+            timer: 2200,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Perhatian!',
+            text: @json(session('error'))
+        });
+    @endif
+
+    // 4. Simpan otomatis saat Toggle Switch digeser
     document.querySelectorAll('.toggle-hak-akses').forEach(toggle => {
         toggle.addEventListener('change', function () {
             const roleVal    = this.getAttribute('data-role');

@@ -7,30 +7,26 @@ use App\Models\Gtk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
-class UserController extends Controller
+class UserRoleController extends Controller
 {
-    /**
-     * Kunci Pintu Belakang: Pastikan hanya Superadmin murni yang bisa mengeksekusi Controller ini
-     */
-    private function pastikanSuperadmin(): void
-    {
-        if (!auth()->check() || auth()->user()->role !== 'superadmin') {
-            abort(403, 'Akses Ditolak! Halaman dan aksi ini khusus untuk Super Admin.');
-        }
-    }
-
     public function index()
     {
-        $this->pastikanSuperadmin();
         User::pastikanTabelRoleSiap();
 
         $users = User::with('gtk')->orderBy('id', 'asc')->get();
         $gtks  = Gtk::orderBy('nama_lengkap', 'asc')->get();
 
-        $daftarModul = User::daftarModulSistem();
-        $permissions = DB::table('role_permissions')
+        $modulList = User::daftarModulSistem();
+        $roleTarget = [
+            'admin'          => 'Admin / TU',
+            'guru'           => 'Guru',
+            'pembina_ekskul' => 'Pembina Ekskul',
+        ];
+
+        $matrix = DB::table('role_permissions')
             ->get()
             ->groupBy('role')
             ->map(function ($items) {
@@ -38,91 +34,78 @@ class UserController extends Controller
             })
             ->toArray();
 
-        return view('users.index', compact('users', 'gtks', 'daftarModul', 'permissions'));
+        return view('users.index', compact(
+            'users', 'gtks', 'modulList', 'roleTarget', 'matrix'
+        ));
     }
 
     public function store(Request $request)
     {
-        $this->pastikanSuperadmin();
         User::pastikanTabelRoleSiap();
 
-        $request->validate([
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
             'name'     => ['required', 'string', 'max:150'],
             'email'    => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
-            'role'     => ['required', Rule::in(['superadmin', 'admin', 'guru', 'pembina_ekskul'])],
-            'gtk_id'   => ['nullable', 'exists:gtks,id'],
+            'password' => ['required', 'string', 'min:4'],
+            'role'     => ['required', 'string'],
         ], [
-            'email.unique' => 'Email ini sudah digunakan oleh akun lain!',
-            'password.min' => 'Kata sandi minimal harus 8 karakter demi keamanan!',
+            'email.unique' => 'Email tersebut sudah terdaftar pada akun lain!',
+            'password.min' => 'Password minimal 4 karakter!',
         ]);
 
-        User::create([
-            'name'     => strip_tags(trim($request->name)),
-            'email'    => strtolower(trim($request->email)),
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
-            'gtk_id'   => $request->gtk_id ?: null,
-        ]);
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', $validator->errors()->first())->withInput();
+        }
 
-        return redirect()->back()->with('success', 'Akun pengguna baru berhasil dibuat dengan aman!');
+        $user           = new User();
+        $user->name     = strip_tags(trim($request->name));
+        $user->email    = strtolower(trim($request->email));
+        $user->password = Hash::make($request->password);
+        $user->role     = $request->role;
+        $user->gtk_id   = $request->gtk_id ?: null;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Akun ' . $user->name . ' berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
     {
-        $this->pastikanSuperadmin();
         User::pastikanTabelRoleSiap();
 
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'name'     => ['required', 'string', 'max:150'],
-            'email'    => ['required', 'string', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8'],
-            'role'     => ['required', Rule::in(['superadmin', 'admin', 'guru', 'pembina_ekskul'])],
-            'gtk_id'   => ['nullable', 'exists:gtks,id'],
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'name'  => ['required', 'string', 'max:150'],
+            'email' => ['required', 'string', 'email', 'max:150', Rule::unique('users', 'email')->ignore($user->id)],
+            'role'  => ['required', 'string'],
         ], [
-            'password.min' => 'Kata sandi baru minimal harus 8 karakter!',
+            'email.unique' => 'Email tersebut sudah digunakan oleh akun lain!',
         ]);
 
-        // KEAMANAN: Cegah Superadmin yang sedang login menurunkan role-nya sendiri
-        if ($user->id === auth()->id() && $request->role !== 'superadmin') {
-            return redirect()->back()->with('error', 'Keamanan Sistem: Anda tidak dapat mengubah role akun Superadmin milik Anda sendiri yang sedang aktif!');
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', $validator->errors()->first());
         }
 
-        $data = [
-            'name'   => strip_tags(trim($request->name)),
-            'email'  => strtolower(trim($request->email)),
-            'role'   => $request->role,
-            'gtk_id' => $request->gtk_id ?: null,
-        ];
+        $user->name   = strip_tags(trim($request->name));
+        $user->email  = strtolower(trim($request->email));
+        $user->role   = $request->role;
+        $user->gtk_id = $request->gtk_id ?: null;
 
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
 
-        $user->update($data);
+        $user->save();
 
-        return redirect()->back()->with('success', 'Data akun & hak akses berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Data akun ' . $user->name . ' berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
-        $this->pastikanSuperadmin();
-
         $user = User::findOrFail($id);
 
-        // 1. Cegah hapus akun sendiri yang sedang login
         if ($user->id === auth()->id()) {
-            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan login!');
-        }
-
-        // 2. Pastikan minimal selalu tersisa 1 Superadmin di dalam database
-        if ($user->role === 'superadmin') {
-            $jumlahSuperadmin = User::where('role', 'superadmin')->count();
-            if ($jumlahSuperadmin <= 1) {
-                return redirect()->back()->with('error', 'Tidak dapat menghapus Superadmin terakhir di sistem!');
-            }
+            return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun yang sedang digunakan login!');
         }
 
         $user->delete();
@@ -130,28 +113,48 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Akun pengguna berhasil dihapus!');
     }
 
-    public function updatePermissions(Request $request)
+    public function togglePermission(Request $request)
     {
-        $this->pastikanSuperadmin();
         User::pastikanTabelRoleSiap();
 
-        $daftarModul = array_keys(User::daftarModulSistem());
-        $roles       = ['admin', 'guru', 'pembina_ekskul'];
-        $inputMatrix = $request->input('permissions', []);
+        DB::table('role_permissions')->updateOrInsert(
+            [
+                'role'     => $request->role,
+                'menu_key' => $request->menu_key,
+            ],
+            [
+                'is_allowed' => $request->boolean('is_allowed'),
+                'updated_at' => now(),
+            ]
+        );
 
-        DB::transaction(function () use ($roles, $daftarModul, $inputMatrix) {
-            foreach ($roles as $role) {
-                foreach ($daftarModul as $menuKey) {
-                    $isAllowed = isset($inputMatrix[$role][$menuKey]) && $inputMatrix[$role][$menuKey] == '1';
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Hak akses berhasil diperbarui!',
+        ]);
+    }
 
-                    DB::table('role_permissions')->updateOrInsert(
-                        ['role' => $role, 'menu_key' => $menuKey],
-                        ['is_allowed' => $isAllowed, 'updated_at' => now()]
-                    );
-                }
+    public function impersonate($id)
+    {
+        $targetUser = User::findOrFail($id);
+        session(['impersonate_original_id' => auth()->id()]);
+        Auth::login($targetUser);
+
+        return redirect()->route('dashboard')->with('success', 'Mode Audit Aktif: Melihat tampilan sebagai ' . $targetUser->name);
+    }
+
+    public function stopImpersonate()
+    {
+        $originalId = session('impersonate_original_id');
+        if ($originalId) {
+            $superAdmin = User::find($originalId);
+            session()->forget('impersonate_original_id');
+            if ($superAdmin) {
+                Auth::login($superAdmin);
+                return redirect()->route('users.index')->with('success', 'Kembali ke akun Super Admin.');
             }
-        });
+        }
 
-        return redirect()->back()->with('success', 'Matriks Toggle Hak Akses berhasil disimpan & disinkronkan!');
+        return redirect()->route('dashboard');
     }
 }
