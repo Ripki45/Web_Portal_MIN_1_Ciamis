@@ -13,10 +13,12 @@ use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\HomeController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
