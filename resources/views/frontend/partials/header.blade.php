@@ -103,31 +103,80 @@
             </a>
         </div>
 
+        @php
+            $navMenus = \App\Models\NavMenu::getTree();
+        @endphp
         <div class="navbar-collapse d-none d-lg-block" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link link-effect-1" href="{{ route('home') }}"><span>Beranda</span></a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle link-effect-1" href="#"><span>Profil Madrasah</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#sambutan">Sambutan Kepala Madrasah</a></li>
-                        <li><a class="dropdown-item" href="#direktori-guru">Direktori Guru & Staf</a></li>
-                        <li><a class="dropdown-item" href="#program-unggulan">Program Unggulan</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-effect-1" href="#berita-terbaru"><span>Berita & Informasi</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-effect-1" href="#ekstrakurikuler"><span>Ekstrakurikuler</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-effect-1" href="#prestasi"><span>Prestasi</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link link-effect-1" href="#galeri"><span>Galeri Foto</span></a>
-                </li>
+                @foreach ($navMenus as $induk)
+                    @php
+                        $punyaAnak = $induk->activeChildren->isNotEmpty();
+                    @endphp
+
+                    @if (!$punyaAnak)
+                        <!-- LEVEL 1: MENU TUNGGAL TANPA DROPDOWN -->
+                        <li class="nav-item {{ $induk->badge_new ? 'position-relative' : '' }}">
+                            @if ($induk->badge_new)
+                                <span class="badge-new">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
+                                        viewBox="0 0 10 10" fill="none">
+                                        <path
+                                            d="M2.18102 5.83336H4.02138L3.64143 9.42543C3.63976 9.43626 3.6393 9.46831 3.6393 9.47914C3.6393 9.76624 3.87306 10 4.16016 10C4.3235 10 4.47929 9.92165 4.58267 9.78294L8.22266 4.58336C8.28972 4.49371 8.3268 4.38293 8.3268 4.27086C8.3268 3.98376 8.09311 3.75 7.80602 3.75H5.55351L5.9285 0.582047C5.92972 0.569992 5.93056 0.532913 5.93056 0.520859C5.93102 0.233765 5.69725 0 5.41016 0C5.24681 0 5.09102 0.0783539 4.98436 0.221252L1.7643 5C1.69724 5.08957 1.66016 5.20042 1.66016 5.3125C1.66016 5.59959 1.89392 5.83336 2.18102 5.83336Z"
+                                            fill="#0E0E0F" />
+                                    </svg>
+                                </span>
+                            @endif
+                            <a class="nav-link link-effect-1" href="{{ $induk->url }}"
+                                target="{{ $induk->target }}">
+                                <span>{{ $induk->nama_menu }}</span>
+                            </a>
+                        </li>
+                    @else
+                        <!-- LEVEL 1: INDUK MENU DENGAN DROPDOWN -->
+                        <li class="nav-item dropdown {{ $induk->badge_new ? 'position-relative' : '' }}">
+                            <a class="nav-link dropdown-toggle link-effect-1" href="{{ $induk->url }}"
+                                target="{{ $induk->target }}">
+                                <span>{{ $induk->nama_menu }}</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                @foreach ($induk->activeChildren as $anak)
+                                    @php
+                                        $punyaCucu = $anak->activeChildren->isNotEmpty();
+                                    @endphp
+
+                                    @if (!$punyaCucu)
+                                        <!-- LEVEL 2: ANAK MENU BIASA -->
+                                        <li>
+                                            <a class="dropdown-item" href="{{ $anak->url }}"
+                                                target="{{ $anak->target }}">
+                                                {{ $anak->nama_menu }}
+                                            </a>
+                                        </li>
+                                    @else
+                                        <!-- LEVEL 2: ANAK MENU YANG PUNYA CUCU (LEVEL 3) -->
+                                        <li class="nav-item-has-child">
+                                            <a class="dropdown-item has-child" href="{{ $anak->url }}"
+                                                target="{{ $anak->target }}">
+                                                {{ $anak->nama_menu }}
+                                            </a>
+                                            <ul class="sub-menu">
+                                                @foreach ($anak->activeChildren as $cucu)
+                                                    <!-- LEVEL 3: CUCU MENU -->
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ $cucu->url }}"
+                                                            target="{{ $cucu->target }}">
+                                                            {{ $cucu->nama_menu }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </li>
+                                    @endif
+                                @endforeach
+                            </ul>
+                        </li>
+                    @endif
+                @endforeach
             </ul>
         </div>
 

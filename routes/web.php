@@ -14,11 +14,13 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NavMenuController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::resource('nav-menu', App\Http\Controllers\NavMenuController::class)->except(['create', 'show', 'edit']);
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])

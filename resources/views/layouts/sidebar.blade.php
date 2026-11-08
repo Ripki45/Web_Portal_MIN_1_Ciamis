@@ -2,23 +2,23 @@
     $user = auth()->user();
 
     // Cek hak akses per grup utama untuk menampilkan/menyembunyikan Ikon Rail di sebelah kiri
-    $bolehLihatGtk      = $user && ($user->canAccess('kepegawaian') || $user->hasRole('superadmin'));
-    $bolehLihatAkademik = $user && (
-        $user->canAccess('tahun_ajaran') ||
-        $user->canAccess('kelas') ||
-        $user->canAccess('siswa') ||
-        $user->canAccess('mapel') ||
-        $user->canAccess('jadwal') ||
-        $user->canAccess('ekskul') ||
-        $user->canAccess('kenaikan_reset')
-    );
-    $bolehLihatPresensi = $user && (
-        $user->canAccess('presensi_scanner') ||
-        $user->canAccess('presensi_monitoring') ||
-        $user->canAccess('presensi_rekap')
-    );
-    $bolehLihatCms      = $user && $user->canAccess('cms');
-    $bolehLihatSetting  = $user && $user->canAccess('pengaturan');
+    $bolehLihatGtk = $user && ($user->canAccess('kepegawaian') || $user->hasRole('superadmin'));
+    $bolehLihatAkademik =
+        $user &&
+        ($user->canAccess('tahun_ajaran') ||
+            $user->canAccess('kelas') ||
+            $user->canAccess('siswa') ||
+            $user->canAccess('mapel') ||
+            $user->canAccess('jadwal') ||
+            $user->canAccess('ekskul') ||
+            $user->canAccess('kenaikan_reset'));
+    $bolehLihatPresensi =
+        $user &&
+        ($user->canAccess('presensi_scanner') ||
+            $user->canAccess('presensi_monitoring') ||
+            $user->canAccess('presensi_rekap'));
+    $bolehLihatCms = $user && ($user->canAccess('cms') || $user->hasRole('superadmin'));
+    $bolehLihatSetting = $user && ($user->canAccess('pengaturan') || $user->hasRole('superadmin'));
 @endphp
 
 <style>
@@ -28,7 +28,8 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.8px;
-        color: #16a34a; /* Hijau MIN 1 Ciamis */
+        color: #16a34a;
+        /* Hijau MIN 1 Ciamis */
         padding: 10px 14px 8px 14px;
         margin-bottom: 6px;
         border-bottom: 1px dashed #e2e8f0;
@@ -36,6 +37,7 @@
         align-items: center;
         gap: 6px;
     }
+
     .role-badge-sidebar {
         font-size: 10px;
         font-weight: 700;
@@ -273,7 +275,9 @@
                         <i class="ph-fill ph-globe"></i> KONTEN WEBSITE
                     </li>
                     <li>
-                        <a href="#"><i class="ph ph-tree-structure"></i><span>Menu & Sub-Menu</span></a>
+                        <a href="{{ route('nav-menu.index') }}">
+                            <i class="ph ph-tree-structure"></i><span>Menu & Sub-Menu</span>
+                        </a>
                     </li>
                     <li>
                         <a href="#"><i class="ph ph-newspaper"></i><span>Berita & Artikel</span></a>
@@ -304,7 +308,7 @@
 </aside>
 
 <script>
-    (function () {
+    (function() {
         function initTwinSidebar() {
             var sidebar = document.querySelector(".twin-sidebar");
             if (!sidebar) return;
@@ -315,13 +319,16 @@
             var mobileToggle = document.querySelector(".twin-mobile-toggle");
             var backdrop = document.querySelector(".twin-backdrop");
 
-            // Pindah menu saat ikon di kiri diklik
-            icons.forEach(function (btn) {
-                btn.addEventListener("click", function () {
+            icons.forEach(function(btn) {
+                btn.addEventListener("click", function() {
                     var key = btn.getAttribute("data-menu");
 
-                    icons.forEach(function (i) { i.classList.remove("active"); });
-                    menus.forEach(function (m) { m.classList.remove("active"); });
+                    icons.forEach(function(i) {
+                        i.classList.remove("active");
+                    });
+                    menus.forEach(function(m) {
+                        m.classList.remove("active");
+                    });
 
                     btn.classList.add("active");
                     var menu = sidebar.querySelector('.twin-menu[data-menu="' + key + '"]');
@@ -332,35 +339,42 @@
                 });
             });
 
-            // Collapse / expand panel menu
             if (collapseBtn) {
-                collapseBtn.addEventListener("click", function () {
+                collapseBtn.addEventListener("click", function() {
                     var collapsed = sidebar.classList.toggle("is-collapsed");
                     document.body.classList.toggle("twin-collapsed", collapsed);
                 });
             }
 
-            // Mobile off-canvas
-            function openMobile() { sidebar.classList.add("is-open"); backdrop.classList.add("show"); }
-            function closeMobile() { sidebar.classList.remove("is-open"); backdrop.classList.remove("show"); }
+            function openMobile() {
+                sidebar.classList.add("is-open");
+                backdrop.classList.add("show");
+            }
+
+            function closeMobile() {
+                sidebar.classList.remove("is-open");
+                backdrop.classList.remove("show");
+            }
             if (mobileToggle) mobileToggle.addEventListener("click", openMobile);
             if (backdrop) backdrop.addEventListener("click", closeMobile);
 
-            // --- Auto-activate menu sesuai URL Laravel saat ini ---
             var currentPath = window.location.pathname.toLowerCase();
             var activeLink = null;
 
-            menus.forEach(function (menu) {
-                menu.querySelectorAll("a[href]").forEach(function (a) {
+            menus.forEach(function(menu) {
+                menu.querySelectorAll("a[href]").forEach(function(a) {
                     a.parentElement.classList.remove("active");
                     var rawHref = a.getAttribute("href");
-                    if (!rawHref || rawHref === "#" || a.getAttribute("target") === "_blank") return;
+                    if (!rawHref || rawHref === "#" || a.getAttribute("target") === "_blank")
+                return;
 
                     try {
-                        var linkPath = new URL(rawHref, window.location.origin).pathname.toLowerCase();
+                        var linkPath = new URL(rawHref, window.location.origin).pathname
+                            .toLowerCase();
                         if (linkPath === currentPath) {
                             activeLink = a;
-                        } else if (linkPath !== "/" && linkPath !== "/dashboard" && currentPath.startsWith(linkPath + "/")) {
+                        } else if (linkPath !== "/" && linkPath !== "/dashboard" && currentPath
+                            .startsWith(linkPath + "/")) {
                             activeLink = a;
                         }
                     } catch (e) {}
@@ -368,8 +382,12 @@
             });
 
             if (activeLink) {
-                icons.forEach(function (i) { i.classList.remove("active"); });
-                menus.forEach(function (m) { m.classList.remove("active"); });
+                icons.forEach(function(i) {
+                    i.classList.remove("active");
+                });
+                menus.forEach(function(m) {
+                    m.classList.remove("active");
+                });
 
                 activeLink.parentElement.classList.add("active");
 

@@ -41,21 +41,47 @@
         </a>
     </div>
 
+    @php
+        $mobileMenus = \App\Models\NavMenu::getTree();
+    @endphp
     <ul class="sidebar-nav list-unstyled ps-0">
-        <li class="nav-item"><a class="nav-link mb-2" href="{{ route('home') }}">Beranda</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#sambutan">Sambutan Kepala Madrasah</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#berita-terbaru">Berita Terbaru</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#direktori-guru">Direktori Guru & Staf</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#program-unggulan">Program Unggulan</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#ekstrakurikuler">Ekstrakurikuler</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#prestasi">Prestasi Madrasah</a></li>
-        <li class="nav-item"><a class="nav-link mb-2" href="#galeri">Galeri Foto</a></li>
+        @foreach ($mobileMenus as $induk)
+            @if ($induk->activeChildren->isEmpty())
+                <li class="nav-item">
+                    <a class="nav-link mb-2" href="{{ $induk->url }}"
+                        target="{{ $induk->target }}">{{ $induk->nama_menu }}</a>
+                </li>
+            @else
+                <li class="nav-item collapse">
+                    <a class="nav-link mb-2 collapse-toggle" href="#">{{ $induk->nama_menu }}</a>
+                    <ul class="collapse-menu d-flex flex-column gap-1 list-unstyled">
+                        @foreach ($induk->activeChildren as $anak)
+                            <li>
+                                <a class="collapse-item fw-semibold" href="{{ $anak->url }}"
+                                    target="{{ $anak->target }}">
+                                    {{ $anak->nama_menu }}
+                                </a>
+                            </li>
+                            @foreach ($anak->activeChildren as $cucu)
+                                <li class="ps-3">
+                                    <a class="collapse-item fs-8" href="{{ $cucu->url }}"
+                                        target="{{ $cucu->target }}">
+                                        &rarr; {{ $cucu->nama_menu }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        @endforeach
+                    </ul>
+                </li>
+            @endif
+        @endforeach
     </ul>
 
     <div class="sidebar-footer">
         <h6 class="my-2">Akses Cepat Sistem</h6>
         <div class="d-flex flex-column gap-2">
-            <a href="{{ route('presensi.scanner') }}" class="btn btn-dark w-100 button-effect-1">Scanner Presensi QR</a>
+            <a href="{{ route('presensi.scanner') }}" class="btn btn-dark w-100 button-effect-1">Scanner Presensi
+                QR</a>
             @auth
                 <a href="{{ route('dashboard') }}" class="btn btn-outline-dark w-100">Buka Dashboard</a>
             @else
