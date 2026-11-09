@@ -15,12 +15,14 @@ use App\Http\Controllers\UserRoleController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NavMenuController;
+use App\Http\Controllers\HalamanController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('nav-menu', App\Http\Controllers\NavMenuController::class)->except(['create', 'show', 'edit']);
+Route::get('/halaman/{slug}', [App\Http\Controllers\HalamanController::class, 'show'])->name('halaman.show');
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -102,8 +104,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/kenaikan-kelas/proses', [App\Http\Controllers\KenaikanKelasController::class, 'prosesNaikKelas'])->name('kenaikan.proses');
     Route::post('/kenaikan-kelas/alumni/bulk-delete', [App\Http\Controllers\KenaikanKelasController::class, 'bulkDeleteAlumni'])->name('kenaikan.bulkDeleteAlumni');
     Route::post('/kenaikan-kelas/magic-action', [App\Http\Controllers\KenaikanKelasController::class, 'magicAction'])->name('kenaikan.magicAction');
-
     Route::resource('jadwal', App\Http\Controllers\JadwalController::class);
+
+    Route::get('/nav-menu/{id}/halaman', [App\Http\Controllers\HalamanController::class, 'kelolaDariMenu'])->name('nav-menu.halaman');
+    Route::resource('halaman', App\Http\Controllers\HalamanController::class)->except(['create', 'show']);
 });
 
 require __DIR__.'/auth.php';

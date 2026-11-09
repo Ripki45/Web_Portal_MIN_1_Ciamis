@@ -53,6 +53,7 @@ class User extends Authenticatable
             'presensi_rekap'      => ['label' => 'Rekap & Laporan Bulanan (PDF & Excel)', 'kategori' => 'Presensi Harian'],
             'cms'                 => ['label' => 'Konten Website Publik (Menu, Berita, Galeri)', 'kategori' => 'Konten Website'],
             'pengaturan'          => ['label' => 'Pengaturan Identitas Madrasah', 'kategori' => 'Pengaturan'],
+            'nav_menu'            => ['kategori' => 'Konten Website','label'    => 'Manajemen Menu Navbar (Induk / Anak / Cucu)',],
         ];
     }
 

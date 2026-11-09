@@ -366,7 +366,7 @@
                     a.parentElement.classList.remove("active");
                     var rawHref = a.getAttribute("href");
                     if (!rawHref || rawHref === "#" || a.getAttribute("target") === "_blank")
-                return;
+                        return;
 
                     try {
                         var linkPath = new URL(rawHref, window.location.origin).pathname

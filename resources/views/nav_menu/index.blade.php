@@ -4,30 +4,61 @@
 
 @section('content')
 
+    @php
+        // Pengaman otomatis agar tidak pernah terjadi error Undefined Variable
+        \App\Models\NavMenu::pastikanTabelSiap();
+
+        $indukMenus =
+            $indukMenus ??
+            \App\Models\NavMenu::with(['children.children'])
+                ->whereNull('parent_id')
+                ->orderBy('urutan', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+        $listInduk = $listInduk ?? \App\Models\NavMenu::where('level', 1)->orderBy('urutan', 'asc')->get();
+
+        $listAnak =
+            $listAnak ??
+            \App\Models\NavMenu::with('parent')
+                ->where('level', 2)
+                ->orderBy('parent_id', 'asc')
+                ->orderBy('urutan', 'asc')
+                ->get();
+    @endphp
+
     <!-- Header -->
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-20">
         <div>
             <h6 class="fw-semibold mb-1">Manajemen Menu & Sub-Menu Website (3 Level)</h6>
             <span class="text-xs text-secondary-light">
-                Kelola <b>Induk Menu</b> (Menu Tunggal / Dropdown), <b>Anak Menu</b> (Sub-Menu), dan <b>Cucu Menu</b>
-                (Sub-Sub Menu)
+                Kelola <b>Induk Menu</b> (Level 1), <b>Anak Menu</b> (Level 2), dan <b>Cucu Menu</b> (Level 3) beserta isi
+                halamannya
             </span>
         </div>
-        <a href="{{ url('/') }}" target="_blank"
-            class="btn btn-primary-600 radius-8 px-16 py-8 text-xs fw-bold d-inline-flex align-items-center gap-2">
-            <i class="ph-bold ph-arrow-square-out text-md"></i> Lihat Navbar Halaman Depan
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            @if (Route::has('halaman.index'))
+                <a href="{{ route('halaman.index') }}"
+                    class="btn btn-outline-primary-600 radius-8 px-14 py-8 text-xs fw-bold d-inline-flex align-items-center gap-1">
+                    <i class="ph-bold ph-files text-md"></i> Daftar Semua Halaman
+                </a>
+            @endif
+            <a href="{{ url('/') }}" target="_blank"
+                class="btn btn-primary-600 radius-8 px-16 py-8 text-xs fw-bold d-inline-flex align-items-center gap-2">
+                <i class="ph-bold ph-arrow-square-out text-md"></i> Lihat Navbar Depan
+            </a>
+        </div>
     </div>
 
     <div class="row gy-4">
 
         <!-- ========================================================================= -->
-        <!-- SISI KIRI (4 KOLOM): FORM DINAMIS BERDASARKAN TINGKATAN MENU              -->
+        <!-- SISI KIRI (4 KOLOM): FORM TAMBAH MENU DINAMIS                             -->
         <!-- ========================================================================= -->
         <div class="col-lg-4">
             <div class="card radius-12 border shadow-sm">
                 <div class="card-header border-bottom bg-base py-16 px-20">
-                    <h6 class="text-md fw-bold mb-0 text-primary-600 d-flex align-items-center gap-2" id="judulFormKiri">
+                    <h6 class="text-md fw-bold mb-0 text-primary-600 d-flex align-items-center gap-2">
                         <i class="ph-bold ph-plus-circle text-lg"></i> Buat Menu Navigasi Baru
                     </h6>
                 </div>
@@ -36,7 +67,7 @@
                     @csrf
                     <div class="card-body p-20">
 
-                        <!-- LANGKAH 1: PILIH JENIS / TINGKATAN MENU -->
+                        <!-- 1. PILIH TINGKATAN MENU -->
                         <div class="mb-16">
                             <label class="form-label fw-bold text-sm mb-6">
                                 1. Pilih Tingkatan Menu <span class="text-danger-600">*</span>
@@ -61,8 +92,8 @@
                             <select name="induk_id" id="selectIndukTambah"
                                 class="form-select form-select-sm radius-8 fw-semibold">
                                 <option value="">-- Pilih Induk Menu (Level 1) --</option>
-                                @foreach ($listInduk as $induk)
-                                    <option value="{{ $induk->id }}">📁 {{ $induk->nama_menu }}</option>
+                                @foreach ($listInduk as $indukOpt)
+                                    <option value="{{ $indukOpt->id }}">📁 {{ $indukOpt->nama_menu }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -76,34 +107,36 @@
                             <select name="anak_id" id="selectAnakTambah"
                                 class="form-select form-select-sm radius-8 fw-semibold">
                                 <option value="">-- Pilih Anak Menu (Level 2) --</option>
-                                @foreach ($listAnak as $anak)
-                                    <option value="{{ $anak->id }}">
-                                        {{ $anak->parent->nama_menu ?? 'Induk' }} &rarr; {{ $anak->nama_menu }}
+                                @foreach ($listAnak as $anakOpt)
+                                    <option value="{{ $anakOpt->id }}">
+                                        {{ $anakOpt->parent->nama_menu ?? 'Induk' }} &rarr; {{ $anakOpt->nama_menu }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
 
-                        <!-- LANGKAH 2: NAMA MENU -->
+                        <!-- 2. NAMA MENU -->
                         <div class="mb-14">
                             <label class="form-label fw-bold text-sm mb-6">
                                 2. Nama / Label Menu <span class="text-danger-600">*</span>
                             </label>
                             <input type="text" name="nama_menu" id="inputNamaMenuTambah"
-                                class="form-control radius-8 fw-semibold" placeholder="Contoh: Profil Madrasah" required>
+                                class="form-control radius-8 fw-semibold" placeholder="Contoh: Visi & Misi" required>
                         </div>
 
-                        <!-- LANGKAH 3: LINK / URL -->
+                        <!-- 3. LINK / URL -->
                         <div class="mb-14">
                             <label class="form-label fw-bold text-sm mb-6">3. Link / URL Tujuan</label>
                             <input type="text" name="url" id="inputUrlTambah"
                                 class="form-control radius-8 font-monospace text-xs" value="#"
-                                placeholder="Contoh: / atau #sambutan atau https://...">
-                            <small class="text-xs text-secondary-light">Biarkan <code>#</code> jika menu ini hanya sebagai
-                                pembuka dropdown.</small>
+                                placeholder="Biarkan # jika ingin dibuatkan halaman otomatis">
+                            <small class="text-xs text-secondary-light">
+                                Biarkan <code>#</code> lalu klik tombol <b>📄 Isi Halaman</b> di tabel kanan untuk membuat
+                                halaman otomatis.
+                            </small>
                         </div>
 
-                        <!-- LANGKAH 4: URUTAN & TARGET -->
+                        <!-- 4. URUTAN & TARGET -->
                         <div class="row g-2 mb-16">
                             <div class="col-6">
                                 <label class="form-label fw-bold text-sm mb-6">Urutan Tampil</label>
@@ -156,8 +189,10 @@
                     class="card-header border-bottom bg-base py-16 px-24 d-flex flex-wrap align-items-center justify-content-between gap-2">
                     <div>
                         <h6 class="text-md fw-bold mb-0">Struktur Hierarki Navbar Saat Ini</h6>
-                        <span class="text-xs text-secondary-light">Klik tombol <b>+ Anak</b> atau <b>+ Cucu</b> pada baris
-                            tabel untuk menambah sub-menu dengan cepat</span>
+                        <span class="text-xs text-secondary-light">
+                            Klik <b>+ Anak / + Cucu</b> untuk menambah sub-menu, atau klik <b>📄 Isi Halaman</b> untuk
+                            mengisi konten halaman
+                        </span>
                     </div>
                 </div>
 
@@ -169,9 +204,9 @@
                                     <th>Susunan Menu (Induk / Anak / Cucu)</th>
                                     <th>Tipe & Posisi</th>
                                     <th>Link Tujuan</th>
-                                    <th class="text-center" width="8%">Urut</th>
-                                    <th class="text-center" width="10%">Status</th>
-                                    <th class="text-center" width="18%">Aksi</th>
+                                    <th class="text-center" width="7%">Urut</th>
+                                    <th class="text-center" width="9%">Status</th>
+                                    <th class="text-center" width="24%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -196,7 +231,7 @@
                                         <td class="text-nowrap">
                                             <span
                                                 class="bg-primary-600 text-white px-10 py-3 rounded-pill text-xs fw-bold d-inline-block">
-                                                {{ $punyaAnak ? 'Induk (Dropdown)' : 'Induk (Menu Tunggal)' }}
+                                                {{ $punyaAnak ? 'Induk (Dropdown)' : 'Induk (Tunggal)' }}
                                             </span>
                                         </td>
                                         <td class="font-monospace text-xs">{{ $induk->url }}</td>
@@ -208,22 +243,32 @@
                                             </span>
                                         </td>
                                         <td class="text-center">
-                                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                            <div
+                                                class="d-flex align-items-center justify-content-center gap-1 flex-nowrap">
                                                 <button type="button"
                                                     onclick="pintasTambahAnak('{{ $induk->id }}', '{{ addslashes($induk->nama_menu) }}')"
-                                                    class="bg-primary-50 text-primary-600 border border-primary px-8 py-4 rounded-pill text-xs fw-bold"
+                                                    class="bg-primary-50 text-primary-600 border border-primary px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
                                                     title="Tambah Anak Menu di bawah {{ $induk->nama_menu }}">
                                                     + Anak
                                                 </button>
+
+                                                @if (!$punyaAnak)
+                                                    <a href="{{ url('/nav-menu/' . $induk->id . '/halaman') }}"
+                                                        class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                        title="Buat / Edit Isi Halaman untuk Menu {{ $induk->nama_menu }}">
+                                                        📄 Isi Halaman
+                                                    </a>
+                                                @endif
+
                                                 <button type="button"
-                                                    class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                    class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editMenuModal{{ $induk->id }}" title="Edit Menu">
                                                     <iconify-icon icon="lucide:edit"></iconify-icon>
                                                 </button>
                                                 <button type="button"
                                                     onclick="konfirmasiHapusMenu('{{ route('nav-menu.destroy', $induk->id) }}', '{{ addslashes($induk->nama_menu) }}')"
-                                                    class="bg-danger-focus text-danger-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                    class="bg-danger-focus text-danger-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                     title="Hapus Menu">
                                                     <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
                                                 </button>
@@ -257,15 +302,25 @@
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <div class="d-flex align-items-center justify-content-center gap-1">
+                                                <div
+                                                    class="d-flex align-items-center justify-content-center gap-1 flex-nowrap">
                                                     <button type="button"
                                                         onclick="pintasTambahCucu('{{ $anak->id }}', '{{ addslashes($anak->nama_menu) }}')"
-                                                        class="bg-warning-focus text-warning-main border border-warning px-8 py-4 rounded-pill text-xs fw-bold"
+                                                        class="bg-warning-focus text-warning-main border border-warning px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
                                                         title="Tambah Cucu Menu di bawah {{ $anak->nama_menu }}">
                                                         + Cucu
                                                     </button>
+
+                                                    @if (!$punyaCucu)
+                                                        <a href="{{ url('/nav-menu/' . $anak->id . '/halaman') }}"
+                                                            class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                            title="Buat / Edit Isi Halaman untuk {{ $anak->nama_menu }}">
+                                                            📄 Isi Halaman
+                                                        </a>
+                                                    @endif
+
                                                     <button type="button"
-                                                        class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                        class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#editMenuModal{{ $anak->id }}"
                                                         title="Edit Anak Menu">
@@ -273,7 +328,7 @@
                                                     </button>
                                                     <button type="button"
                                                         onclick="konfirmasiHapusMenu('{{ route('nav-menu.destroy', $anak->id) }}', '{{ addslashes($anak->nama_menu) }}')"
-                                                        class="bg-danger-focus text-danger-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                        class="bg-danger-focus text-danger-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                         title="Hapus Anak Menu">
                                                         <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
                                                     </button>
@@ -305,9 +360,15 @@
                                                     </span>
                                                 </td>
                                                 <td class="text-center">
-                                                    <div class="d-flex align-items-center justify-content-center gap-1">
+                                                    <div
+                                                        class="d-flex align-items-center justify-content-center gap-1 flex-nowrap">
+                                                        <a href="{{ url('/nav-menu/' . $cucu->id . '/halaman') }}"
+                                                            class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                            title="Buat / Edit Isi Halaman untuk {{ $cucu->nama_menu }}">
+                                                            📄 Isi Halaman
+                                                        </a>
                                                         <button type="button"
-                                                            class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                            class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editMenuModal{{ $cucu->id }}"
                                                             title="Edit Cucu Menu">
@@ -315,7 +376,7 @@
                                                         </button>
                                                         <button type="button"
                                                             onclick="konfirmasiHapusMenu('{{ route('nav-menu.destroy', $cucu->id) }}', '{{ addslashes($cucu->nama_menu) }}')"
-                                                            class="bg-danger-focus text-danger-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0"
+                                                            class="bg-danger-focus text-danger-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                             title="Hapus Cucu Menu">
                                                             <iconify-icon icon="fluent:delete-24-regular"></iconify-icon>
                                                         </button>
@@ -345,7 +406,7 @@
     </form>
 
     <!-- ========================================================================= -->
-    <!-- MODAL EDIT MENU (DENGAN PILIHAN LEVEL -> INDUK / ANAK OTOMATIS)           -->
+    <!-- MODAL EDIT MENU                                                           -->
     <!-- ========================================================================= -->
     @foreach ($semuaMenuFlat as $item)
         <div class="modal fade" id="editMenuModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
@@ -381,11 +442,11 @@
                                 <label class="form-label fw-bold text-xs text-success-main mb-6">Pilih Induk Menu (Level
                                     1)</label>
                                 <select name="induk_id" class="form-select form-select-sm radius-8 fw-semibold">
-                                    @foreach ($listInduk as $induk)
-                                        @if ($induk->id !== $item->id)
-                                            <option value="{{ $induk->id }}"
-                                                {{ $item->parent_id == $induk->id ? 'selected' : '' }}>
-                                                📁 {{ $induk->nama_menu }}
+                                    @foreach ($listInduk as $indukOpt)
+                                        @if ($indukOpt->id !== $item->id)
+                                            <option value="{{ $indukOpt->id }}"
+                                                {{ $item->parent_id == $indukOpt->id ? 'selected' : '' }}>
+                                                📁 {{ $indukOpt->nama_menu }}
                                             </option>
                                         @endif
                                     @endforeach
@@ -398,11 +459,12 @@
                                 <label class="form-label fw-bold text-xs text-warning-main mb-6">Pilih Anak Menu (Level
                                     2)</label>
                                 <select name="anak_id" class="form-select form-select-sm radius-8 fw-semibold">
-                                    @foreach ($listAnak as $anak)
-                                        @if ($anak->id !== $item->id)
-                                            <option value="{{ $anak->id }}"
-                                                {{ $item->parent_id == $anak->id ? 'selected' : '' }}>
-                                                {{ $anak->parent->nama_menu ?? 'Induk' }} &rarr; {{ $anak->nama_menu }}
+                                    @foreach ($listAnak as $anakOpt)
+                                        @if ($anakOpt->id !== $item->id)
+                                            <option value="{{ $anakOpt->id }}"
+                                                {{ $item->parent_id == $anakOpt->id ? 'selected' : '' }}>
+                                                {{ $anakOpt->parent->nama_menu ?? 'Induk' }} &rarr;
+                                                {{ $anakOpt->nama_menu }}
                                             </option>
                                         @endif
                                     @endforeach
@@ -474,7 +536,6 @@
 
 @push('scripts')
     <script>
-        // 1. Tampilkan/Sembunyikan Dropdown Induk atau Anak di Form Kiri
         function aturTampilanIndukTambah() {
             const level = document.getElementById('selectLevelTambah').value;
             const boxInduk = document.getElementById('boxPilihIndukTambah');
@@ -500,7 +561,6 @@
             }
         }
 
-        // 2. Tampilkan/Sembunyikan Dropdown Induk atau Anak di Modal Edit
         function aturTampilanIndukEdit(id) {
             const level = document.getElementById('editLevel' + id).value;
             const boxInduk = document.getElementById('boxEditInduk' + id);
@@ -516,13 +576,11 @@
             }
         }
 
-        // 3. Tombol Pintas "+ Anak" dari baris Tabel
         function pintasTambahAnak(indukId, namaInduk) {
             document.getElementById('selectLevelTambah').value = '2';
             aturTampilanIndukTambah();
             document.getElementById('selectIndukTambah').value = indukId;
-            const inputNama = document.getElementById('inputNamaMenuTambah');
-            inputNama.focus();
+            document.getElementById('inputNamaMenuTambah').focus();
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -533,13 +591,11 @@
             });
         }
 
-        // 4. Tombol Pintas "+ Cucu" dari baris Tabel
         function pintasTambahCucu(anakId, namaAnak) {
             document.getElementById('selectLevelTambah').value = '3';
             aturTampilanIndukTambah();
             document.getElementById('selectAnakTambah').value = anakId;
-            const inputNama = document.getElementById('inputNamaMenuTambah');
-            inputNama.focus();
+            document.getElementById('inputNamaMenuTambah').focus();
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -550,7 +606,6 @@
             });
         }
 
-        // 5. SweetAlert Konfirmasi Update Menu
         function konfirmasiUpdateMenu(formId, nama) {
             const form = document.getElementById(formId);
             if (!form.checkValidity()) {
@@ -573,7 +628,6 @@
             });
         }
 
-        // 6. SweetAlert Konfirmasi Hapus Menu
         function konfirmasiHapusMenu(url, nama) {
             Swal.fire({
                 title: 'Hapus Menu "' + nama + '"?',
