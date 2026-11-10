@@ -280,7 +280,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#"><i class="ph ph-newspaper"></i><span>Berita & Artikel</span></a>
+                        <a href="{{ route('berita.index') }}">
+                            <i class="ph ph-newspaper"></i><span>Berita & Artikel</span>
+                        </a>
                     </li>
                     <li>
                         <a href="#"><i class="ph ph-megaphone"></i><span>Pengumuman</span></a>

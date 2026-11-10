@@ -16,22 +16,24 @@ use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NavMenuController;
 use App\Http\Controllers\HalamanController;
+use App\Http\Controllers\BeritaController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::resource('nav-menu', App\Http\Controllers\NavMenuController::class)->except(['create', 'show', 'edit']);
-Route::get('/halaman/{slug}', [App\Http\Controllers\HalamanController::class, 'show'])->name('halaman.show');
+Route::get('/berita/{slug}', [App\Http\Controllers\BeritaController::class, 'show'])
+    ->where('slug', '^(?!create$|edit$).*')
+    ->name('berita.show');
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-// ROUTE HALAMAN DEPAN PRESENSI (TANPA LOGIN: SCANNER & INPUT SAKIT/IZIN/ALFA GURU)
-Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
-Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])->name('presensi.prosesScan');
-Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])->name('presensi.storeManualDepan');
-Route::post('/scan-presensi/verifikasi-pin', [App\Http\Controllers\PresensiController::class, 'verifikasiPinServer'])
+    // ROUTE HALAMAN DEPAN PRESENSI (TANPA LOGIN: SCANNER & INPUT SAKIT/IZIN/ALFA GURU)
+    Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
+    Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])->name('presensi.prosesScan');
+    Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])->name('presensi.storeManualDepan');
+    Route::post('/scan-presensi/verifikasi-pin', [App\Http\Controllers\PresensiController::class, 'verifikasiPinServer'])
     ->middleware('throttle:5,1')
     ->name('presensi.verifikasiPin');
 Route::post('/scan-presensi/kunci-pin', [App\Http\Controllers\PresensiController::class, 'kunciPinServer'])
@@ -106,8 +108,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/kenaikan-kelas/magic-action', [App\Http\Controllers\KenaikanKelasController::class, 'magicAction'])->name('kenaikan.magicAction');
     Route::resource('jadwal', App\Http\Controllers\JadwalController::class);
 
+    Route::resource('nav-menu', App\Http\Controllers\NavMenuController::class)->except(['create', 'show', 'edit']);
     Route::get('/nav-menu/{id}/halaman', [App\Http\Controllers\HalamanController::class, 'kelolaDariMenu'])->name('nav-menu.halaman');
     Route::resource('halaman', App\Http\Controllers\HalamanController::class)->except(['create', 'show']);
+
+   // CRUD Berita & Studio AI
+    Route::post('/berita/generate-ai', [App\Http\Controllers\BeritaController::class, 'generateAi'])->name('berita.generateAi');
+    Route::resource('berita', App\Http\Controllers\BeritaController::class)->except(['show']);
+
+    // CRUD Kategori Berita (Beserta Slug Otomatis)
+    Route::post('/kategori-berita', [App\Http\Controllers\BeritaController::class, 'storeKategori'])->name('kategori-berita.store');
+    Route::put('/kategori-berita/{id}', [App\Http\Controllers\BeritaController::class, 'updateKategori'])->name('kategori-berita.update');
+    Route::delete('/kategori-berita/{id}', [App\Http\Controllers\BeritaController::class, 'destroyKategori'])->name('kategori-berita.destroy');
 });
 
 require __DIR__.'/auth.php';

@@ -143,6 +143,162 @@
             </ul>
         </div>
     </div>
+    <!-- ========================================================================= -->
+    <!-- BERITA TERBARU (DESAIN LATEST NEWS: 1 KARTU BESAR KIRI + 2 KARTU KANAN)   -->
+    <!-- ========================================================================= -->
+    <section class="sec-3-home-1 sec-padding overflow-hidden" id="berita-terbaru">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-title d-flex align-items-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none">
+                                    <path
+                                        d="M0.582044 11.7285C8.79451 13.4712 10.252 14.8614 12.125 22.7372C13.8067 14.8768 15.2308 13.4992 23.4018 11.8279C15.1894 10.0852 13.7319 8.69503 11.8589 0.81924C10.1769 8.67956 8.75306 10.0571 0.582044 11.7285Z"
+                                        fill="#0E0E0F" />
+                                </svg>
+                                <h5 class="mb-0 text-anime-style-2">Berita Terbaru</h5>
+                            </div>
+                            <p class="fs-7 ms-3 mb-0 d-none d-lg-block text-anime-style-1">
+                                Publikasi kegiatan, prestasi, dan informasi terkini MIN 1 Ciamis
+                            </p>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <a href="#berita-terbaru" class="view-more">
+                                <span class="circle" aria-hidden="true">
+                                    <span class="icon arrow"></span>
+                                </span>
+                                <span class="button-text">Lihat Semua</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if ($beritaUtama)
+                <div class="row mt-3 g-4 align-items-stretch">
+                    <!-- SISI KIRI (7 KOLOM): 1 KARTU SOROTAN BESAR (.card-2) -->
+                    <div class="col-lg-7 col-12">
+                        @php
+                            $badgeUtama = $warnaKategori[$beritaUtama->kategori] ?? 'bg-3';
+                        @endphp
+                        <div class="article card-2 position-relative h-100">
+                            <div class="post-link hover-effect-1 h-100">
+                                <a href="{{ route('berita.show', $beritaUtama->slug) }}" class="card-img-top thumbnail">
+                                    <img src="{{ $beritaUtama->gambar_url }}" alt="{{ $beritaUtama->judul }}"
+                                        class="cover-image" style="min-height: 440px; object-fit: cover;">
+                                </a>
+                                <div class="card-corner">
+                                    <a href="{{ route('berita.show', $beritaUtama->slug) }}" class="arrow-box">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none">
+                                            <path d="M13.75 6.75L19.25 12L13.75 17.25" stroke="#0E0E0F" stroke-width="1.5"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                            <path d="M19 12H4.75" stroke="#0E0E0F" stroke-width="1.5"
+                                                stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                    </a>
+                                    <div class="curve-one"></div>
+                                    <div class="curve-two"></div>
+                                </div>
+                                <div class="card-body hover-up">
+                                    <a href="{{ route('berita.show', $beritaUtama->slug) }}"
+                                        class="badge {{ $badgeUtama }} fs-8 mb-2">
+                                        {{ $beritaUtama->kategori }}
+                                    </a>
+                                    <a href="{{ route('berita.show', $beritaUtama->slug) }}" class="hover-underline">
+                                        <h4 class="card-title mb-0 text-truncate-2">{{ $beritaUtama->judul }}</h4>
+                                    </a>
+                                    <div class="card-info d-flex flex-wrap gap-2 align-items-center mt-2">
+                                        <a href="{{ route('berita.show', $beritaUtama->slug) }}"
+                                            class="author d-flex align-items-center gap-2">
+                                            <img class="avatar avatar-sm rounded-circle"
+                                                src="{{ asset('backend/assets/images/icon_min.png') }}"
+                                                alt="MIN 1 Ciamis" style="object-fit: contain;">
+                                            <span class="fs-7 text-500 fw-semibold">{{ $beritaUtama->penulis }}</span>
+                                        </a>
+                                        <ul class="d-flex align-items-center gap-4 text-600 m-0 ps-4">
+                                            <li>
+                                                <p class="fs-8 m-0">
+                                                    {{ $beritaUtama->created_at->translatedFormat('d M Y') }}</p>
+                                            </li>
+                                            <li>
+                                                <p class="fs-8 m-0">{{ $beritaUtama->waktu_baca }}</p>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SISI KANAN (5 KOLOM): 2 KARTU BERSUSUN (.card-3) -->
+                    <div class="col-lg-5 col-12 d-flex flex-column justify-content-between gap-4">
+                        @foreach ($beritaSamping as $bs)
+                            @php
+                                $badgeSamping = $warnaKategori[$bs->kategori] ?? 'bg-1';
+                            @endphp
+                            <div class="article card-3 d-flex flex-column flex-sm-row h-100">
+                                <div class="hover-effect-1">
+                                    <a href="{{ route('berita.show', $bs->slug) }}" class="card-img-top">
+                                        <img src="{{ $bs->gambar_url }}" class="w-100 h-100" alt="{{ $bs->judul }}"
+                                            style="object-fit: cover; min-height: 200px;">
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="card-corner">
+                                        <a href="{{ route('berita.show', $bs->slug) }}" class="arrow-box">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none">
+                                                <path d="M13.75 6.75L19.25 12L13.75 17.25" stroke="#0E0E0F"
+                                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                <path d="M19 12H4.75" stroke="#0E0E0F" stroke-width="1.5"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </a>
+                                        <div class="curve-one"></div>
+                                        <div class="curve-two"></div>
+                                    </div>
+                                    <div class="d-flex flex-column h-100">
+                                        <div class="card-info d-flex align-items-center mb-3">
+                                            <a href="{{ route('berita.show', $bs->slug) }}"
+                                                class="badge {{ $badgeSamping }} fs-8">
+                                                {{ $bs->kategori }}
+                                            </a>
+                                            <ul class="d-flex align-items-center text-600 m-0 ps-4">
+                                                <li>
+                                                    <p class="fs-8 m-0">{{ $bs->waktu_baca }}</p>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <a href="{{ route('berita.show', $bs->slug) }}" class="hover-underline">
+                                            <h6 class="card-title mb-0 text-truncate-2">{{ $bs->judul }}</h6>
+                                        </a>
+                                        <div class="bottom mt-auto pt-3 d-flex align-items-center gap-3">
+                                            <span
+                                                class="fs-8 text-600">{{ $bs->created_at->translatedFormat('d M Y') }}</span>
+                                            <a href="{{ route('berita.show', $bs->slug) }}" class="readers fs-8 ms-auto">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                    viewBox="0 0 20 20" fill="none">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd"
+                                                        d="M17.186 10.3224C15.734 13.039 12.9803 14.7266 10.001 14.7266C7.01977 14.7266 4.26612 13.039 2.81407 10.3224C2.70224 10.1114 2.70224 9.88843 2.81407 9.67767C4.26612 6.96107 7.01977 5.27366 10.001 5.27366C12.9803 5.27366 15.7339 6.96107 17.186 9.67767C17.2998 9.88843 17.2998 10.1114 17.186 10.3224ZM10.001 12.2707C11.2024 12.2707 12.18 11.2522 12.18 9.99993C12.18 8.7477 11.2024 7.72912 10.001 7.72912C8.79769 7.72912 7.82002 8.7477 7.82002 9.99993C7.82002 11.2522 8.79773 12.2707 10.001 12.2707Z"
+                                                        fill="#626568" />
+                                                </svg>
+                                                <span class="odometer text-nowrap"
+                                                    data-count="{{ $bs->views }}"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+        </div>
+    </section>
 
     <!-- 4. DIREKTORI GURU & TENAGA PENDIDIK (OTOMATIS DARI MASTER GTK) -->
     <section class="sec-5-home-1 sec-padding" id="direktori-guru"
