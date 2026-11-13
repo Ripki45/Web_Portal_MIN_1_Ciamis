@@ -280,6 +280,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('banner-carousel.index') }}">
+                            <i class="ph ph-slideshow"></i><span>Carousel Banner</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('berita.index') }}">
                             <i class="ph ph-newspaper"></i><span>Berita & Artikel</span>
                         </a>

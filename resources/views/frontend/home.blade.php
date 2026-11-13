@@ -17,92 +17,135 @@
         </div>
     </section>
 
-    <!-- 2. CAROUSEL BANNER UTAMA (4 SLIDE SOROTAN KEGIATAN) -->
-    <section class="sec-9-home-1" id="carousel-banner">
-        <div class="custom-container position-relative">
-            <div class="block-card-swiper" id="gallery-background">
-                <div class="container">
-                    <div class="row align-items-stretch g-5">
-                        <div class="col-lg-6">
-                            <div class="swiper gallery-left overflow-y-visible">
-                                <div class="swiper-wrapper">
-                                    @php
-                                        $dummyBanners = [
-                                            [
-                                                'kategori' => 'Kegiatan Siswa',
-                                                'judul' => 'Gerakan Literasi Pagi Menghidupkan Budaya Baca',
-                                                'ket' =>
-                                                    'Pembiasaan membaca, diskusi singkat, dan dokumentasi karya siswa MIN 1 Ciamis.',
-                                                'bg' => 'frontend/assets/imgs/page/bg-home1-sec9-1.png',
-                                                'thumb' => 'frontend/assets/imgs/page/img-36.png',
-                                            ],
-                                            [
-                                                'kategori' => 'Program Madrasah',
-                                                'judul' => 'Pembelajaran Berbasis Teknologi & Karakter Islami',
-                                                'ket' =>
-                                                    'Integrasi kurikulum madrasah dengan inovasi pembelajaran digital interaktif.',
-                                                'bg' => 'frontend/assets/imgs/page/bg-home1-sec9-2.png',
-                                                'thumb' => 'frontend/assets/imgs/page/img-37.png',
-                                            ],
-                                            [
-                                                'kategori' => 'Ekstrakurikuler',
-                                                'judul' => 'Pembinaan Pramuka & Bakat Olahraga Siswa',
-                                                'ket' =>
-                                                    'Membangun kedisiplinan, kemandirian, dan sportivitas peserta didik sejak dini.',
-                                                'bg' => 'frontend/assets/imgs/page/bg-home1-sec9-3.png',
-                                                'thumb' => 'frontend/assets/imgs/page/img-36.png',
-                                            ],
-                                            [
-                                                'kategori' => 'Prestasi Madrasah',
-                                                'judul' => 'Raih Prestasi Akademik & Kompetisi Sains Madrasah',
-                                                'ket' =>
-                                                    'Komitmen pendampingan intensif bagi siswa dalam ajang olimpiade tingkat kabupaten hingga nasional.',
-                                                'bg' => 'frontend/assets/imgs/page/bg-home1-sec9-2.png',
-                                                'thumb' => 'frontend/assets/imgs/page/img-38.png',
-                                            ],
-                                        ];
-                                    @endphp
-                                    @foreach ($dummyBanners as $bn)
-                                        <div class="swiper-slide w-100" data-bg="{{ asset($bn['bg']) }}">
-                                            <div class="article">
-                                                <div class="card-body">
-                                                    <a href="#" class="badge bg-2 fs-8 mb-3">{{ $bn['kategori'] }}</a>
-                                                    <h5 class="card-title mb-0 text-white changeless">{{ $bn['judul'] }}
-                                                    </h5>
-                                                    <p class="card-text text-white mb-0 fs-7 mt-3 changeless">
-                                                        {{ $bn['ket'] }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                <div class="swiper-pagination"></div>
-                            </div>
-                        </div>
+    <!-- 2. CAROUSEL BANNER UTAMA (FOTO DARI BANNER CAROUSEL + TEKS DARI 4 BERITA TERBARU) -->
+    @php
+        \App\Models\BannerCarousel::pastikanTabelSiap();
+        \App\Models\Berita::pastikanTabelSiap();
 
-                        <div class="col-lg-5 col-md-8 ms-lg-auto align-self-stretch">
-                            <div class="swiper gallery-thumbs h-100">
-                                <div class="swiper-wrapper">
-                                    @foreach ($dummyBanners as $bn)
-                                        <div class="swiper-slide w-100">
-                                            <div class="card-swiper-thumb">
-                                                <div class="thumb changeless">
-                                                    <img src="{{ asset($bn['thumb']) }}" alt="Banner">
-                                                </div>
-                                                <div class="card-content">
-                                                    <h6 class="text-white mb-0 changeless">{{ $bn['judul'] }}</h6>
+        $fotoBanners = \App\Models\BannerCarousel::where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->take(4)
+            ->get()
+            ->values();
+
+        $beritaSlider = \App\Models\Berita::where('status', 'Tayang')->orderBy('id', 'desc')->take(4)->get()->values();
+    @endphp
+
+    @if ($beritaSlider->isNotEmpty())
+        <section class="sec-9-home-1" id="carousel-banner">
+            <div class="custom-container position-relative">
+                <div class="block-card-swiper" id="gallery-background">
+                    <div class="container">
+                        <div class="row align-items-stretch g-5">
+
+                            <!-- SISI KIRI: TEKS BERGERAK DARI 4 BERITA TERBARU + BACKGROUND FOTO BANNER -->
+                            <div class="col-lg-6">
+                                <div class="swiper gallery-left overflow-y-visible">
+                                    <div class="swiper-wrapper">
+                                        @foreach ($beritaSlider as $idx => $itemBerita)
+                                            @php
+                                                // Ambil foto latar dari BannerCarousel sesuai urutan (1-4), jika kosong pakai foto berita
+                                                $bgFoto = isset($fotoBanners[$idx])
+                                                    ? $fotoBanners[$idx]->gambar_url
+                                                    : $fotoBanners->first()->gambar_url ?? $itemBerita->gambar_url;
+                                            @endphp
+                                            <div class="swiper-slide w-100" data-bg="{{ $bgFoto }}">
+                                                <div class="article">
+                                                    <div class="card-body">
+                                                        <a href="{{ route('berita.show', $itemBerita->slug) }}"
+                                                            class="badge bg-2 fs-8 mb-3">
+                                                            {{ $itemBerita->kategori }}
+                                                        </a>
+                                                        <a href="{{ route('berita.show', $itemBerita->slug) }}"
+                                                            class="hover-underline">
+                                                            <h5 class="card-title mb-0 text-white changeless">
+                                                                {{ $itemBerita->judul }}
+                                                            </h5>
+                                                        </a>
+                                                        <p
+                                                            class="card-text text-white mb-0 fs-7 mt-3 changeless text-truncate-2">
+                                                            {{ $itemBerita->ringkasan ?: Str::limit(strip_tags($itemBerita->isi_konten), 140) }}
+                                                        </p>
+                                                        <div
+                                                            class="bottom mt-auto d-flex flex-wrap align-items-center gap-2 pt-5">
+                                                            <a href="{{ route('berita.show', $itemBerita->slug) }}"
+                                                                class="author d-flex align-items-center gap-2">
+                                                                <img class="avatar avatar-md rounded-circle bg-white p-1"
+                                                                    src="{{ asset('backend/assets/images/icon_min.png') }}"
+                                                                    alt="MIN 1 Ciamis"
+                                                                    style="width: 34px; height: 34px; object-fit: contain;">
+                                                                <span
+                                                                    class="fs-7 text-white fw-regular changeless">{{ $itemBerita->penulis }}</span>
+                                                            </a>
+                                                            <ul
+                                                                class="d-flex align-items-center gap-4 text-white m-0 ps-3 changeless">
+                                                                <li>
+                                                                    <p class="fs-7 m-0 text-white changeless">
+                                                                        {{ $itemBerita->created_at->translatedFormat('d F Y') }}
+                                                                    </p>
+                                                                </li>
+                                                            </ul>
+                                                            <div
+                                                                class="right ms-md-auto d-flex align-items-center gap-3 me-4">
+                                                                <a href="{{ route('berita.show', $itemBerita->slug) }}"
+                                                                    class="readers fs-8">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20"
+                                                                        height="20" viewBox="0 0 20 20" fill="none">
+                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
+                                                                            d="M17.186 10.3224C15.734 13.039 12.9803 14.7266 10.001 14.7266C7.01977 14.7266 4.26612 13.039 2.81407 10.3224C2.70224 10.1114 2.70224 9.88843 2.81407 9.67767C4.26612 6.96107 7.01977 5.27366 10.001 5.27366C12.9803 5.27366 15.7339 6.96107 17.186 9.67767C17.2998 9.88843 17.2998 10.1114 17.186 10.3224ZM10.001 12.2707C11.2024 12.2707 12.18 11.2522 12.18 9.99993C12.18 8.7477 11.2024 7.72912 10.001 7.72912C8.79769 7.72912 7.82002 8.7477 7.82002 9.99993C7.82002 11.2522 8.79773 12.2707 10.001 12.2707Z"
+                                                                            fill="#fff" />
+                                                                    </svg>
+                                                                    <span class="text-white changeless">
+                                                                        <span class="odometer text-nowrap"
+                                                                            data-count="{{ $itemBerita->views }}"></span>
+                                                                    </span>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
+                                    <div class="swiper-pagination"></div>
                                 </div>
                             </div>
+
+                            <!-- SISI KANAN: DAFTAR 4 BERITA TERBARU (THUMBNAIL NAVIGASI) -->
+                            <div class="col-lg-5 col-md-8 ms-lg-auto align-self-stretch">
+                                <div class="swiper gallery-thumbs h-100">
+                                    <div class="swiper-wrapper">
+                                        @foreach ($beritaSlider as $idx => $itemBerita)
+                                            @php
+                                                $thumbFoto = isset($fotoBanners[$idx])
+                                                    ? $fotoBanners[$idx]->gambar_url
+                                                    : $itemBerita->gambar_url;
+                                            @endphp
+                                            <div class="swiper-slide w-100">
+                                                <div class="card-swiper-thumb">
+                                                    <div class="thumb changeless">
+                                                        <img src="{{ $thumbFoto }}" alt="{{ $itemBerita->judul }}"
+                                                            style="width: 85px; height: 68px; object-fit: cover; border-radius: 10px;">
+                                                    </div>
+                                                    <div class="card-content">
+                                                        <h6 class="text-white mb-0 changeless text-truncate-2">
+                                                            {{ $itemBerita->judul }}
+                                                        </h6>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     <!-- 3. TICKER DATA REAL-TIME MADRASAH (DARI DATABASE) -->
     <div class="sec-2-home-1 bg-100 mask-image py-4">
@@ -153,8 +196,8 @@
                     <div class="section-title d-flex align-items-center justify-content-between gap-3">
                         <div class="d-flex align-items-center">
                             <div class="d-flex align-items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none">
                                     <path
                                         d="M0.582044 11.7285C8.79451 13.4712 10.252 14.8614 12.125 22.7372C13.8067 14.8768 15.2308 13.4992 23.4018 11.8279C15.1894 10.0852 13.7319 8.69503 11.8589 0.81924C10.1769 8.67956 8.75306 10.0571 0.582044 11.7285Z"
                                         fill="#0E0E0F" />

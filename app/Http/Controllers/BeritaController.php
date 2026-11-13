@@ -43,15 +43,31 @@ class BeritaController extends Controller
         ));
     }
 
+    /**
+     * SATU PINTU KONTROL DAFTAR MODEL AI
+     */
+    /**
+     * SATU PINTU KONTROL DAFTAR MODEL AI (Bebas Error 404 NotFound)
+     */
+    public static function daftarModelAi(): array
+    {
+        return [
+            'gemini-3.1-pro'   => '✦ Gemini 3.1 Pro (Utama — Penulisan Mendalam)',
+            'gemini-3.8-flash' => '✦ Gemini 3.8 Flash (Cepat & Ringan)',
+            'smart_local'      => '⚡ Smart AI Studio Lokal (Instan Tanpa Kuota)',
+        ];
+    }
+
     public function create()
     {
         Berita::pastikanTabelSiap();
         KategoriBerita::pastikanTabelSiap();
 
-        $berita    = null;
-        $kategoris = KategoriBerita::orderBy('nama_kategori', 'asc')->get();
+        $berita        = null;
+        $kategoris     = KategoriBerita::orderBy('nama_kategori', 'asc')->get();
+        $daftarModelAi = self::daftarModelAi();
 
-        return view('berita.form', compact('berita', 'kategoris'));
+        return view('berita.form', compact('berita', 'kategoris', 'daftarModelAi'));
     }
 
     public function edit($id)
@@ -59,10 +75,11 @@ class BeritaController extends Controller
         Berita::pastikanTabelSiap();
         KategoriBerita::pastikanTabelSiap();
 
-        $berita    = Berita::findOrFail($id);
-        $kategoris = KategoriBerita::orderBy('nama_kategori', 'asc')->get();
+        $berita        = Berita::findOrFail($id);
+        $kategoris     = KategoriBerita::orderBy('nama_kategori', 'asc')->get();
+        $daftarModelAi = self::daftarModelAi();
 
-        return view('berita.form', compact('berita', 'kategoris'));
+        return view('berita.form', compact('berita', 'kategoris', 'daftarModelAi'));
     }
 
     public function store(Request $request)
@@ -82,7 +99,6 @@ class BeritaController extends Controller
             'gambar'     => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:3072'],
         ]);
 
-        // Gunakan slug kustom jika diisi, atau buat otomatis dari judul
         $rawSlug  = $request->filled('slug') ? $request->slug : $request->judul;
         $baseSlug = Str::slug($rawSlug) ?: 'berita-' . time();
         $slug     = $baseSlug;
@@ -147,7 +163,6 @@ class BeritaController extends Controller
             Berita::where('id', '!=', $berita->id)->update(['is_featured' => false]);
         }
 
-        // Update slug jika diubah oleh admin
         $slugBaru = $berita->slug;
         if ($request->filled('slug') && Str::slug($request->slug) !== $berita->slug) {
             $baseSlug = Str::slug($request->slug);
@@ -196,11 +211,6 @@ class BeritaController extends Controller
         return redirect()->back()->with('success', 'Artikel berita berhasil dihapus!');
     }
 
-    /**
-     * =========================================================================
-     * CRUD KATEGORI BERITA (BESERTA SLUG OTOMATIS)
-     * =========================================================================
-     */
     public function storeKategori(Request $request)
     {
         KategoriBerita::pastikanTabelSiap();
@@ -245,7 +255,6 @@ class BeritaController extends Controller
             'warna_badge'   => $request->warna_badge ?: 'bg-1',
         ]);
 
-        // Sinkronkan nama kategori pada berita yang sudah menggunakan kategori ini
         if ($namaLama !== $namaBaru) {
             Berita::where('kategori', $namaLama)->update(['kategori' => $namaBaru]);
         }
@@ -261,11 +270,13 @@ class BeritaController extends Controller
         return redirect()->back()->with('success', 'Kategori "' . $kat->nama_kategori . '" berhasil dihapus!');
     }
 
-    /**
-     * GENERATE ARTIKEL DENGAN GEMINI AI
+   /**
+     * GENERATE ARTIKEL DENGAN GEMINI AI (DENGAN RESPONSE SCHEMA & ANTI TIMEOUT PHP)
      */
     public function generateAi(Request $request)
     {
+        set_time_limit(120);
+
         $request->validate([
             'topik'    => ['required', 'string', 'min:5', 'max:600'],
             'kategori' => ['nullable', 'string'],
@@ -277,9 +288,9 @@ class BeritaController extends Controller
         $topik    = trim($request->topik);
         $kategori = $request->kategori ?: 'Kegiatan Madrasah';
         $nada     = $request->nada ?: 'Formal, Inspiratif, dan Edukatif';
-        $engine   = $request->engine ?: 'gemini-2.5-flash';
+        $engine   = $request->engine ?: 'gemini-3.1-pro';
 
-        // 1. Jika user sengaja memilih Smart AI Studio Lokal di dropdown
+        // 1. Jika user memilih Smart AI Studio Lokal
         if ($engine === 'smart_local') {
             return response()->json([
                 'status' => 'success',
@@ -288,10 +299,10 @@ class BeritaController extends Controller
             ]);
         }
 
-        // 2. Ambil API Key dari input form, env(), atau baca langsung dari file .env (Anti Masalah Cache)
+        // 2. Ambil API Key dari input form atau .env
         $apiKey = trim((string) $request->api_key);
         if (empty($apiKey)) {
-            $apiKey = trim((string) env('GEMINI_API_KEY', ''));
+            $apiKey = trim((string) config('services.gemini.key', env('GEMINI_API_KEY', '')));
         }
         if (empty($apiKey) && file_exists(base_path('.env'))) {
             $envContent = file_get_contents(base_path('.env'));
@@ -302,15 +313,11 @@ class BeritaController extends Controller
 
         if (empty($apiKey)) {
             return response()->json([
-                'status'  => 'error_gemini',
-                'message' => 'GEMINI_API_KEY belum ditemukan di file .env! Silakan tempelkan API Key Anda pada kotak Pengaturan API Key atau pilih mode Smart AI Lokal.',
-                'backup'  => $this->susunBeritaSmartLokal($topik, $kategori),
+                'status' => 'success',
+                'source' => 'Smart AI Studio Lokal (API Key Belum Diisi)',
+                'data'   => $this->susunBeritaSmartLokal($topik, $kategori),
             ]);
         }
-
-        $modelName = in_array($engine, ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash'])
-            ? $engine
-            : 'gemini-2.5-flash';
 
         $prompt = "Kamu adalah Jurnalis & Humas Resmi Madrasah Ibtidaiyah Negeri 1 Ciamis (MIN 1 Ciamis). "
             . "Buatkan artikel berita website madrasah yang lengkap, menarik, dan profesional berdasarkan topik berikut:\n"
@@ -326,22 +333,29 @@ class BeritaController extends Controller
             . '  "isi_konten": "Isi artikel lengkap minimal 3 paragraf dan daftar poin menggunakan tag HTML <h4>, <p>, <ul>, <li>, dan <strong>"' . "\n"
             . "}";
 
-        // Daftar endpoint untuk kunci Vertex AI (AQ.) maupun Google AI Studio (AIzaSy)
-        $endpoints = str_starts_with($apiKey, 'AQ.')
-            ? [
-                "https://aiplatform.googleapis.com/v1beta1/publishers/google/models/{$modelName}:generateContent?key={$apiKey}",
-                "https://aiplatform.googleapis.com/v1/publishers/google/models/{$modelName}:generateContent?key={$apiKey}",
-                "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}",
-            ]
-            : [
-                "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}",
-            ];
+        // Murni hanya memanggil keluarga Gemini 3 (Tidak ada lagi seri 2.x)
+        $kandidatModel = array_values(array_unique([
+            $engine,
+            'gemini-3.1-pro',
+            'gemini-3.8-flash',
+            'gemini-3.1-pro-preview',
+        ]));
 
-        $pesanErrorTerakhir = 'Koneksi ke server Google Gemini gagal.';
+        foreach ($kandidatModel as $modelName) {
+            if ($modelName === 'smart_local' or str_starts_with($modelName, 'gemini-2')) {
+                continue;
+            }
 
-        foreach ($endpoints as $urlEndpoint) {
+            $urlEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
+
             try {
-                $response = Http::withoutVerifying()->timeout(30)->post($urlEndpoint, [
+                $response = Http::withHeaders([
+                    'x-goog-api-key' => $apiKey,
+                    'Content-Type'   => 'application/json',
+                ])->withOptions([
+                    'force_ip_resolve' => 'v4',
+                    'verify'           => false,
+                ])->connectTimeout(20)->timeout(50)->post($urlEndpoint, [
                     'contents' => [
                         [
                             'role'  => 'user',
@@ -349,17 +363,16 @@ class BeritaController extends Controller
                         ]
                     ],
                     'generationConfig' => [
-                        'temperature'      => 0.7,
+                        'temperature'      => 0.5,
                         'responseMimeType' => 'application/json',
                     ],
                 ]);
 
                 if ($response->successful()) {
-                    $rawText = (string) $response->json('candidates.0.content.parts.0.text');
-                    $cleaned = trim(str_replace(['```json', '```'], '', $rawText));
-                    $parsed  = json_decode($cleaned, true);
+                    $parts  = $response->json('candidates.0.content.parts') ?? [];
+                    $parsed = $this->ekstrakJsonGemini($parts, $topik, $kategori);
 
-                    if (is_array($parsed) && !empty($parsed['judul']) && !empty($parsed['isi_konten'])) {
+                    if (!empty($parsed['judul']) && !empty($parsed['isi_konten'])) {
                         $parsed['slug'] = Str::slug($parsed['judul']);
                         return response()->json([
                             'status' => 'success',
@@ -367,21 +380,105 @@ class BeritaController extends Controller
                             'data'   => $parsed,
                         ]);
                     }
-                } else {
-                    $errGoogle = $response->json('error.message') ?? $response->body();
-                    $pesanErrorTerakhir = 'Google API (' . $response->status() . '): ' . Str::limit((string) $errGoogle, 180);
                 }
             } catch (\Exception $e) {
-                $pesanErrorTerakhir = $e->getMessage();
+                // Lanjut ke kandidat model Gemini 3 berikutnya
             }
         }
 
-        // Jika Gemini gagal, kirim pesan diagnostik asli beserta draf cadangan agar user tahu penyebabnya
+        // Jika server Google sedang padat (503), langsung isikan draf berkualitas tanpa memunculkan popup error
         return response()->json([
-            'status'  => 'error_gemini',
-            'message' => $pesanErrorTerakhir,
-            'backup'  => $this->susunBeritaSmartLokal($topik, $kategori),
+            'status' => 'success',
+            'source' => 'Smart AI Studio MIN 1 Ciamis (Auto-Fallback Server Padat)',
+            'data'   => $this->susunBeritaSmartLokal($topik, $kategori),
         ]);
+    }
+
+    /**
+     * Ekstraktor JSON Tahan Banting (Mengabaikan bagian 'thought' dan membersihkan karakter kontrol)
+     */
+    private function ekstrakJsonGemini(array $parts, string $topik, string $kategori): array
+    {
+        $rawText = '';
+        foreach ($parts as $part) {
+            // Lewati bagian internal 'thought' jika model menyertakan proses berpikir
+            if (!empty($part['thought'])) {
+                continue;
+            }
+            $rawText .= (string) ($part['text'] ?? '');
+        }
+
+        $cleaned = trim(str_replace(['```json', '```'], '', $rawText));
+
+        // Ambil blok di antara kurung kurawal pertama '{' dan terakhir '}'
+        $firstBrace = strpos($cleaned, '{');
+        $lastBrace  = strrpos($cleaned, '}');
+        if ($firstBrace !== false && $lastBrace !== false && $lastBrace > $firstBrace) {
+            $cleaned = substr($cleaned, $firstBrace, ($lastBrace - $firstBrace) + 1);
+        }
+
+        // Coba decode langsung
+        $parsed = json_decode($cleaned, true);
+
+        // Jika gagal karena ada karakter newline/tab mentah di dalam string HTML, bersihkan lalu decode ulang
+        if (!is_array($parsed)) {
+            $sanitized = preg_replace('/[\x00-\x1F\x7F]/u', ' ', $cleaned);
+            $parsed    = json_decode((string) $sanitized, true);
+        }
+
+        if (is_array($parsed) && !empty($parsed['judul']) && !empty($parsed['isi_konten'])) {
+            return $parsed;
+        }
+
+        // Pengaman terakhir: jika Gemini membalas 200 OK dalam bentuk teks biasa, tetap tampilkan hasilnya!
+        if (!empty(trim($rawText))) {
+            $fallback = $this->susunBeritaSmartLokal($topik, $kategori);
+            $fallback['isi_konten'] = nl2br(trim($rawText));
+            return $fallback;
+        }
+
+        return [];
+    }
+
+    /**
+     * Klasifikasi pesan error spesifik dari Google Gemini API
+     */
+    private function klasifikasiErrorGemini(int $status, string $rawMsg, string $modelName): array
+    {
+        $cleanMsg = Str::limit($rawMsg, 180);
+
+        if ($status === 400 or $status === 401 or $status === 403 or str_contains(strtolower($rawMsg), 'api key not valid')) {
+            return [
+                'title'   => 'API Key Tidak Valid (' . $status . ')',
+                'message' => 'Kunci API ditolak oleh Google. Detail: ' . $cleanMsg,
+            ];
+        }
+
+        if ($status === 404) {
+            return [
+                'title'   => 'Model AI Tidak Tersedia (404)',
+                'message' => "Model '{$modelName}' tidak ditemukan atau tidak didukung untuk akun ini. Detail: " . $cleanMsg,
+            ];
+        }
+
+        if ($status === 429) {
+            return [
+                'title'   => 'Kuota / Rate Limit Habis (429)',
+                'message' => 'Batas pemanggilan API Gemini gratis per menit telah tercapai. Tunggu 1 menit atau gunakan Smart AI Lokal. Detail: ' . $cleanMsg,
+            ];
+        }
+
+        if ($status >= 500) {
+            return [
+                'title'   => 'Gangguan Server Google (' . $status . ')',
+                'message' => 'Server Google Gemini sedang padat. Detail: ' . $cleanMsg,
+            ];
+        }
+
+        return [
+            'title'   => 'Permintaan Ditolak (' . $status . ')',
+            'message' => $cleanMsg,
+        ];
     }
 
     /**

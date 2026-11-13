@@ -120,6 +120,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/kategori-berita', [App\Http\Controllers\BeritaController::class, 'storeKategori'])->name('kategori-berita.store');
     Route::put('/kategori-berita/{id}', [App\Http\Controllers\BeritaController::class, 'updateKategori'])->name('kategori-berita.update');
     Route::delete('/kategori-berita/{id}', [App\Http\Controllers\BeritaController::class, 'destroyKategori'])->name('kategori-berita.destroy');
+
+    Route::resource('banner-carousel', App\Http\Controllers\BannerCarouselController::class)->except(['create', 'show', 'edit']);
 });
 
 require __DIR__.'/auth.php';

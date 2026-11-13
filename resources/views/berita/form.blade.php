@@ -4,6 +4,7 @@
     $isEdit = !is_null($berita);
     \App\Models\KategoriBerita::pastikanTabelSiap();
     $kategoris = $kategoris ?? \App\Models\KategoriBerita::orderBy('nama_kategori', 'asc')->get();
+    $daftarModelAi = $daftarModelAi ?? \App\Http\Controllers\BeritaController::daftarModelAi();
     $katAktif = old('kategori', $berita->kategori ?? 'Kegiatan Siswa');
 @endphp
 
@@ -131,10 +132,9 @@
             <div class="col-lg-3 col-md-4">
                 <label class="text-xs fw-semibold text-warning mb-4 d-block">2. Pilih Mesin AI</label>
                 <select id="selectEngineAi" class="form-select radius-8 bg-white text-dark fw-bold border-warning">
-                    <option value="gemini-2.5-flash">✦ Gemini 2.5 Flash (Cloud API)</option>
-                    <option value="gemini-2.5-pro">✦ Gemini 2.5 Pro (Cloud API)</option>
-                    <option value="gemini-2.0-flash">✦ Gemini 2.0 Flash (Cloud API)</option>
-                    <option value="smart_local">⚡ Smart AI Studio Lokal (Instan)</option>
+                    @foreach ($daftarModelAi as $kodeModel => $labelModel)
+                        <option value="{{ $kodeModel }}">{{ $labelModel }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-lg-2 col-md-4">
@@ -156,12 +156,11 @@
         <!-- Kotak Opsional API Key -->
         <div id="boxApiKeyOpsional" class="mt-12 pt-12 border-top border-secondary d-none">
             <label class="text-xs text-warning fw-semibold mb-4 d-block">
-                🔑 Google AI Studio API Key (Kosongkan jika sudah diisi di file <code>.env</code> atau ingin memakai Smart
-                AI Lokal):
+                🔑 Google AI Studio API Key (Kosongkan jika sudah diisi di <code>.env</code>):
             </label>
-            <input type="password" id="inputApiKeyAi"
+            <input type="password" id="inputApiKeyAi" autocomplete="off"
                 class="form-control form-control-sm radius-8 bg-dark text-white border-secondary"
-                placeholder="AIzaSy... (Opsional)">
+                placeholder="Masukkan API Key (Disensor otomatis)...">
         </div>
     </div>
 
@@ -497,7 +496,7 @@
                     } else if (res.status === 'error_gemini') {
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Koneksi Gemini API Bermasalah',
+                            title: res.error_title ? res.error_title : 'Koneksi Gemini API Bermasalah',
                             html: '<div class="text-start text-xs bg-light p-2 rounded border mb-2"><b>Pesan Server:</b><br>' +
                                 res.message + '</div>' +
                                 'Apakah Anda ingin tetap mengisi form menggunakan <b>Smart AI Studio Lokal</b>?',
