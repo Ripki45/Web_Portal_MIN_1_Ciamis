@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad_media-wordwall" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCE4EC"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad_media-wordwall)"/>
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill -->
+  <g transform="translate(80, 20)">
+    <rect x="-24" y="-10" width="48" height="20" rx="10" fill="#C2185B"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">GAME</text>
+  </g>
+
+  
+      <!-- Game Controller & Quiz Wheel -->
+      <path d="M 45 74 C 40 74 36 82 40 100 C 42 108 48 114 56 114 C 64 114 68 106 74 106 L 86 106 C 92 106 96 114 104 114 C 112 114 118 108 120 100 C 124 82 120 74 115 74 C 104 74 94 78 80 78 C 66 78 56 74 45 74 Z" fill="#880E4F"/>
+      
+      <!-- D-Pad Left -->
+      <rect x="52" y="86" width="6" height="16" rx="2" fill="#FFFFFF"/>
+      <rect x="47" y="91" width="16" height="6" rx="2" fill="#FFFFFF"/>
+
+      <!-- Action Buttons Right -->
+      <circle cx="106" cy="88" r="3.5" fill="#FFE15D"/>
+      <circle cx="112" cy="95" r="3.5" fill="#00E676"/>
+      <circle cx="100" cy="95" r="3.5" fill="#00B0FF"/>
+      <circle cx="106" cy="102" r="3.5" fill="#FF1744"/>
+
+      <!-- Glowing Star -->
+      <polygon points="80,48 83,55 90,56 85,61 86,68 80,64 74,68 75,61 70,56 77,55" fill="#FFD600"/>
+    
+</svg>

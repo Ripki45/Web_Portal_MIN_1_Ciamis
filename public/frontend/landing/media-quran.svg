@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad_media-quran" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8F5E9"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad_media-quran)"/>
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill -->
+  <g transform="translate(80, 20)">
+    <rect x="-24" y="-10" width="48" height="20" rx="10" fill="#2E7D32"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">QUR'AN</text>
+  </g>
+
+  
+      <!-- Holy Quran Open Book -->
+      <path d="M 45 68 C 60 62 76 68 80 72 C 84 68 100 62 115 68 L 115 110 C 100 104 84 110 80 114 C 76 110 60 104 45 110 Z" fill="#0D6A56"/>
+      <path d="M 48 70 C 62 65 76 70 80 74 C 84 70 98 65 112 70 L 112 108 C 98 103 84 108 80 112 C 76 108 62 103 48 108 Z" fill="#FFFFFF"/>
+      <!-- Book spine & fold -->
+      <line x1="80" y1="74" x2="80" y2="112" stroke="#0D6A56" stroke-width="2"/>
+      <!-- Quran text lines -->
+      <line x1="54" y1="78" x2="74" y2="78" stroke="#0D6A56" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="54" y1="86" x2="74" y2="86" stroke="#0D6A56" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="54" y1="94" x2="70" y2="94" stroke="#0D6A56" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="86" y1="78" x2="106" y2="78" stroke="#0D6A56" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="86" y1="86" x2="106" y2="86" stroke="#0D6A56" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="86" y1="94" x2="102" y2="94" stroke="#0D6A56" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Golden ribbon bookmark -->
+      <path d="M 80 74 L 80 120 L 76 116 L 80 112 Z" fill="#FFE15D"/>
+      <!-- Crescent & Star -->
+      <circle cx="80" cy="50" r="10" fill="#FFE15D"/>
+      <circle cx="83" cy="48" r="8" fill="#E8F5E9"/>
+      <polygon points="84,48 85,51 88,51 86,53 87,56 84,54 82,56 83,53 81,51 84,51" fill="#FFE15D"/>
+    
+</svg>

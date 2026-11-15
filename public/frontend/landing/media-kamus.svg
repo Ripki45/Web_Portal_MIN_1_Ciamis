@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad_media-kamus" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EDE7F6"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad_media-kamus)"/>
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill -->
+  <g transform="translate(80, 20)">
+    <rect x="-24" y="-10" width="48" height="20" rx="10" fill="#512DA8"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">BAHASA</text>
+  </g>
+
+  
+      <!-- Dictionary with Letters & Globe -->
+      <rect x="44" y="58" width="72" height="60" rx="8" fill="#4A148C"/>
+      <rect x="48" y="62" width="64" height="52" rx="6" fill="#7B1FA2"/>
+      
+      <!-- Arabic Ain / Mim symbol on left page -->
+      <text x="64" y="94" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="28" font-weight="900" fill="#FFE15D" text-anchor="middle">ع</text>
+      
+      <!-- English letter 'A' on right page -->
+      <text x="96" y="94" font-family="'Outfit', Arial, sans-serif" font-size="26" font-weight="900" fill="#FFFFFF" text-anchor="middle">A</text>
+
+      <!-- Center spine -->
+      <line x1="80" y1="62" x2="80" y2="114" stroke="#EDE7F6" stroke-width="2"/>
+      
+      <!-- Translation curved arrows -->
+      <path d="M 66 52 C 74 46 86 46 94 52" fill="none" stroke="#FFE15D" stroke-width="2.5" stroke-linecap="round"/>
+      <polygon points="96,52 90,50 94,56" fill="#FFE15D"/>
+    
+</svg>

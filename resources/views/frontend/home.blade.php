@@ -1,51 +1,603 @@
 @extends('layouts.frontend')
 
-@section('title', 'Beranda — Portal Resmi MIN 1 Ciamis')
+@section('title', 'Beranda - MIN 1 CIAMIS | Madrasah Ibtidaiyah Negeri 1 Ciamis')
+<style>
+    /* =========================================================================
+       1. BANNER IKLAN PPDB LANDSCAPE (TETAP PROPORSIONAL DI LAPTOP & HP)
+       ========================================================================= */
+    .ppdb-landscape-banner-wrap {
+        width: 100%;
+        margin-bottom: 18px;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        border: 2px solid #ffffff;
+        background: #1e3a8a;
+        line-height: 0;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
+    .ppdb-landscape-banner-wrap:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+    }
+
+    .ppdb-landscape-banner-img {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 16 / 5.6;
+        object-fit: fill !important;
+        display: block !important;
+    }
+
+    /* =========================================================================
+       2. LAYANAN CEPAT VERSI RAMPING & ELEGAN (TIDAK BONGSOR DI HP MAUPUN LAPTOP)
+       ========================================================================= */
+    #layanan-cepat.layanan-cepat-card {
+        padding: 24px 28px !important;
+        border-radius: 22px !important;
+    }
+
+    #layanan-cepat .layanan-cepat-header {
+        margin-bottom: 16px !important;
+    }
+
+    #layanan-cepat .layanan-cepat-title {
+        font-size: 1.55rem !important;
+        margin: 0 0 4px 0 !important;
+    }
+
+    #layanan-cepat .layanan-cepat-subtitle {
+        font-size: 0.85rem !important;
+        opacity: 0.9;
+    }
+
+    .layanan-cepat-grid-custom {
+        position: relative !important;
+        z-index: 2 !important;
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    #layanan-cepat .layanan-cepat-item {
+        padding: 12px 8px !important;
+        min-height: 82px !important;
+        border-radius: 14px !important;
+        gap: 6px !important;
+    }
+
+    #layanan-cepat .lc-icon {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 1.1rem !important;
+    }
+
+    #layanan-cepat .lc-label {
+        font-size: 0.76rem !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Item ke-7 dst disembunyikan sampai klik Lihat Selengkapnya */
+    .layanan-cepat-item.lc-extra-item {
+        display: none !important;
+    }
+
+    .layanan-cepat-grid-custom.expanded .layanan-cepat-item.lc-extra-item {
+        display: flex !important;
+        animation: lcFadeIn 0.25s ease-out;
+    }
+
+    @keyframes lcFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn-layanan-more-wrap {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        margin-top: 14px;
+    }
+
+    .btn-layanan-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 225, 93, 0.14);
+        border: 1px solid rgba(255, 225, 93, 0.5);
+        color: #FFE15D;
+        padding: 7px 18px;
+        border-radius: 9999px;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-layanan-more:hover {
+        background: #FFE15D;
+        color: #09332C;
+    }
+
+    /* Tampilan Tablet */
+    @media (max-width: 991px) {
+        .layanan-cepat-grid-custom {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 10px !important;
+        }
+    }
+
+    /* Tampilan HP: Ramping 3 Kolom x 2 Baris (6 Akses Muat Satu Layar dengan Manis) */
+    @media (max-width: 576px) {
+        .ppdb-landscape-banner-wrap {
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+
+        #layanan-cepat.layanan-cepat-card {
+            padding: 18px 14px !important;
+            border-radius: 18px !important;
+        }
+
+        #layanan-cepat .layanan-cepat-header {
+            margin-bottom: 12px !important;
+            text-align: left;
+        }
+
+        #layanan-cepat .layanan-cepat-title {
+            font-size: 1.2rem !important;
+            margin-bottom: 2px !important;
+        }
+
+        #layanan-cepat .layanan-cepat-subtitle {
+            font-size: 0.74rem !important;
+            line-height: 1.35 !important;
+        }
+
+        .layanan-cepat-grid-custom {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px !important;
+        }
+
+        #layanan-cepat .layanan-cepat-item {
+            padding: 10px 6px !important;
+            min-height: 68px !important;
+            border-radius: 12px !important;
+            gap: 5px !important;
+        }
+
+        #layanan-cepat .lc-icon {
+            width: 24px !important;
+            height: 24px !important;
+            font-size: 0.95rem !important;
+        }
+
+        #layanan-cepat .lc-label {
+            font-size: 0.68rem !important;
+            font-weight: 600 !important;
+            line-height: 1.15 !important;
+        }
+
+        .btn-layanan-more-wrap {
+            margin-top: 12px;
+        }
+
+        .btn-layanan-more {
+            padding: 6px 14px;
+            font-size: 0.72rem;
+        }
+    }
+</style>
 @section('content')
 
-    <!-- 1. HEADER SAMBUTAN SINGKAT -->
-    <section class="sec-1-home-1 pt-4 pb-3" data-background="{{ asset('frontend/assets/imgs/page/bg-home1-sec1.png') }}">
-        <div class="container">
-            <div class="row mb-2">
-                <div class="col-12 text-center">
-                    <h1 class="ds-2 lh-0 mb-2 text-anime-style-2">Selamat Datang di MIN 1 Ciamis</h1>
-                    <p class="fs-5 mt-0 text-anime-style-1">Membangun Generasi Islami, Berprestasi, dan Berwawasan Digital
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. CAROUSEL BANNER UTAMA (FOTO DARI BANNER CAROUSEL + TEKS DARI 4 BERITA TERBARU) -->
     @php
         \App\Models\BannerCarousel::pastikanTabelSiap();
         \App\Models\Berita::pastikanTabelSiap();
+        \App\Models\KategoriBerita::pastikanTabelSiap();
 
         $fotoBanners = \App\Models\BannerCarousel::where('is_active', true)
             ->orderBy('urutan', 'asc')
-            ->orderBy('id', 'asc')
             ->take(4)
             ->get()
             ->values();
 
         $beritaSlider = \App\Models\Berita::where('status', 'Tayang')->orderBy('id', 'desc')->take(4)->get()->values();
+
+        $semuaBeritaGrid = \App\Models\Berita::where('status', 'Tayang')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('id', 'desc')
+            ->take(6)
+            ->get();
+
+        $beritaUtama = $semuaBeritaGrid->first();
+        $beritaSamping = $semuaBeritaGrid->slice(1, 2);
+        $warnaKategori = \App\Models\KategoriBerita::pluck('warna_badge', 'nama_kategori')->toArray();
+
+        $gtks =
+            $gtks ??
+            \App\Models\Gtk::with(['jabatan', 'posisi'])
+                ->orderBy('id', 'asc')
+                ->get();
     @endphp
 
+    <!-- ========================================================================= -->
+    <!-- 1. HERO SLIDER SECTION (MOVING GRID & 3 SLIDES)                           -->
+    <!-- ========================================================================= -->
+    <section class="hero-slider-section" id="beranda">
+        <div class="hero-animated-grid-wrap">
+            <div class="hero-animated-grid-bg"></div>
+        </div>
+
+        <div class="hero-slider-track">
+            <!-- Slide 1: Selamat Datang di MIN 1 Ciamis -->
+            <div class="hero-slide active" id="hero-slide-1">
+                <div class="hero-slide-flex-container">
+                    <div class="hero-slide-left-text">
+                        <span class="hero-script-heading">Selamat datang di</span>
+                        <h1 class="hero-bold-title">MIN 1 CIAMIS</h1>
+                        <div class="hero-domain-line">w w w . m i n 1 c i a m i s . s c h . i d</div>
+
+                        <div class="hero-slogan-strip">
+                            <div class="hero-slogan-lines">
+                                <span>Bertaqwa ~ Berakhlaq Mulia ~ Unggul Prestasi</span>
+                                <span>Cakap Berteknologi ~ Berwawasan Global ~ Peduli Lingkungan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Program Tahfidz & Sains -->
+            <div class="hero-slide" id="hero-slide-2">
+                <div class="hero-slide-flex-container">
+                    <div class="hero-slide-left-text">
+                        <span class="hero-script-heading">Program Unggulan</span>
+                        <h2 class="hero-bold-title">TAHFIDZ &amp; SAINS</h2>
+                        <div class="hero-domain-line">t a h f i d z . m i n 1 c i a m i s . s c h . i d</div>
+                        <div class="hero-slogan-strip">
+                            <div class="hero-slogan-badge-wrap">
+                                <div class="hero-slogan-badge">
+                                    <img src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Emblem" />
+                                    <span class="hero-slogan-badge-text">TAHFIDZ</span>
+                                </div>
+                            </div>
+                            <div class="hero-slogan-lines">
+                                <span>Target Hafalan Juz 30 ~ Bimbingan Tartil Terarah</span>
+                                <span>Inkubasi Juara KSM Sains ~ Karakter Islami Qur'ani</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-collage-wrap">
+                        <img src="{{ isset($fotoBanners[1]) ? $fotoBanners[1]->gambar_url : asset('frontend/assets/imgs/page/img-5.png') }}"
+                            alt="Tahfidz & Sains" class="hero-collage-main-img"
+                            style="border-radius: 28px; border: 4px solid #fff; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3: PPDB Online 2026/2027 -->
+            <div class="hero-slide" id="hero-slide-3">
+                <div class="hero-slide-flex-container">
+                    <div class="hero-slide-left-text">
+                        <span class="hero-script-heading">Penerimaan Siswa Baru</span>
+                        <h2 class="hero-bold-title">PPDB 2026/2027</h2>
+                        <div class="hero-domain-line">p p d b . m i n 1 c i a m i s . s c h . i d</div>
+                        <div class="hero-slogan-strip">
+                            <div class="hero-slogan-badge-wrap">
+                                <div class="hero-slogan-badge">
+                                    <img src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Emblem" />
+                                    <span class="hero-slogan-badge-text">PPDB</span>
+                                </div>
+                            </div>
+                            <div class="hero-slogan-lines">
+                                <span>Madrasah Ramah Anak ~ Bebas Perundungan (Anti Bullying)</span>
+                                <span>Lingkungan Belajar Asri &amp; Sejuk di Panjalu Ciamis</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-collage-wrap">
+                        <img src="{{ isset($fotoBanners[2]) ? $fotoBanners[2]->gambar_url : asset('frontend/assets/imgs/page/img-6.png') }}"
+                            alt="PPDB MIN 1 Ciamis" class="hero-collage-main-img"
+                            style="border-radius: 28px; border: 4px solid #fff; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="slider-arrow prev" aria-label="Slide Sebelumnya"><i class="fas fa-chevron-left"></i></button>
+        <button class="slider-arrow next" aria-label="Slide Berikutnya"><i class="fas fa-chevron-right"></i></button>
+
+        <div class="slider-dots-container">
+            <span class="slider-dot active"></span>
+            <span class="slider-dot"></span>
+            <span class="slider-dot"></span>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 2. SEKILAS MIN 1 CIAMIS (TABS INTERAKTIF: PROFIL, VISI, MISI, MOTTO)      -->
+    <!-- ========================================================================= -->
+    <section class="section sekilas-section" id="profil">
+        <div class="sekilas-gradasi-garis"></div>
+        <div class="container" style="position: relative; z-index: 2">
+            <div class="sekilas-grid">
+                <div class="sekilas-card-container">
+                    <div class="sekilas-card-decor-gradient"></div>
+                    <div class="sekilas-card-frame">
+                        <div class="sekilas-card-img-wrapper">
+                            <img src="{{ asset('frontend/landing/about-img.png') }}" alt="Gedung & Aktivitas MIN 1 Ciamis"
+                                class="sekilas-card-img"
+                                onerror="this.onerror=null; this.src='{{ isset($fotoBanners[0]) ? $fotoBanners[0]->gambar_url : asset('frontend/assets/imgs/page/img-4.png') }}';" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sekilas-content-wrap">
+                    <div class="sekilas-eyebrow">
+                        <span class="sekilas-eyebrow-line"></span>
+                        <span class="sekilas-eyebrow-text">INFORMASI RESMI MADRASAH</span>
+                    </div>
+
+                    <h2 class="sekilas-title">
+                        <span class="title-italic">SEKILAS</span>
+                        <span class="title-highlight">MIN 1 CIAMIS</span>
+                    </h2>
+
+                    <div class="sekilas-tabs-nav">
+                        <button type="button" class="sekilas-tab-btn active" data-tab="profil"
+                            onclick="switchSekilasTab('profil')">PROFIL</button>
+                        <button type="button" class="sekilas-tab-btn" data-tab="visi"
+                            onclick="switchSekilasTab('visi')">VISI</button>
+                        <button type="button" class="sekilas-tab-btn" data-tab="misi"
+                            onclick="switchSekilasTab('misi')">MISI</button>
+                        <button type="button" class="sekilas-tab-btn" data-tab="motto"
+                            onclick="switchSekilasTab('motto')">MOTTO</button>
+                    </div>
+
+                    <!-- TAB 1: PROFIL -->
+                    <div class="sekilas-tab-pane" id="sekilas-pane-profil" style="display: block">
+                        <div class="sekilas-content-tag">PROFIL MADRASAH</div>
+                        <h3 class="sekilas-quote">"Madrasah Maju, Bermutu, Berakhlak Mulia"</h3>
+                        <p class="sekilas-text">
+                            Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis adalah institusi pendidikan dasar formal berciri khas
+                            Islam di bawah naungan Kementerian Agama Kabupaten Ciamis. Beralamat di Jl. Maparah No. 65,
+                            Kecamatan Panjalu, MIN 1 Ciamis telah terakreditasi A (Unggul) dan menjadi sekolah rujukan
+                            kebanggaan masyarakat Tatar Galuh Ciamis.
+                        </p>
+                        <div class="sekilas-features-grid">
+                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>NPSN
+                                    60708447</span></div>
+                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>Akreditasi A
+                                    (Unggul)</span></div>
+                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>Sekolah Ramah
+                                    Anak</span></div>
+                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>Program Tahfidz Juz
+                                    30</span></div>
+                        </div>
+                        <a href="{{ url('/halaman/visi-misi') }}" class="sekilas-detail-link">
+                            <span>BACA PROFIL &amp; VISI MISI LENGKAP</span>
+                            <span class="sekilas-arrow-circle"><i class="fas fa-arrow-right"></i></span>
+                        </a>
+                    </div>
+
+                    <!-- TAB 2: VISI -->
+                    <div class="sekilas-tab-pane" id="sekilas-pane-visi" style="display: none">
+                        <div class="sekilas-content-tag">VISI MADRASAH</div>
+                        <h3 class="sekilas-quote">
+                            "Terwujudnya Peserta Didik yang Beriman dan Bertaqwa, Cerdas, Terampil, Mandiri, Berakhlakul
+                            Karimah, serta Berwawasan Lingkungan."
+                        </h3>
+                        <p class="sekilas-text">
+                            Visi ini merupakan komitmen luhur MIN 1 Ciamis dalam melahirkan generasi penerus bangsa yang
+                            kokoh akidahnya, cemerlang pemikirannya, dan memiliki kepedulian tinggi terhadap kelestarian
+                            alam.
+                        </p>
+                        <a href="{{ url('/halaman/visi-misi') }}" class="sekilas-detail-link">
+                            <span>PELAJARI VISI &amp; INDIKATOR</span>
+                            <span class="sekilas-arrow-circle"><i class="fas fa-arrow-right"></i></span>
+                        </a>
+                    </div>
+
+                    <!-- TAB 3: MISI -->
+                    <div class="sekilas-tab-pane" id="sekilas-pane-misi" style="display: none">
+                        <div class="sekilas-content-tag">MISI MADRASAH</div>
+                        <h3 class="sekilas-quote">"Membangun Fondasi Keislaman, Keilmuan, dan Karakter Kebangsaan Sejak
+                            Usia Dini."</h3>
+                        <div class="sekilas-features-grid">
+                            <div class="sekilas-feature-pill"><i class="fas fa-star"></i><span>Pembiasaan Ibadah &amp;
+                                    Tahfidz</span></div>
+                            <div class="sekilas-feature-pill"><i class="fas fa-laptop-code"></i><span>Pembelajaran Aktif
+                                    &amp; Inovatif</span></div>
+                            <div class="sekilas-feature-pill"><i class="fas fa-trophy"></i><span>Pembinaan Prestasi Sains
+                                    &amp; Seni</span></div>
+                            <div class="sekilas-feature-pill"><i class="fas fa-leaf"></i><span>Madrasah Hijau &amp; Bebas
+                                    Sampah</span></div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: MOTTO -->
+                    <div class="sekilas-tab-pane" id="sekilas-pane-motto" style="display: none">
+                        <div class="sekilas-content-tag">MOTTO MADRASAH</div>
+                        <h3 class="sekilas-quote">"Berakhlak Mulia, Unggul Prestasi, Berwawasan Lingkungan"</h3>
+                        <p class="sekilas-text">
+                            Semboyan pendorong semangat segenap guru, santri, dan komite madrasah untuk senantiasa
+                            mengedepankan adab di atas ilmu dan mengejar capaian prestasi tertinggi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 3. BANNER IKLAN PPDB (LANDSCAPE TETAP) & LAYANAN CEPAT (6 AKSES + MORE)   -->
+    <!-- ========================================================================= -->
+    <section class="hero-bottom-features-section" id="ppdb" style="margin-top: 10px;">
+        <div class="container">
+
+            @php
+                // Dummy Banner Iklan PPDB Landscape (Tampil identik di Laptop & HP)
+                $dummyBannerPpdb =
+                    'data:image/svg+xml;utf8,' .
+                    rawurlencode('
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 580" width="100%" height="100%">
+                        <defs>
+                            <linearGradient id="ppdbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#FFFFFF"/>
+                                <stop offset="55%" stop-color="#F8FAFC"/>
+                                <stop offset="100%" stop-color="#DBEAFE"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="1600" height="580" fill="url(#ppdbGrad)"/>
+                        <circle cx="1380" cy="290" r="340" fill="#1E3A8A" opacity="0.08"/>
+                        <path d="M1280,580 C1340,420 1480,380 1600,380 L1600,580 Z" fill="#F59E0B"/>
+                        <text x="85" y="135" font-family="Arial, sans-serif" font-size="68" font-weight="900" fill="#1E3A8A">PENERIMAAN</text>
+                        <text x="85" y="210" font-family="Arial, sans-serif" font-size="68" font-weight="900" fill="#F59E0B">PESERTA DIDIK BARU</text>
+                        <rect x="85" y="240" width="370" height="54" rx="12" fill="#1E3A8A"/>
+                        <text x="270" y="276" font-family="Arial, sans-serif" font-size="25" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TAHUN AJARAN 2026/2027</text>
+                        <text x="85" y="345" font-family="Arial, sans-serif" font-size="28" font-style="italic" fill="#334155">"Membentuk Generasi Qur\'ani, Berakhlak Mulia &amp; Unggul Prestasi"</text>
+                        <rect x="85" y="395" width="330" height="68" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
+                        <text x="250" y="438" font-family="Arial, sans-serif" font-size="23" font-weight="bold" fill="#1E3A8A" text-anchor="middle">✓ KURIKULUM MERDEKA</text>
+                        <rect x="435" y="395" width="330" height="68" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
+                        <text x="600" y="438" font-family="Arial, sans-serif" font-size="23" font-weight="bold" fill="#1E3A8A" text-anchor="middle">✓ PRESTASI UNGGUL</text>
+                        <rect x="785" y="395" width="330" height="68" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
+                        <text x="950" y="438" font-family="Arial, sans-serif" font-size="23" font-weight="bold" fill="#1E3A8A" text-anchor="middle">✓ FASILITAS LENGKAP</text>
+                        <rect x="1180" y="70" width="330" height="56" rx="28" fill="#1E3A8A"/>
+                        <text x="1345" y="107" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFE15D" text-anchor="middle">KUOTA TERBATAS!</text>
+                        <rect x="1160" y="160" width="370" height="270" rx="24" fill="#1B9C85"/>
+                        <text x="1345" y="280" font-family="Arial, sans-serif" font-size="42" font-weight="900" fill="#FFFFFF" text-anchor="middle">MIN 1 CIAMIS</text>
+                        <text x="1345" y="335" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFE15D" text-anchor="middle">KLIK DAFTAR SEKARANG →</text>
+                    </svg>
+                ');
+
+                // Jika Admin mengunggah foto Slide #4 di menu Carousel Banner, otomatis pakai foto tersebut sebagai Banner Iklan PPDB
+                $bannerIklanPpdbUrl =
+                    isset($fotoBanners[3]) && !str_starts_with($fotoBanners[3]->gambar, 'frontend/')
+                        ? $fotoBanners[3]->gambar_url
+                        : $dummyBannerPpdb;
+            @endphp
+
+            <!-- 1. BANNER IKLAN PPDB (FULL LANDSCAPE GAMBAR — SAMA DI LAPTOP & HP) -->
+            <div class="ppdb-landscape-banner-wrap" onclick="openPPDBModal()"
+                title="Klik untuk informasi pendaftaran PPDB MIN 1 Ciamis">
+                <img src="{{ $bannerIklanPpdbUrl }}" alt="Banner Iklan PPDB MIN 1 Ciamis"
+                    class="ppdb-landscape-banner-img" />
+            </div>
+
+            <!-- 2. LAYANAN CEPAT (TAMPIL 6 AKSES UTAMA + TOMBOL LIHAT SELENGKAPNYA) -->
+            <div class="layanan-cepat-card" id="layanan-cepat">
+                <div class="layanan-cepat-bg-wave" aria-hidden="true"></div>
+                <div class="layanan-cepat-header">
+                    <h2 class="layanan-cepat-title">Layanan Cepat</h2>
+                    <p class="layanan-cepat-subtitle">Akses halaman penting website madrasah dengan lebih cepat.</p>
+                </div>
+
+                <div class="layanan-cepat-grid-custom" id="gridLayananCepat">
+                    <!-- 6 AKSES UTAMA (TAMPIL LANGSUNG) -->
+                    <a href="{{ route('presensi.scanner') }}" class="layanan-cepat-item">
+                        <div class="lc-icon"><i class="fas fa-qrcode"></i></div>
+                        <span class="lc-label">Scanner QR Presensi</span>
+                    </a>
+                    <a href="https://emis.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item">
+                        <div class="lc-icon"><i class="fas fa-server"></i></div>
+                        <span class="lc-label">EMIS Madrasah</span>
+                    </a>
+                    <a href="https://rdm.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item">
+                        <div class="lc-icon"><i class="fas fa-file-signature"></i></div>
+                        <span class="lc-label">Rapor Digital (RDM)</span>
+                    </a>
+                    <a href="https://dapo.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item">
+                        <div class="lc-icon"><i class="fas fa-id-card"></i></div>
+                        <span class="lc-label">Dapodik</span>
+                    </a>
+                    <a href="https://vervalpd.data.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item">
+                        <div class="lc-icon"><i class="fas fa-user-check"></i></div>
+                        <span class="lc-label">Verval Peserta Didik</span>
+                    </a>
+                    <a href="https://bos.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item">
+                        <div class="lc-icon"><i class="fas fa-coins"></i></div>
+                        <span class="lc-label">Portal BOS</span>
+                    </a>
+
+                    <!-- AKSES TAMBAHAN (MUNCUL SAAT KLIK LIHAT SELENGKAPNYA) -->
+                    <a href="https://snpmb.bppp.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item lc-extra-item">
+                        <div class="lc-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <span class="lc-label">Portal SNPMB</span>
+                    </a>
+                    <a href="https://pddikti.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item lc-extra-item">
+                        <div class="lc-icon"><i class="fas fa-university"></i></div>
+                        <span class="lc-label">PDDikti</span>
+                    </a>
+                    <a href="https://referensi.data.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item lc-extra-item">
+                        <div class="lc-icon"><i class="fas fa-database"></i></div>
+                        <span class="lc-label">Data Pokok Pendidikan</span>
+                    </a>
+                    <a href="https://simpatika.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item lc-extra-item">
+                        <div class="lc-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <span class="lc-label">SIMPATIKA Kemenag</span>
+                    </a>
+                    <a href="https://pusaka.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item lc-extra-item">
+                        <div class="lc-icon"><i class="fas fa-mosque"></i></div>
+                        <span class="lc-label">PUSAKA Kemenag</span>
+                    </a>
+                    <a href="https://buku.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
+                        class="layanan-cepat-item lc-extra-item">
+                        <div class="lc-icon"><i class="fas fa-book-reader"></i></div>
+                        <span class="lc-label">E-Perpustakaan SIBI</span>
+                    </a>
+                </div>
+
+                <!-- Tombol Lihat Selengkapnya -->
+                <div class="btn-layanan-more-wrap">
+                    <button type="button" class="btn-layanan-more" id="btnToggleLayanan"
+                        onclick="toggleLayananCepat()">
+                        <span id="teksToggleLayanan">Lihat Selengkapnya</span>
+                        <i class="fas fa-chevron-down" id="ikonToggleLayanan"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+
+    <!-- ========================================================================= -->
+    <!-- 4. CAROUSEL SOROTAN 4 BERITA TERBARU + FOTO BANNER (KOMPONEN MAGZIN)      -->
+    <!-- ========================================================================= -->
     @if ($beritaSlider->isNotEmpty())
-        <section class="sec-9-home-1" id="carousel-banner">
+        <section class="sec-9-home-1 pb-5" id="carousel-banner">
             <div class="custom-container position-relative">
                 <div class="block-card-swiper" id="gallery-background">
                     <div class="container">
                         <div class="row align-items-stretch g-5">
-
-                            <!-- SISI KIRI: TEKS BERGERAK DARI 4 BERITA TERBARU + BACKGROUND FOTO BANNER -->
                             <div class="col-lg-6">
                                 <div class="swiper gallery-left overflow-y-visible">
                                     <div class="swiper-wrapper">
                                         @foreach ($beritaSlider as $idx => $itemBerita)
                                             @php
-                                                // Ambil foto latar dari BannerCarousel sesuai urutan (1-4), jika kosong pakai foto berita
                                                 $bgFoto = isset($fotoBanners[$idx])
                                                     ? $fotoBanners[$idx]->gambar_url
                                                     : $fotoBanners->first()->gambar_url ?? $itemBerita->gambar_url;
@@ -60,49 +612,12 @@
                                                         <a href="{{ route('berita.show', $itemBerita->slug) }}"
                                                             class="hover-underline">
                                                             <h5 class="card-title mb-0 text-white changeless">
-                                                                {{ $itemBerita->judul }}
-                                                            </h5>
+                                                                {{ $itemBerita->judul }}</h5>
                                                         </a>
                                                         <p
                                                             class="card-text text-white mb-0 fs-7 mt-3 changeless text-truncate-2">
                                                             {{ $itemBerita->ringkasan ?: Str::limit(strip_tags($itemBerita->isi_konten), 140) }}
                                                         </p>
-                                                        <div
-                                                            class="bottom mt-auto d-flex flex-wrap align-items-center gap-2 pt-5">
-                                                            <a href="{{ route('berita.show', $itemBerita->slug) }}"
-                                                                class="author d-flex align-items-center gap-2">
-                                                                <img class="avatar avatar-md rounded-circle bg-white p-1"
-                                                                    src="{{ asset('backend/assets/images/icon_min.png') }}"
-                                                                    alt="MIN 1 Ciamis"
-                                                                    style="width: 34px; height: 34px; object-fit: contain;">
-                                                                <span
-                                                                    class="fs-7 text-white fw-regular changeless">{{ $itemBerita->penulis }}</span>
-                                                            </a>
-                                                            <ul
-                                                                class="d-flex align-items-center gap-4 text-white m-0 ps-3 changeless">
-                                                                <li>
-                                                                    <p class="fs-7 m-0 text-white changeless">
-                                                                        {{ $itemBerita->created_at->translatedFormat('d F Y') }}
-                                                                    </p>
-                                                                </li>
-                                                            </ul>
-                                                            <div
-                                                                class="right ms-md-auto d-flex align-items-center gap-3 me-4">
-                                                                <a href="{{ route('berita.show', $itemBerita->slug) }}"
-                                                                    class="readers fs-8">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20"
-                                                                        height="20" viewBox="0 0 20 20" fill="none">
-                                                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                                                            d="M17.186 10.3224C15.734 13.039 12.9803 14.7266 10.001 14.7266C7.01977 14.7266 4.26612 13.039 2.81407 10.3224C2.70224 10.1114 2.70224 9.88843 2.81407 9.67767C4.26612 6.96107 7.01977 5.27366 10.001 5.27366C12.9803 5.27366 15.7339 6.96107 17.186 9.67767C17.2998 9.88843 17.2998 10.1114 17.186 10.3224ZM10.001 12.2707C11.2024 12.2707 12.18 11.2522 12.18 9.99993C12.18 8.7477 11.2024 7.72912 10.001 7.72912C8.79769 7.72912 7.82002 8.7477 7.82002 9.99993C7.82002 11.2522 8.79773 12.2707 10.001 12.2707Z"
-                                                                            fill="#fff" />
-                                                                    </svg>
-                                                                    <span class="text-white changeless">
-                                                                        <span class="odometer text-nowrap"
-                                                                            data-count="{{ $itemBerita->views }}"></span>
-                                                                    </span>
-                                                                </a>
-                                                            </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -112,7 +627,6 @@
                                 </div>
                             </div>
 
-                            <!-- SISI KANAN: DAFTAR 4 BERITA TERBARU (THUMBNAIL NAVIGASI) -->
                             <div class="col-lg-5 col-md-8 ms-lg-auto align-self-stretch">
                                 <div class="swiper gallery-thumbs h-100">
                                     <div class="swiper-wrapper">
@@ -130,8 +644,7 @@
                                                     </div>
                                                     <div class="card-content">
                                                         <h6 class="text-white mb-0 changeless text-truncate-2">
-                                                            {{ $itemBerita->judul }}
-                                                        </h6>
+                                                            {{ $itemBerita->judul }}</h6>
                                                     </div>
                                                 </div>
                                             </div>
@@ -139,7 +652,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -147,281 +659,293 @@
         </section>
     @endif
 
-    <!-- 3. TICKER DATA REAL-TIME MADRASAH (DARI DATABASE) -->
-    <div class="sec-2-home-1 bg-100 mask-image py-4">
-        <div class="carouselTicker carouselTicker-left position-relative z-1">
-            <ul class="carouselTicker__list d-flex gap-3">
-                <li class="carouselTicker__item mx-0">
-                    <a href="#" class="tag-item link-effect-2">
-                        <span class="text"><span class="text1">Siswa Aktif</span><span class="text2">Siswa
-                                Aktif</span></span>
-                        <span class="number"><span class="odometer text-nowrap"
-                                data-count="{{ $totalSiswa }}"></span></span>
-                    </a>
-                </li>
-                <li class="carouselTicker__item mx-0">
-                    <a href="#direktori-guru" class="tag-item link-effect-2">
-                        <span class="text"><span class="text1">Guru & Staf GTK</span><span class="text2">Guru & Staf
-                                GTK</span></span>
-                        <span class="number"><span class="odometer text-nowrap"
-                                data-count="{{ $totalGuru }}"></span></span>
-                    </a>
-                </li>
-                <li class="carouselTicker__item mx-0">
-                    <a href="#" class="tag-item link-effect-2">
-                        <span class="text"><span class="text1">Rombongan Belajar</span><span class="text2">Rombongan
-                                Belajar</span></span>
-                        <span class="number"><span class="odometer text-nowrap"
-                                data-count="{{ $totalKelas }}"></span></span>
-                    </a>
-                </li>
-                <li class="carouselTicker__item mx-0">
-                    <a href="#ekstrakurikuler" class="tag-item link-effect-2">
-                        <span class="text"><span class="text1">Ekstrakurikuler</span><span
-                                class="text2">Ekstrakurikuler</span></span>
-                        <span class="number"><span class="odometer text-nowrap"
-                                data-count="{{ $totalEkskul }}"></span></span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
     <!-- ========================================================================= -->
-    <!-- BERITA TERBARU (DESAIN LATEST NEWS: 1 KARTU BESAR KIRI + 2 KARTU KANAN)   -->
+    <!-- 5. DIREKTORI GURU & TENAGA PENDIDIK (DINAMIS DARI DATABASE MASTER GTK)    -->
     <!-- ========================================================================= -->
-    <section class="sec-3-home-1 sec-padding overflow-hidden" id="berita-terbaru">
+    <section class="section guru-tendik-section" id="guru">
         <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="section-title d-flex align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center">
-                            <div class="d-flex align-items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none">
-                                    <path
-                                        d="M0.582044 11.7285C8.79451 13.4712 10.252 14.8614 12.125 22.7372C13.8067 14.8768 15.2308 13.4992 23.4018 11.8279C15.1894 10.0852 13.7319 8.69503 11.8589 0.81924C10.1769 8.67956 8.75306 10.0571 0.582044 11.7285Z"
-                                        fill="#0E0E0F" />
-                                </svg>
-                                <h5 class="mb-0 text-anime-style-2">Berita Terbaru</h5>
-                            </div>
-                            <p class="fs-7 ms-3 mb-0 d-none d-lg-block text-anime-style-1">
-                                Publikasi kegiatan, prestasi, dan informasi terkini MIN 1 Ciamis
-                            </p>
+            <div class="guru-tendik-card">
+                <div class="guru-header-row">
+                    <div class="guru-header-left">
+                        <div class="guru-badge-tag">
+                            <i class="fas fa-chalkboard-teacher"></i> DIREKTORI GURU ({{ $gtks->count() }} PENDIDIK)
                         </div>
-                        <div class="d-none d-md-block">
-                            <a href="#berita-terbaru" class="view-more">
-                                <span class="circle" aria-hidden="true">
-                                    <span class="icon arrow"></span>
-                                </span>
-                                <span class="button-text">Lihat Semua</span>
+                        <h2 class="guru-main-title">Guru dan Tenaga Pendidik</h2>
+                        <p class="guru-sub-desc">Kenali pendidik yang mendampingi proses belajar siswa MIN 1 Ciamis setiap
+                            hari.</p>
+                    </div>
+                    <div class="guru-header-right">
+                        <div class="guru-nav-controls">
+                            <button type="button" class="guru-nav-btn" id="guruSliderPrev" aria-label="Geser ke kiri">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="guru-nav-btn" id="guruSliderNext" aria-label="Geser ke kanan">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="guru-slider-viewport" id="guruSliderViewport">
+                    <div class="guru-slider-track" id="guruSliderTrack">
+                        @forelse ($gtks as $guru)
+                            @php
+                                $fotoGuru = !empty($guru->foto)
+                                    ? asset('storage/' . $guru->foto)
+                                    : 'https://ui-avatars.com/api/?name=' .
+                                        urlencode($guru->nama_lengkap) .
+                                        '&background=0D6A56&color=fff&size=300';
+                                $peranGuru =
+                                    $guru->posisi->nama_posisi ?? ($guru->jabatan->nama_jabatan ?? 'Tenaga Pendidik');
+                            @endphp
+                            <div class="guru-card" title="{{ $guru->nama_lengkap }}">
+                                <div class="guru-card-banner">
+                                    <div class="guru-photo-box">
+                                        <img src="{{ $fotoGuru }}" alt="{{ $guru->nama_lengkap }}"
+                                            class="guru-photo-img" loading="lazy">
+                                    </div>
+                                </div>
+                                <div class="guru-card-body">
+                                    <h4 class="guru-name">{{ $guru->nama_lengkap }}</h4>
+                                    <p class="guru-role">{{ $peranGuru }}</p>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-muted">Belum ada data Guru & Tendik.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 6. PRESTASI SISWA & PIALA 3D MENGAWANG + EFEK CONFETTI                    -->
+    <!-- ========================================================================= -->
+    <section class="section stats-section" id="prestasi">
+        <div class="stats-bg-decor"></div>
+        <div class="container" style="position: relative; z-index: 2">
+            <div class="section-header">
+                <span class="section-subtitle white" style="color: var(--primary-ligh)t">Capaian Gemilang</span>
+                <h2 class="section-title white">Prestasi Siswa &amp; Data Madrasah</h2>
+                <p class="section-desc" style="color: #cbd5e1">Rekap Capaian Kejuaraan &amp; Statistik Akademik MIN 1
+                    Ciamis</p>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div class="stat-number" data-target="{{ $totalSiswa ?? 120 }}">{{ $totalSiswa ?? 120 }}</div>
+                    <div class="stat-label">Siswa Aktif</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="stat-number" data-target="{{ $totalGuru ?? 35 }}">{{ $totalGuru ?? 35 }}</div>
+                    <div class="stat-label">Guru &amp; Tendik</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-school"></i></div>
+                    <div class="stat-number" data-target="{{ $totalKelas ?? 18 }}">{{ $totalKelas ?? 18 }}</div>
+                    <div class="stat-label">Rombongan Belajar</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-futbol"></i></div>
+                    <div class="stat-number" data-target="{{ $totalEkskul ?? 10 }}">{{ $totalEkskul ?? 10 }}</div>
+                    <div class="stat-label">Ekstrakurikuler</div>
+                </div>
+            </div>
+
+            <div class="total-prestasi-banner" id="total-prestasi-banner" onclick="triggerPrestasiConfetti(event)">
+                <div class="piala-3d-floating-wrapper left">
+                    <div class="piala-3d-ambient-glow"></div>
+                    <div class="piala-3d-interactive piala-float-anim-1">
+                        <img src="{{ asset('frontend/landing/piala-kanan.png') }}" alt="Piala 3D"
+                            class="piala-3d-asset-img" onerror="this.style.display='none';" />
+                    </div>
+                    <div class="piala-3d-floor-shadow"></div>
+                </div>
+
+                <div class="total-content">
+                    <div class="title">Total Perolehan Prestasi Siswa</div>
+                    <div class="number" id="total-prestasi-counter" data-target="237">237</div>
+                    <div class="sub">
+                        Prestasi Akademik, Tahfidz, Olahraga &amp; Seni
+                        <span
+                            style="display: inline-block; background: rgba(255, 225, 93, 0.25); color: #ffe15d; padding: 4px 14px; border-radius: 9999px; font-size: 11.5px; font-weight: 800; margin-left: 8px;">
+                            🎉 Klik untuk Rayakan
+                        </span>
+                    </div>
+                </div>
+
+                <div class="piala-3d-floating-wrapper right">
+                    <div class="piala-3d-ambient-glow"></div>
+                    <div class="piala-3d-interactive piala-float-anim-2">
+                        <img src="{{ asset('frontend/landing/piala-kanan.png') }}" alt="Piala 3D"
+                            class="piala-3d-asset-img" onerror="this.style.display='none';" />
+                    </div>
+                    <div class="piala-3d-floor-shadow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 7. PROGRAM UNGGULAN & DUNIA ILMU MIN 1 CIAMIS                             -->
+    <!-- ========================================================================= -->
+    <section class="programs-section" id="program">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Pendidikan Berkualitas</span>
+                <h2 class="section-title">Program Unggulan MIN 1 Ciamis</h2>
+                <p class="section-desc">Mengembangkan potensi intelektual, spiritual, dan emosional santri secara berimbang
+                </p>
+                <div class="section-divider"></div>
+            </div>
+
+            <div class="programs-grid">
+                <div class="program-card-modern">
+                    <div class="program-card-banner">
+                        <img src="{{ asset('frontend/assets/imgs/page/img-4.png') }}" alt="Tahfidzul Qur'an" />
+                        <span class="program-card-badge"><i class="fas fa-quran"></i> Karakter Qur'ani</span>
+                    </div>
+                    <div class="program-card-body">
+                        <h3 class="program-card-title">Tahfidz &amp; Tartil Qur'an</h3>
+                        <p class="program-card-desc">Program pembiasaan hafalan surat pilihan dan Juz 30 dengan bimbingan
+                            ustadz/ustadzah bersertifikasi makharijul huruf.</p>
+                        <ul class="program-card-features">
+                            <li><i class="fas fa-check-circle"></i> Target Hafalan Juz Amma (Juz 30)</li>
+                            <li><i class="fas fa-check-circle"></i> Pembiasaan Dhuha &amp; Dhuhur Berjamaah</li>
+                            <li><i class="fas fa-check-circle"></i> Munaqosyah &amp; Wisuda Tahfidz</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="program-card-modern">
+                    <div class="program-card-banner">
+                        <img src="{{ asset('frontend/assets/imgs/page/img-5.png') }}" alt="Club Sains Madrasah" />
+                        <span class="program-card-badge"><i class="fas fa-flask"></i> Sains &amp; Riset</span>
+                    </div>
+                    <div class="program-card-body">
+                        <h3 class="program-card-title">Club Sains Madrasah (KSM)</h3>
+                        <p class="program-card-desc">Inkubasi talenta sains dan matematika terintegrasi nilai-nilai
+                            keislaman untuk mencetak juara olimpiade sains madrasah.</p>
+                        <ul class="program-card-features">
+                            <li><i class="fas fa-check-circle"></i> Bimbingan Matematika Terintegrasi</li>
+                            <li><i class="fas fa-check-circle"></i> Praktikum Sains &amp; Lingkungan Hidup</li>
+                            <li><i class="fas fa-check-circle"></i> Mentoring Juara KSM &amp; OSN</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="program-card-modern">
+                    <div class="program-card-banner">
+                        <img src="{{ asset('frontend/assets/imgs/page/img-6.png') }}" alt="Madrasah Digital" />
+                        <span class="program-card-badge"><i class="fas fa-laptop"></i> Digitalisasi</span>
+                    </div>
+                    <div class="program-card-body">
+                        <h3 class="program-card-title">Madrasah Digital &amp; Literasi</h3>
+                        <p class="program-card-desc">Pemanfaatan media pembelajaran digital interaktif, asesmen berbasis
+                            komputer, dan penguatan literasi 3 bahasa.</p>
+                        <ul class="program-card-features">
+                            <li><i class="fas fa-check-circle"></i> Media Pembelajaran Interaktif</li>
+                            <li><i class="fas fa-check-circle"></i> Presensi QR Code &amp; Rapor Digital</li>
+                            <li><i class="fas fa-check-circle"></i> Pembiasaan Literasi Pagi</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 8. KABAR MADRASAH (GRID BERITA DARI DATABASE + FILTER KATEGORI)           -->
+    <!-- ========================================================================= -->
+    <section class="section section-bg-alt" id="berita">
+        <div class="container">
+            <div class="news-header-row" style="margin-bottom: 24px">
+                <div>
+                    <span class="section-subtitle">Warta &amp; Informasi Terkini</span>
+                    <h2 class="section-title">Kabar Madrasah</h2>
+                </div>
+            </div>
+
+            <div class="news-grid" id="news-cards-grid">
+                @foreach ($semuaBeritaGrid as $item)
+                    <div class="news-card" data-category="{{ $item->kategori }}"
+                        onclick="window.location.href='{{ route('berita.show', $item->slug) }}'">
+                        <div class="news-thumb-wrap">
+                            <img src="{{ $item->gambar_url }}" alt="{{ $item->judul }}" class="news-thumb" />
+                            <span class="news-category-badge">{{ $item->kategori }}</span>
+                        </div>
+                        <div class="news-body">
+                            <div class="news-date" style="font-size: 0.82rem; color: #64748b; margin-bottom: 8px;">
+                                <i class="far fa-calendar-alt"></i> {{ $item->created_at->translatedFormat('d F Y') }}
+                                &bull; {{ $item->views }}x dibaca
+                            </div>
+                            <h3 class="news-title">{{ $item->judul }}</h3>
+                            <p class="news-excerpt" style="font-size: 0.9rem; color: #475569; margin-bottom: 16px;">
+                                {{ Str::limit($item->ringkasan ?: strip_tags($item->isi_konten), 120) }}
+                            </p>
+                            <a href="{{ route('berita.show', $item->slug) }}" class="news-read-more"
+                                style="margin-top: auto;">
+                                <span>Baca Selengkapnya</span>
+                                <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                     </div>
-                </div>
+                @endforeach
             </div>
-
-            @if ($beritaUtama)
-                <div class="row mt-3 g-4 align-items-stretch">
-                    <!-- SISI KIRI (7 KOLOM): 1 KARTU SOROTAN BESAR (.card-2) -->
-                    <div class="col-lg-7 col-12">
-                        @php
-                            $badgeUtama = $warnaKategori[$beritaUtama->kategori] ?? 'bg-3';
-                        @endphp
-                        <div class="article card-2 position-relative h-100">
-                            <div class="post-link hover-effect-1 h-100">
-                                <a href="{{ route('berita.show', $beritaUtama->slug) }}" class="card-img-top thumbnail">
-                                    <img src="{{ $beritaUtama->gambar_url }}" alt="{{ $beritaUtama->judul }}"
-                                        class="cover-image" style="min-height: 440px; object-fit: cover;">
-                                </a>
-                                <div class="card-corner">
-                                    <a href="{{ route('berita.show', $beritaUtama->slug) }}" class="arrow-box">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none">
-                                            <path d="M13.75 6.75L19.25 12L13.75 17.25" stroke="#0E0E0F" stroke-width="1.5"
-                                                stroke-linecap="round" stroke-linejoin="round" />
-                                            <path d="M19 12H4.75" stroke="#0E0E0F" stroke-width="1.5"
-                                                stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                    </a>
-                                    <div class="curve-one"></div>
-                                    <div class="curve-two"></div>
-                                </div>
-                                <div class="card-body hover-up">
-                                    <a href="{{ route('berita.show', $beritaUtama->slug) }}"
-                                        class="badge {{ $badgeUtama }} fs-8 mb-2">
-                                        {{ $beritaUtama->kategori }}
-                                    </a>
-                                    <a href="{{ route('berita.show', $beritaUtama->slug) }}" class="hover-underline">
-                                        <h4 class="card-title mb-0 text-truncate-2">{{ $beritaUtama->judul }}</h4>
-                                    </a>
-                                    <div class="card-info d-flex flex-wrap gap-2 align-items-center mt-2">
-                                        <a href="{{ route('berita.show', $beritaUtama->slug) }}"
-                                            class="author d-flex align-items-center gap-2">
-                                            <img class="avatar avatar-sm rounded-circle"
-                                                src="{{ asset('backend/assets/images/icon_min.png') }}"
-                                                alt="MIN 1 Ciamis" style="object-fit: contain;">
-                                            <span class="fs-7 text-500 fw-semibold">{{ $beritaUtama->penulis }}</span>
-                                        </a>
-                                        <ul class="d-flex align-items-center gap-4 text-600 m-0 ps-4">
-                                            <li>
-                                                <p class="fs-8 m-0">
-                                                    {{ $beritaUtama->created_at->translatedFormat('d M Y') }}</p>
-                                            </li>
-                                            <li>
-                                                <p class="fs-8 m-0">{{ $beritaUtama->waktu_baca }}</p>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- SISI KANAN (5 KOLOM): 2 KARTU BERSUSUN (.card-3) -->
-                    <div class="col-lg-5 col-12 d-flex flex-column justify-content-between gap-4">
-                        @foreach ($beritaSamping as $bs)
-                            @php
-                                $badgeSamping = $warnaKategori[$bs->kategori] ?? 'bg-1';
-                            @endphp
-                            <div class="article card-3 d-flex flex-column flex-sm-row h-100">
-                                <div class="hover-effect-1">
-                                    <a href="{{ route('berita.show', $bs->slug) }}" class="card-img-top">
-                                        <img src="{{ $bs->gambar_url }}" class="w-100 h-100" alt="{{ $bs->judul }}"
-                                            style="object-fit: cover; min-height: 200px;">
-                                    </a>
-                                </div>
-                                <div class="card-body">
-                                    <div class="card-corner">
-                                        <a href="{{ route('berita.show', $bs->slug) }}" class="arrow-box">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none">
-                                                <path d="M13.75 6.75L19.25 12L13.75 17.25" stroke="#0E0E0F"
-                                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                                <path d="M19 12H4.75" stroke="#0E0E0F" stroke-width="1.5"
-                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                        </a>
-                                        <div class="curve-one"></div>
-                                        <div class="curve-two"></div>
-                                    </div>
-                                    <div class="d-flex flex-column h-100">
-                                        <div class="card-info d-flex align-items-center mb-3">
-                                            <a href="{{ route('berita.show', $bs->slug) }}"
-                                                class="badge {{ $badgeSamping }} fs-8">
-                                                {{ $bs->kategori }}
-                                            </a>
-                                            <ul class="d-flex align-items-center text-600 m-0 ps-4">
-                                                <li>
-                                                    <p class="fs-8 m-0">{{ $bs->waktu_baca }}</p>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <a href="{{ route('berita.show', $bs->slug) }}" class="hover-underline">
-                                            <h6 class="card-title mb-0 text-truncate-2">{{ $bs->judul }}</h6>
-                                        </a>
-                                        <div class="bottom mt-auto pt-3 d-flex align-items-center gap-3">
-                                            <span
-                                                class="fs-8 text-600">{{ $bs->created_at->translatedFormat('d M Y') }}</span>
-                                            <a href="{{ route('berita.show', $bs->slug) }}" class="readers fs-8 ms-auto">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                    viewBox="0 0 20 20" fill="none">
-                                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                                        d="M17.186 10.3224C15.734 13.039 12.9803 14.7266 10.001 14.7266C7.01977 14.7266 4.26612 13.039 2.81407 10.3224C2.70224 10.1114 2.70224 9.88843 2.81407 9.67767C4.26612 6.96107 7.01977 5.27366 10.001 5.27366C12.9803 5.27366 15.7339 6.96107 17.186 9.67767C17.2998 9.88843 17.2998 10.1114 17.186 10.3224ZM10.001 12.2707C11.2024 12.2707 12.18 11.2522 12.18 9.99993C12.18 8.7477 11.2024 7.72912 10.001 7.72912C8.79769 7.72912 7.82002 8.7477 7.82002 9.99993C7.82002 11.2522 8.79773 12.2707 10.001 12.2707Z"
-                                                        fill="#626568" />
-                                                </svg>
-                                                <span class="odometer text-nowrap"
-                                                    data-count="{{ $bs->views }}"></span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
         </div>
     </section>
 
-    <!-- 4. DIREKTORI GURU & TENAGA PENDIDIK (OTOMATIS DARI MASTER GTK) -->
-    <section class="sec-5-home-1 sec-padding" id="direktori-guru"
-        data-background="{{ asset('frontend/assets/imgs/page/bg-home1-sec5.png') }}">
+    <!-- ========================================================================= -->
+    <!-- 9. MUTIARA HIKMAH ISLAMI INTERAKTIF                                       -->
+    <!-- ========================================================================= -->
+    <section class="mutiara-section" id="mutiara-hikmah">
         <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="section-title d-flex align-items-center justify-content-between gap-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <h5 class="mb-0 text-anime-style-2">Direktori Guru & Tenaga Kependidikan</h5>
-                            <p class="fs-7 ms-3 mb-0 d-none d-lg-block text-anime-style-1">Pendidik yang mendampingi proses
-                                belajar siswa setiap hari</p>
-                        </div>
+            <div class="mutiara-card">
+                <div class="mutiara-quote-wrap">
+                    <div class="mutiara-badge">
+                        <i class="fas fa-moon"></i>
+                        <span>Mutiara Hikmah &amp; Motivasi Hari Ini</span>
                     </div>
+                    <div class="mutiara-quote-text" id="mutiara-text">
+                        "Barangsiapa menempuh suatu jalan untuk mencari ilmu, maka Allah akan memudahkan baginya jalan
+                        menuju surga."
+                    </div>
+                    <div class="mutiara-author" id="mutiara-author">— HR. Muslim</div>
                 </div>
-            </div>
-
-            <div class="row py-5">
-                <div class="col-md-12 col-8 mx-auto position-relative">
-                    <div class="swiper slider-4 rounded-16">
-                        <div class="swiper-wrapper">
-                            @forelse ($gtks as $guru)
-                                @php
-                                    $fotoGuru = !empty($guru->foto)
-                                        ? asset('storage/' . $guru->foto)
-                                        : 'https://ui-avatars.com/api/?name=' .
-                                            urlencode($guru->nama_lengkap) .
-                                            '&background=15803d&color=fff&size=400';
-                                @endphp
-                                <div class="swiper-slide">
-                                    <div class="author-grid-wrap h-100">
-                                        <div class="hover-effect-1">
-                                            <div class="card-img-top">
-                                                <a href="#">
-                                                    <img src="{{ $fotoGuru }}" alt="{{ $guru->nama_lengkap }}"
-                                                        class="author-image-avator w-100 h-100"
-                                                        style="height: 320px; object-fit: cover;">
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="author-sticky-block-left-bottom">
-                                            <a href="#">
-                                                <h6 class="fs-7 mb-0">{{ $guru->nama_lengkap }}</h6>
-                                            </a>
-                                            <p class="fs-8 m-0">
-                                                {{ $guru->posisi->nama_posisi ?? ($guru->jabatan->nama_jabatan ?? 'Tenaga Pendidik') }}
-                                            </p>
-                                        </div>
-                                        <div class="author-sticky-corner-left-top"></div>
-                                        <div class="author-sticky-corner-right-bottom"></div>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="col-12 text-center py-4">Belum ada data GTK.</div>
-                            @endforelse
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 swiper-btn">
-                        <div class="swiper-btn-next">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none">
-                                <path d="M10.25 6.75L4.75 12L10.25 17.25" stroke="#0e0e0f" stroke-width="1.5"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M19.25 12H5" stroke="#0e0e0f" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <div class="swiper-btn-prev">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none">
-                                <path d="M13.75 6.75L19.25 12L13.75 17.25" stroke="#0e0e0f" stroke-width="1.5"
-                                    stroke-linecap="round" stroke-linejoin="round" />
-                                <path d="M19 12H4.75" stroke="#0e0e0f" stroke-width="1.5" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                    </div>
+                <div class="mutiara-actions">
+                    <button type="button" class="mutiara-btn-shuffle" id="mutiara-shuffle-btn"
+                        onclick="shuffleMutiaraHikmah()">
+                        <i class="fas fa-random"></i><span>Ganti Kutipan</span>
+                    </button>
+                    <button type="button" class="mutiara-btn-copy" id="mutiara-copy-btn" onclick="copyMutiaraQuote()">
+                        <i class="far fa-copy"></i><span>Salin</span>
+                    </button>
                 </div>
             </div>
         </div>
     </section>
+
+    <script>
+        function toggleLayananCepat() {
+            var grid = document.getElementById('gridLayananCepat');
+            var teks = document.getElementById('teksToggleLayanan');
+            var ikon = document.getElementById('ikonToggleLayanan');
+
+            if (!grid) return;
+
+            grid.classList.toggle('expanded');
+            if (grid.classList.contains('expanded')) {
+                teks.innerText = 'Sembunyikan Sebagian';
+                ikon.className = 'fas fa-chevron-up';
+            } else {
+                teks.innerText = 'Lihat Selengkapnya';
+                ikon.className = 'fas fa-chevron-down';
+            }
+        }
+    </script>
 
 @endsection

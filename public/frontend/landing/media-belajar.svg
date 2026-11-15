@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad_media-belajar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3E0"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad_media-belajar)"/>
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill -->
+  <g transform="translate(80, 20)">
+    <rect x="-24" y="-10" width="48" height="20" rx="10" fill="#E65100"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">MODUL</text>
+  </g>
+
+  
+      <!-- Lightbulb inside Tablet -->
+      <rect x="46" y="55" width="68" height="66" rx="10" fill="#BF360C"/>
+      <rect x="50" y="59" width="60" height="54" rx="8" fill="#FFFFFF"/>
+      
+      <!-- Glowing Lightbulb -->
+      <circle cx="80" cy="78" r="12" fill="#FFE082"/>
+      <path d="M 74 86 L 86 86 L 84 92 L 76 92 Z" fill="#FFA000"/>
+      <rect x="77" y="93" width="6" height="2" fill="#757575"/>
+      <!-- Filament -->
+      <path d="M 78 78 Q 80 74 82 78" stroke="#E65100" stroke-width="1.5" fill="none"/>
+      
+      <!-- Idea Rays -->
+      <line x1="80" y1="60" x2="80" y2="64" stroke="#FFA000" stroke-width="2" stroke-linecap="round"/>
+      <line x1="68" y1="67" x2="71" y2="70" stroke="#FFA000" stroke-width="2" stroke-linecap="round"/>
+      <line x1="92" y1="67" x2="89" y2="70" stroke="#FFA000" stroke-width="2" stroke-linecap="round"/>
+    
+</svg>

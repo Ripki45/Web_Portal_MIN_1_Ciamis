@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFEBEE"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle border inside -->
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill (like in screenshot) -->
+  <g transform="translate(80, 18)">
+    <circle cx="0" cy="0" r="12" fill="#D81B60"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle">11</text>
+  </g>
+
+  
+      <!-- Hijab Outer Drape -->
+      <path d="M 40 92 C 34 115 28 135 24 160 L 136 160 C 132 135 126 115 120 92 Z" fill="#880E4F"/>
+      <path d="M 46 80 C 40 100 42 125 45 150 C 60 155 100 155 115 150 C 118 125 120 100 114 80 Z" fill="#AD1457"/>
+      
+      <!-- Inner Neck Drape / Underscarf -->
+      <ellipse cx="80" cy="85" rx="36" ry="44" fill="#AD1457"/>
+      
+      <!-- Face Oval -->
+      <ellipse cx="80" cy="84" rx="26" ry="30" fill="#FDDCB9"/>
+      <ellipse cx="80" cy="62" rx="23" ry="10" fill="#E8B88A" opacity="0.4"/>
+      
+      <!-- Hijab Inner Curve Framer -->
+      <path d="M 54 82 C 54 60 106 60 106 82 C 104 106 56 106 54 82 Z" fill="none" stroke="#AD1457" stroke-width="4"/>
+
+      <!-- Cheeks -->
+      <circle cx="66" cy="89" r="4.5" fill="#FF8A80" opacity="0.5"/>
+      <circle cx="94" cy="89" r="4.5" fill="#FF8A80" opacity="0.5"/>
+
+      <!-- Eyes (Friendly curved) -->
+      <circle cx="68" cy="82" r="3.2" fill="#2C3E50"/>
+      <circle cx="92" cy="82" r="3.2" fill="#2C3E50"/>
+      <circle cx="69" cy="81" r="1" fill="#FFFFFF"/>
+      <circle cx="93" cy="81" r="1" fill="#FFFFFF"/>
+
+      <!-- Eyebrows -->
+      <path d="M 63 76 Q 68 74 73 76" stroke="#5D4037" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 87 76 Q 92 74 97 76" stroke="#5D4037" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+      <!-- Nose -->
+      <path d="M 80 82 Q 78 86 80 87" stroke="#D7A177" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+
+      <!-- Smile -->
+      <path d="M 73 93 Q 80 99 87 93" stroke="#D81B60" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+      <!-- Hijab Front Pin / Jewel -->
+      <circle cx="80" cy="118" r="4.5" fill="#FFE15D" stroke="#D4AF37" stroke-width="1"/>
+      <circle cx="80" cy="118" r="2" fill="#FFFFFF"/>
+    
+</svg>

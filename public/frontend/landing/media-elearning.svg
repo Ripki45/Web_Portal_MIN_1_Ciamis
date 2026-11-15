@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad_media-elearning" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8EAF6"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad_media-elearning)"/>
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill -->
+  <g transform="translate(80, 20)">
+    <rect x="-24" y="-10" width="48" height="20" rx="10" fill="#283593"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">KELAS</text>
+  </g>
+
+  
+      <!-- Computer Monitor with Toga / Cap -->
+      <rect x="42" y="60" width="76" height="48" rx="6" fill="#1A237E"/>
+      <rect x="46" y="64" width="68" height="40" rx="4" fill="#3949AB"/>
+      
+      <!-- Monitor Stand -->
+      <polygon points="74,108 86,108 88,118 72,118" fill="#1A237E"/>
+      <rect x="64" y="118" width="32" height="5" rx="2" fill="#1A237E"/>
+
+      <!-- Graduation Cap / Toga inside screen -->
+      <polygon points="80,72 60,80 80,88 100,80" fill="#FFE15D"/>
+      <polygon points="68,84 80,92 92,84 92,94 68,94" fill="#FFD54F"/>
+      <line x1="60" y1="80" x2="56" y2="90" stroke="#FFC107" stroke-width="2"/>
+      <circle cx="56" cy="91" r="2" fill="#FFC107"/>
+    
+</svg>

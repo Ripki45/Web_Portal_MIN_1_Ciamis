@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <defs>
+    <linearGradient id="bgGrad_media-phet" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0F7FA"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="160" height="160" rx="32" fill="url(#bgGrad_media-phet)"/>
+  <rect x="2" y="2" width="156" height="156" rx="30" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="2"/>
+
+  <!-- Top Badge pill -->
+  <g transform="translate(80, 20)">
+    <rect x="-24" y="-10" width="48" height="20" rx="10" fill="#00838F"/>
+    <text x="0" y="4" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">SAINS</text>
+  </g>
+
+  
+      <!-- Atom rings & Science Beaker -->
+      <ellipse cx="80" cy="85" rx="38" ry="14" fill="none" stroke="#00ACC1" stroke-width="2.5" transform="rotate(-30 80 85)"/>
+      <ellipse cx="80" cy="85" rx="38" ry="14" fill="none" stroke="#00838F" stroke-width="2.5" transform="rotate(30 80 85)"/>
+      <ellipse cx="80" cy="85" rx="38" ry="14" fill="none" stroke="#FFB300" stroke-width="2.5" transform="rotate(90 80 85)"/>
+      
+      <!-- Central nucleus -->
+      <circle cx="80" cy="85" r="10" fill="#00838F"/>
+      <circle cx="78" cy="83" r="3" fill="#FFFFFF"/>
+      
+      <!-- Orbiting electrons -->
+      <circle cx="48" cy="68" r="4.5" fill="#FFB300"/>
+      <circle cx="112" cy="102" r="4.5" fill="#00ACC1"/>
+      <circle cx="80" cy="48" r="4.5" fill="#E91E63"/>
+
+      <!-- Sparkle -->
+      <polygon points="106,52 108,58 114,60 108,62 106,68 104,62 98,60 104,58" fill="#FFE15D"/>
+    
+</svg>
