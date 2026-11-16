@@ -17,6 +17,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NavMenuController;
 use App\Http\Controllers\HalamanController;
 use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\SambutanProfilController;
+use App\Http\Controllers\DuniaIlmulController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,6 +40,8 @@ Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'inde
     ->name('presensi.verifikasiPin');
 Route::post('/scan-presensi/kunci-pin', [App\Http\Controllers\PresensiController::class, 'kunciPinServer'])
     ->name('presensi.kunciPin');
+// Rute Publik Pemutar Media Dunia Ilmu (.TSX / .JS / .HTML)
+Route::get('/dunia-ilmu/play/{slug}', [App\Http\Controllers\DuniaIlmuController::class, 'play'])->name('dunia-ilmu.play');
 
 Route::middleware('auth')->group(function () {
     // Manajemen Role Pengguna & Toggle Hak Akses
@@ -122,6 +126,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/kategori-berita/{id}', [App\Http\Controllers\BeritaController::class, 'destroyKategori'])->name('kategori-berita.destroy');
 
     Route::resource('banner-carousel', App\Http\Controllers\BannerCarouselController::class)->except(['create', 'show', 'edit']);
+    // Manajemen Terpadu: Sambutan Kepala Madrasah, Profil, Visi, Misi & Motto
+Route::get('/sambutan-profil', [App\Http\Controllers\SambutanProfilController::class, 'index'])->name('sambutan-profil.index');
+Route::put('/sambutan-profil', [App\Http\Controllers\SambutanProfilController::class, 'update'])->name('sambutan-profil.update');
+Route::post('/sambutan-profil/generate-ai', [App\Http\Controllers\SambutanProfilController::class, 'generateAi'])->name('sambutan-profil.generateAi');
+
+// Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
+Route::resource('dunia-ilmu', App\Http\Controllers\DuniaIlmuController::class)->except(['create', 'show', 'edit']);
 });
 
 require __DIR__.'/auth.php';

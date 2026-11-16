@@ -327,119 +327,175 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 2. SEKILAS MIN 1 CIAMIS (TABS INTERAKTIF: PROFIL, VISI, MISI, MOTTO)      -->
+    <!-- 2. SAMBUTAN KEPALA MADRASAH & SEKILAS MIN 1 CIAMIS (5 TAB TERPADU)        -->
     <!-- ========================================================================= -->
+    @php
+        $sp = \App\Models\SambutanProfil::ambilData();
+    @endphp
     <section class="section sekilas-section" id="profil">
         <div class="sekilas-gradasi-garis"></div>
         <div class="container" style="position: relative; z-index: 2">
             <div class="sekilas-grid">
+
+                <!-- SISI KIRI: FOTO KEPALA MADRASAH + FLOATING BADGE IDENTITAS -->
                 <div class="sekilas-card-container">
                     <div class="sekilas-card-decor-gradient"></div>
                     <div class="sekilas-card-frame">
                         <div class="sekilas-card-img-wrapper">
-                            <img src="{{ asset('frontend/landing/about-img.png') }}" alt="Gedung & Aktivitas MIN 1 Ciamis"
-                                class="sekilas-card-img"
-                                onerror="this.onerror=null; this.src='{{ isset($fotoBanners[0]) ? $fotoBanners[0]->gambar_url : asset('frontend/assets/imgs/page/img-4.png') }}';" />
+                            <img src="{{ $sp->foto_kepsek_url }}" alt="{{ $sp->nama_kepsek }}" class="sekilas-card-img"
+                                style="object-position: top center;"
+                                onerror="this.onerror=null; this.src='{{ asset('frontend/assets/imgs/page/img-4.png') }}';" />
+
+                            <!-- Kartu Identitas Kepala Madrasah di Bawah Foto -->
+                            <div
+                                style="position: absolute; bottom: 18px; left: 18px; right: 18px; background: rgba(15, 23, 42, 0.86); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1.5px solid rgba(255, 225, 93, 0.55); border-radius: 20px; padding: 14px 18px; color: #ffffff; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);">
+                                <div
+                                    style="display: inline-block; background: #1B9C85; color: #FFE15D; font-size: 10.5px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 4px;">
+                                    {{ $sp->jabatan_kepsek }}
+                                </div>
+                                <div
+                                    style="font-family: 'Outfit', sans-serif; font-size: 1.12rem; font-weight: 800; color: #ffffff; line-height: 1.25;">
+                                    {{ $sp->nama_kepsek }}
+                                </div>
+                                @if (!empty($sp->nip_kepsek))
+                                    <div
+                                        style="font-size: 0.76rem; color: #cbd5e1; margin-top: 2px; font-family: monospace;">
+                                        NIP. {{ $sp->nip_kepsek }}
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- SISI KANAN: 5 PILL TABS (SAMBUTAN, PROFIL, VISI, MISI, MOTTO) -->
                 <div class="sekilas-content-wrap">
                     <div class="sekilas-eyebrow">
                         <span class="sekilas-eyebrow-line"></span>
-                        <span class="sekilas-eyebrow-text">INFORMASI RESMI MADRASAH</span>
+                        <span class="sekilas-eyebrow-text">SAMBUTAN &amp; INFORMASI RESMI MADRASAH</span>
                     </div>
 
-                    <h2 class="sekilas-title">
-                        <span class="title-italic">SEKILAS</span>
-                        <span class="title-highlight">MIN 1 CIAMIS</span>
+                    <h2 class="sekilas-title" id="judulUtamaSekilas">
+                        <span class="title-italic" id="teksKiriJudulSekilas">SAMBUTAN</span>
+                        <span class="title-highlight" id="teksKananJudulSekilas">KEPALA MADRASAH</span>
                     </h2>
 
+                    <!-- Navigasi 5 Tab -->
                     <div class="sekilas-tabs-nav">
-                        <button type="button" class="sekilas-tab-btn active" data-tab="profil"
-                            onclick="switchSekilasTab('profil')">PROFIL</button>
+                        <button type="button" class="sekilas-tab-btn active" data-tab="sambutan"
+                            onclick="switchSekilasTabCustom('sambutan', 'SAMBUTAN', 'KEPALA MADRASAH')">
+                            SAMBUTAN
+                        </button>
+                        <button type="button" class="sekilas-tab-btn" data-tab="profil"
+                            onclick="switchSekilasTabCustom('profil', 'PROFIL', 'MIN 1 CIAMIS')">
+                            PROFIL
+                        </button>
                         <button type="button" class="sekilas-tab-btn" data-tab="visi"
-                            onclick="switchSekilasTab('visi')">VISI</button>
+                            onclick="switchSekilasTabCustom('visi', 'VISI', 'MIN 1 CIAMIS')">
+                            VISI
+                        </button>
                         <button type="button" class="sekilas-tab-btn" data-tab="misi"
-                            onclick="switchSekilasTab('misi')">MISI</button>
+                            onclick="switchSekilasTabCustom('misi', 'MISI', 'MIN 1 CIAMIS')">
+                            MISI
+                        </button>
                         <button type="button" class="sekilas-tab-btn" data-tab="motto"
-                            onclick="switchSekilasTab('motto')">MOTTO</button>
+                            onclick="switchSekilasTabCustom('motto', 'MOTTO', 'MIN 1 CIAMIS')">
+                            MOTTO
+                        </button>
                     </div>
 
-                    <!-- TAB 1: PROFIL -->
-                    <div class="sekilas-tab-pane" id="sekilas-pane-profil" style="display: block">
-                        <div class="sekilas-content-tag">PROFIL MADRASAH</div>
-                        <h3 class="sekilas-quote">"Madrasah Maju, Bermutu, Berakhlak Mulia"</h3>
-                        <p class="sekilas-text">
-                            Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis adalah institusi pendidikan dasar formal berciri khas
-                            Islam di bawah naungan Kementerian Agama Kabupaten Ciamis. Beralamat di Jl. Maparah No. 65,
-                            Kecamatan Panjalu, MIN 1 Ciamis telah terakreditasi A (Unggul) dan menjadi sekolah rujukan
-                            kebanggaan masyarakat Tatar Galuh Ciamis.
-                        </p>
-                        <div class="sekilas-features-grid">
-                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>NPSN
-                                    60708447</span></div>
-                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>Akreditasi A
-                                    (Unggul)</span></div>
-                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>Sekolah Ramah
-                                    Anak</span></div>
-                            <div class="sekilas-feature-pill"><i class="fas fa-check-circle"></i><span>Program Tahfidz Juz
-                                    30</span></div>
+                    <!-- TAB 1: SAMBUTAN KEPALA MADRASAH (AKTIF DEFAULT) -->
+                    <div class="sekilas-tab-pane" id="sekilas-pane-sambutan" style="display: block">
+                        <div class="sekilas-content-tag">KATA SAMBUTAN KEPALA MADRASAH</div>
+                        <h3 class="sekilas-quote">"{{ $sp->sambutan_kutipan }}"</h3>
+                        <div class="sekilas-text" style="white-space: pre-line;">{{ $sp->sambutan_isi }}</div>
+
+                        <div
+                            style="display: flex; align-items: center; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px dashed #cbd5e1;">
+                            <div
+                                style="width: 42px; height: 42px; border-radius: 50%; background: #EDF6EE; color: #1B9C85; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 800; color: #0f172a; font-size: 0.95rem;">{{ $sp->nama_kepsek }}
+                                </div>
+                                <div style="font-size: 0.8rem; color: #1B9C85; font-weight: 700;">
+                                    {{ $sp->jabatan_kepsek }}</div>
+                            </div>
                         </div>
-                        <a href="{{ url('/halaman/visi-misi') }}" class="sekilas-detail-link">
-                            <span>BACA PROFIL &amp; VISI MISI LENGKAP</span>
-                            <span class="sekilas-arrow-circle"><i class="fas fa-arrow-right"></i></span>
-                        </a>
                     </div>
 
-                    <!-- TAB 2: VISI -->
+                    <!-- TAB 2: PROFIL + 4 POIN KEUNGGULAN DARI DATABASE -->
+                    <div class="sekilas-tab-pane" id="sekilas-pane-profil" style="display: none">
+                        <div class="sekilas-content-tag">PROFIL MADRASAH</div>
+                        <h3 class="sekilas-quote">"{{ $sp->profil_kutipan }}"</h3>
+                        <div class="sekilas-text" style="white-space: pre-line;">{{ $sp->profil_isi }}</div>
+
+                        <div class="sekilas-features-grid">
+                            @foreach ($sp->profil_poin ?? [] as $poin)
+                                <div class="sekilas-feature-pill">
+                                    <i class="{{ $poin['icon'] ?? 'fas fa-check-circle' }}"></i>
+                                    <span>{{ $poin['text'] ?? '' }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: VISI -->
                     <div class="sekilas-tab-pane" id="sekilas-pane-visi" style="display: none">
                         <div class="sekilas-content-tag">VISI MADRASAH</div>
-                        <h3 class="sekilas-quote">
-                            "Terwujudnya Peserta Didik yang Beriman dan Bertaqwa, Cerdas, Terampil, Mandiri, Berakhlakul
-                            Karimah, serta Berwawasan Lingkungan."
-                        </h3>
-                        <p class="sekilas-text">
-                            Visi ini merupakan komitmen luhur MIN 1 Ciamis dalam melahirkan generasi penerus bangsa yang
-                            kokoh akidahnya, cemerlang pemikirannya, dan memiliki kepedulian tinggi terhadap kelestarian
-                            alam.
-                        </p>
-                        <a href="{{ url('/halaman/visi-misi') }}" class="sekilas-detail-link">
-                            <span>PELAJARI VISI &amp; INDIKATOR</span>
-                            <span class="sekilas-arrow-circle"><i class="fas fa-arrow-right"></i></span>
-                        </a>
+                        <h3 class="sekilas-quote">"{{ $sp->visi_kutipan }}"</h3>
+                        <div class="sekilas-text" style="white-space: pre-line;">{{ $sp->visi_isi }}</div>
                     </div>
 
-                    <!-- TAB 3: MISI -->
+                    <!-- TAB 4: MISI + 4 POIN MISI DARI DATABASE -->
                     <div class="sekilas-tab-pane" id="sekilas-pane-misi" style="display: none">
                         <div class="sekilas-content-tag">MISI MADRASAH</div>
-                        <h3 class="sekilas-quote">"Membangun Fondasi Keislaman, Keilmuan, dan Karakter Kebangsaan Sejak
-                            Usia Dini."</h3>
+                        <h3 class="sekilas-quote">"{{ $sp->misi_kutipan }}"</h3>
+                        <div class="sekilas-text" style="white-space: pre-line;">{{ $sp->misi_isi }}</div>
+
                         <div class="sekilas-features-grid">
-                            <div class="sekilas-feature-pill"><i class="fas fa-star"></i><span>Pembiasaan Ibadah &amp;
-                                    Tahfidz</span></div>
-                            <div class="sekilas-feature-pill"><i class="fas fa-laptop-code"></i><span>Pembelajaran Aktif
-                                    &amp; Inovatif</span></div>
-                            <div class="sekilas-feature-pill"><i class="fas fa-trophy"></i><span>Pembinaan Prestasi Sains
-                                    &amp; Seni</span></div>
-                            <div class="sekilas-feature-pill"><i class="fas fa-leaf"></i><span>Madrasah Hijau &amp; Bebas
-                                    Sampah</span></div>
+                            @foreach ($sp->misi_poin ?? [] as $poin)
+                                <div class="sekilas-feature-pill">
+                                    <i class="{{ $poin['icon'] ?? 'fas fa-star' }}"></i>
+                                    <span>{{ $poin['text'] ?? '' }}</span>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
-                    <!-- TAB 4: MOTTO -->
+                    <!-- TAB 5: MOTTO & PIALA 3D -->
                     <div class="sekilas-tab-pane" id="sekilas-pane-motto" style="display: none">
                         <div class="sekilas-content-tag">MOTTO MADRASAH</div>
-                        <h3 class="sekilas-quote">"Berakhlak Mulia, Unggul Prestasi, Berwawasan Lingkungan"</h3>
-                        <p class="sekilas-text">
-                            Semboyan pendorong semangat segenap guru, santri, dan komite madrasah untuk senantiasa
-                            mengedepankan adab di atas ilmu dan mengejar capaian prestasi tertinggi.
-                        </p>
+                        <h3 class="sekilas-quote">"{{ $sp->motto_kutipan }}"</h3>
+                        <div class="sekilas-text" style="white-space: pre-line;">{{ $sp->motto_isi }}</div>
+
+                        <div class="motto-trophy-showcase" onclick="triggerPrestasiConfetti(event)"
+                            style="cursor: pointer; display: flex; align-items: center; gap: 18px; background: linear-gradient(135deg, #09332C 0%, #115E59 100%); padding: 18px 22px; border-radius: 20px; margin-top: 18px; color: #fff;"
+                            title="Klik untuk merayakan!">
+                            <div style="font-size: 2.4rem; color: #ffe15d; flex-shrink: 0;">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size: 1.2rem; font-weight: 800; color: #ffe15d; font-family: 'Outfit', sans-serif;">
+                                    {{ $sp->total_prestasi }}+ Prestasi Juara
+                                </div>
+                                <p
+                                    style="margin: 4px 0 0; font-size: 0.86rem; color: rgba(255, 255, 255, 0.9); line-height: 1.45;">
+                                    Perolehan piala &amp; medali kejuaraan tingkat Kabupaten Ciamis, Priangan Timur,
+                                    Provinsi, hingga Nasional.
+                                </p>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </section>
+
+
 
     <!-- ========================================================================= -->
     <!-- 3. BANNER IKLAN PPDB (LANDSCAPE TETAP) & LAYANAN CEPAT (6 AKSES + MORE)   -->
@@ -859,6 +915,105 @@
     </section>
 
     <!-- ========================================================================= -->
+    <!-- DUNIA ILMU MIN 1 CIAMIS (DINAMIS DARI DATABASE: LINK & APP TSX/JS)        -->
+    <!-- ========================================================================= -->
+    @php
+        \App\Models\DuniaIlmu::pastikanTabelSiap();
+        $duniaIlmus = \App\Models\DuniaIlmu::where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Siapkan array untuk modal katalog "Semua Media Belajar" di landing-min1.js
+        $duniaDatabaseJs = $duniaIlmus
+            ->map(function ($m) {
+                return [
+                    'id' => 'media-' . $m->id,
+                    'nama' => $m->judul,
+                    'kategori' => $m->kategori_filter,
+                    'kategoriLabel' => $m->kategori_label,
+                    'avatar' => $m->gambar_url,
+                    'url' => $m->url_tujuan,
+                    'deskripsi' => $m->deskripsi ?: $m->kategori_label,
+                ];
+            })
+            ->values();
+    @endphp
+
+    <section class="section guru-tendik-section dunia-ilmu-section" id="dunia-ilmu">
+        <div id="layanan" style="position: absolute; top: -80px;"></div>
+        <div class="container">
+            <div class="guru-tendik-card">
+
+                <!-- Header Row -->
+                <div class="guru-header-row">
+                    <div class="guru-header-left">
+                        <div class="guru-badge-tag">
+                            <i class="fas fa-compass"></i> DUNIA ILMU MADRASAH ({{ $duniaIlmus->count() }} MEDIA)
+                        </div>
+                        <h2 class="guru-main-title">Dunia Ilmu MIN 1 Ciamis</h2>
+                        <p class="guru-sub-desc">
+                            Akses media pembelajaran digital interaktif, aplikasi pintar, laboratorium sains virtual, dan
+                            khazanah literasi santri.
+                        </p>
+                    </div>
+
+                    <div class="guru-header-right">
+                        <button type="button" class="guru-view-all-btn" onclick="openDuniaIlmuModalCustom()">
+                            <span>Semua Media Belajar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <div class="guru-nav-controls">
+                            <button type="button" class="guru-nav-btn" id="duniaIlmuPrev" aria-label="Geser ke kiri">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="guru-nav-btn" id="duniaIlmuNext" aria-label="Geser ke kanan">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slider Track Dinamis -->
+                <div class="guru-slider-viewport" id="duniaIlmuViewport">
+                    <div class="guru-slider-track" id="duniaIlmuTrack">
+                        @foreach ($duniaIlmus as $media)
+                            <a href="{{ $media->url_tujuan }}"
+                                target="{{ $media->tipe_sumber === 'link' ? '_blank' : '_self' }}"
+                                rel="noopener noreferrer" class="guru-card dunia-media-card"
+                                title="Buka {{ $media->judul }}">
+                                <div class="guru-card-banner {{ $media->warna_gradasi }}">
+                                    @if ($media->tipe_sumber === 'kode_interaktif')
+                                        <span
+                                            style="position: absolute; top: 10px; right: 12px; background: rgba(15, 23, 42, 0.78); color: #FFE15D; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; border: 1px solid rgba(255, 225, 93, 0.4);">
+                                            ⚡ APP INTERAKTIF
+                                        </span>
+                                    @endif
+                                    <div class="guru-photo-box" style="padding: 14px;">
+                                        <img src="{{ $media->gambar_url }}" alt="{{ $media->judul }}"
+                                            class="guru-photo-img" style="object-fit: contain;" loading="lazy">
+                                    </div>
+                                </div>
+                                <div class="guru-card-body">
+                                    <h4 class="guru-name">{{ $media->judul }}</h4>
+                                    <p class="guru-role">{{ $media->kategori_label }}</p>
+                                    <div class="dunia-link-action">
+                                        <span>{{ $media->tipe_sumber === 'kode_interaktif' ? 'Mainkan Aplikasi' : 'Buka Media' }}</span>
+                                        <i
+                                            class="fas {{ $media->tipe_sumber === 'kode_interaktif' ? 'fa-play-circle' : 'fa-external-link-alt' }}"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ========================================================================= -->
     <!-- 8. KABAR MADRASAH (GRID BERITA DARI DATABASE + FILTER KATEGORI)           -->
     <!-- ========================================================================= -->
     <section class="section section-bg-alt" id="berita">
@@ -930,6 +1085,33 @@
     </section>
 
     <script>
+        function switchSekilasTabCustom(tabKey, judulKiri, judulKanan) {
+            document.querySelectorAll(".sekilas-tab-btn").forEach(function(btn) {
+                btn.classList.toggle("active", btn.getAttribute("data-tab") === tabKey);
+            });
+            document.querySelectorAll(".sekilas-tab-pane").forEach(function(pane) {
+                pane.style.display = (pane.id === "sekilas-pane-" + tabKey) ? "block" : "none";
+            });
+            var elKiri = document.getElementById("teksKiriJudulSekilas");
+            var elKanan = document.getElementById("teksKananJudulSekilas");
+            if (elKiri) elKiri.innerText = judulKiri;
+            if (elKanan) elKanan.innerText = judulKanan;
+        }
+        // Sinkronkan katalog modal Dunia Ilmu dengan database Laravel
+        window.DUNIA_ILMU_CUSTOM_DB = @json($duniaDatabaseJs);
+
+        function openDuniaIlmuModalCustom() {
+            if (typeof DUNIA_ILMU_DATABASE !== 'undefined' && Array.isArray(window.DUNIA_ILMU_CUSTOM_DB)) {
+                DUNIA_ILMU_DATABASE.length = 0;
+                window.DUNIA_ILMU_CUSTOM_DB.forEach(function(item) {
+                    DUNIA_ILMU_DATABASE.push(item);
+                });
+            }
+            if (typeof openDuniaIlmuModal === 'function') {
+                openDuniaIlmuModal();
+            }
+        }
+
         function toggleLayananCepat() {
             var grid = document.getElementById('gridLayananCepat');
             var teks = document.getElementById('teksToggleLayanan');

@@ -285,6 +285,16 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('sambutan-profil.index') }}">
+                            <i class="ph ph-user-focus"></i><span>Sambutan &amp; Profil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('dunia-ilmu.index') }}">
+                            <i class="ph ph-compass"></i><span>Dunia Ilmu (Media/TSX)</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('berita.index') }}">
                             <i class="ph ph-newspaper"></i><span>Berita & Artikel</span>
                         </a>
