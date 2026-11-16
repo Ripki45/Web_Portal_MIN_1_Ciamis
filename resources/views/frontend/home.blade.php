@@ -924,16 +924,20 @@
             ->orderBy('id', 'desc')
             ->get();
 
-        // Siapkan array untuk modal katalog "Semua Media Belajar" di landing-min1.js
+        $opsiKelasDunia = \App\Models\DuniaIlmu::ambilDaftarKelas();
+        $opsiMapelDunia = \App\Models\DuniaIlmu::ambilDaftarMapel();
+
         $duniaDatabaseJs = $duniaIlmus
             ->map(function ($m) {
                 return [
                     'id' => 'media-' . $m->id,
                     'nama' => $m->judul,
-                    'kategori' => $m->kategori_filter,
-                    'kategoriLabel' => $m->kategori_label,
+                    'kelas' => $m->kelas ?: 'Semua Kelas',
+                    'mapel' => $m->mapel ?: 'Umum / Lintas Mapel',
+                    'label' => ($m->mapel ?: 'Media') . ' • ' . ($m->kelas ?: 'Semua Kelas'),
                     'avatar' => $m->gambar_url,
                     'url' => $m->url_tujuan,
+                    'tipe' => $m->tipe_sumber,
                     'deskripsi' => $m->deskripsi ?: $m->kategori_label,
                 ];
             })
@@ -946,21 +950,21 @@
             <div class="guru-tendik-card">
 
                 <!-- Header Row -->
-                <div class="guru-header-row">
+                <div class="guru-header-row" style="margin-bottom: 18px !important;">
                     <div class="guru-header-left">
                         <div class="guru-badge-tag">
                             <i class="fas fa-compass"></i> DUNIA ILMU MADRASAH ({{ $duniaIlmus->count() }} MEDIA)
                         </div>
                         <h2 class="guru-main-title">Dunia Ilmu MIN 1 Ciamis</h2>
                         <p class="guru-sub-desc">
-                            Akses media pembelajaran digital interaktif, aplikasi pintar, laboratorium sains virtual, dan
-                            khazanah literasi santri.
+                            Pilih <b>Kelas</b> dan <b>Mata Pelajaran</b> untuk mengakses aplikasi pembelajaran interaktif
+                            dan modul digital santri.
                         </p>
                     </div>
 
                     <div class="guru-header-right">
-                        <button type="button" class="guru-view-all-btn" onclick="openDuniaIlmuModalCustom()">
-                            <span>Semua Media Belajar</span>
+                        <button type="button" class="guru-view-all-btn" onclick="bukaModalKatalogDuniaIlmu()">
+                            <span>Katalog Lengkap</span>
                             <i class="fas fa-arrow-right"></i>
                         </button>
                         <div class="guru-nav-controls">
@@ -974,21 +978,65 @@
                     </div>
                 </div>
 
+                <!-- Bar Filter Langsung: Pilih Kelas & Pilih Mata Pelajaran -->
+                <div
+                    style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: #ffffff; border: 1.5px solid #e2e8f0; padding: 12px 16px; border-radius: 18px; margin-bottom: 22px;">
+                    <div
+                        style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 800; color: #0d6a56;">
+                        <i class="fas fa-filter"></i> Filter Cepat:
+                    </div>
+
+                    <select id="filterHomeKelas" onchange="saringKartuDuniaHome()"
+                        style="padding: 8px 14px; border-radius: 9999px; border: 1.5px solid #cbd5e1; font-size: 0.85rem; font-weight: 700; color: #0f172a; background: #f8fafc; cursor: pointer;">
+                        <option value="semua">🏫 Semua Kelas</option>
+                        @foreach ($opsiKelasDunia as $kls)
+                            @if ($kls !== 'Semua Kelas')
+                                <option value="{{ $kls }}">{{ $kls }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+
+                    <select id="filterHomeMapel" onchange="saringKartuDuniaHome()"
+                        style="padding: 8px 14px; border-radius: 9999px; border: 1.5px solid #cbd5e1; font-size: 0.85rem; font-weight: 700; color: #0f172a; background: #f8fafc; cursor: pointer;">
+                        <option value="semua">📚 Semua Mata Pelajaran</option>
+                        @foreach ($opsiMapelDunia as $mpl)
+                            <option value="{{ $mpl }}">{{ $mpl }}</option>
+                        @endforeach
+                    </select>
+
+                    <button type="button" onclick="resetFilterDuniaHome()"
+                        style="background: none; border: none; color: #64748b; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-left: auto;">
+                        <i class="fas fa-redo-alt"></i> Tampilkan Semua
+                    </button>
+                </div>
+
                 <!-- Slider Track Dinamis -->
                 <div class="guru-slider-viewport" id="duniaIlmuViewport">
                     <div class="guru-slider-track" id="duniaIlmuTrack">
                         @foreach ($duniaIlmus as $media)
+                            @php
+                                $klsMedia = $media->kelas ?: 'Semua Kelas';
+                                $mplMedia = $media->mapel ?: 'Umum / Lintas Mapel';
+                            @endphp
                             <a href="{{ $media->url_tujuan }}"
                                 target="{{ $media->tipe_sumber === 'link' ? '_blank' : '_self' }}"
-                                rel="noopener noreferrer" class="guru-card dunia-media-card"
+                                rel="noopener noreferrer" class="guru-card dunia-media-card item-dunia-home"
+                                data-kelas="{{ $klsMedia }}" data-mapel="{{ $mplMedia }}"
                                 title="Buka {{ $media->judul }}">
                                 <div class="guru-card-banner {{ $media->warna_gradasi }}">
+                                    <!-- Badge Kelas di Kiri Atas -->
+                                    <span
+                                        style="position: absolute; top: 10px; left: 12px; background: rgba(255, 255, 255, 0.92); color: #0f172a; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                                        {{ $klsMedia }}
+                                    </span>
+
                                     @if ($media->tipe_sumber === 'kode_interaktif')
                                         <span
-                                            style="position: absolute; top: 10px; right: 12px; background: rgba(15, 23, 42, 0.78); color: #FFE15D; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; border: 1px solid rgba(255, 225, 93, 0.4);">
+                                            style="position: absolute; top: 10px; right: 12px; background: rgba(15, 23, 42, 0.82); color: #FFE15D; font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 9999px; border: 1px solid rgba(255, 225, 93, 0.4);">
                                             ⚡ APP INTERAKTIF
                                         </span>
                                     @endif
+
                                     <div class="guru-photo-box" style="padding: 14px;">
                                         <img src="{{ $media->gambar_url }}" alt="{{ $media->judul }}"
                                             class="guru-photo-img" style="object-fit: contain;" loading="lazy">
@@ -996,7 +1044,7 @@
                                 </div>
                                 <div class="guru-card-body">
                                     <h4 class="guru-name">{{ $media->judul }}</h4>
-                                    <p class="guru-role">{{ $media->kategori_label }}</p>
+                                    <p class="guru-role">{{ $mplMedia }}</p>
                                     <div class="dunia-link-action">
                                         <span>{{ $media->tipe_sumber === 'kode_interaktif' ? 'Mainkan Aplikasi' : 'Buka Media' }}</span>
                                         <i
@@ -1098,18 +1146,119 @@
             if (elKanan) elKanan.innerText = judulKanan;
         }
         // Sinkronkan katalog modal Dunia Ilmu dengan database Laravel
-        window.DUNIA_ILMU_CUSTOM_DB = @json($duniaDatabaseJs);
+        window.DUNIA_ILMU_ITEMS = @json($duniaDatabaseJs);
+        window.OPSI_KELAS_DB = @json($opsiKelasDunia);
+        window.OPSI_MAPEL_DB = @json($opsiMapelDunia);
 
-        function openDuniaIlmuModalCustom() {
-            if (typeof DUNIA_ILMU_DATABASE !== 'undefined' && Array.isArray(window.DUNIA_ILMU_CUSTOM_DB)) {
-                DUNIA_ILMU_DATABASE.length = 0;
-                window.DUNIA_ILMU_CUSTOM_DB.forEach(function(item) {
-                    DUNIA_ILMU_DATABASE.push(item);
-                });
+        function saringKartuDuniaHome() {
+            var pilihKelas = document.getElementById('filterHomeKelas').value;
+            var pilihMapel = document.getElementById('filterHomeMapel').value;
+            var cards = document.querySelectorAll('.item-dunia-home');
+
+            cards.forEach(function(card) {
+                var kls = card.getAttribute('data-kelas');
+                var mpl = card.getAttribute('data-mapel');
+
+                var cocokKelas = (pilihKelas === 'semua') ? true : (kls === pilihKelas ? true : kls ===
+                    'Semua Kelas');
+                var cocokMapel = (pilihMapel === 'semua') ? true : (mpl === pilihMapel);
+
+                if (cocokKelas && cocokMapel) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function resetFilterDuniaHome() {
+            document.getElementById('filterHomeKelas').value = 'semua';
+            document.getElementById('filterHomeMapel').value = 'semua';
+            saringKartuDuniaHome();
+        }
+
+        function bukaModalKatalogDuniaIlmu() {
+            var modalOverlay = document.getElementById('general-modal');
+            var modalTitle = document.getElementById('modal-title');
+            var modalContent = document.getElementById('modal-content-area');
+            if (!modalOverlay) return;
+
+            modalTitle.innerHTML =
+                '<i class="fas fa-compass" style="color:#0D6A56;margin-right:8px;"></i> Dunia Ilmu MIN 1 Ciamis';
+
+            var opsiKlsHtml = '<option value="semua">🏫 Semua Kelas</option>';
+            window.OPSI_KELAS_DB.forEach(function(k) {
+                if (k !== 'Semua Kelas') {
+                    opsiKlsHtml += '<option value="' + k + '">' + k + '</option>';
+                }
+            });
+
+            var opsiMplHtml = '<option value="semua">📚 Semua Mata Pelajaran</option>';
+            window.OPSI_MAPEL_DB.forEach(function(m) {
+                opsiMplHtml += '<option value="' + m + '">' + m + '</option>';
+            });
+
+            modalContent.innerHTML =
+                '<div style="display:flex;flex-direction:column;gap:16px;">' +
+                '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;background:#f8fafc;border:1px solid #e2e8f0;padding:14px;border-radius:16px;">' +
+                '<input type="text" id="cariNamaMediaModal" placeholder="🔍 Ketik judul media..." oninput="renderGridModalDunia()" style="padding:9px 14px;border-radius:9999px;border:1.5px solid #cbd5e1;font-size:0.86rem;outline:none;">' +
+                '<select id="pilihKelasModal" onchange="renderGridModalDunia()" style="padding:9px 14px;border-radius:9999px;border:1.5px solid #cbd5e1;font-size:0.86rem;font-weight:700;">' +
+                opsiKlsHtml + '</select>' +
+                '<select id="pilihMapelModal" onchange="renderGridModalDunia()" style="padding:9px 14px;border-radius:9999px;border:1.5px solid #cbd5e1;font-size:0.86rem;font-weight:700;">' +
+                opsiMplHtml + '</select>' +
+                '</div>' +
+                '<div id="wadahGridModalDunia" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;max-height:420px;overflow-y:auto;padding:4px;"></div>' +
+                '</div>';
+
+            renderGridModalDunia();
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderGridModalDunia() {
+            var q = (document.getElementById('cariNamaMediaModal')?.value ?? '').toLowerCase();
+            var kls = document.getElementById('pilihKelasModal')?.value ?? 'semua';
+            var mpl = document.getElementById('pilihMapelModal')?.value ?? 'semua';
+            var box = document.getElementById('wadahGridModalDunia');
+            if (!box) return;
+
+            var hasil = window.DUNIA_ILMU_ITEMS.filter(function(item) {
+                var cocokQ = item.nama.toLowerCase().includes(q) ? true : item.mapel.toLowerCase().includes(q);
+                var cocokKls = (kls === 'semua') ? true : (item.kelas === kls ? true : item.kelas ===
+                    'Semua Kelas');
+                var cocokMpl = (mpl === 'semua') ? true : (item.mapel === mpl);
+                return cocokQ && cocokKls && cocokMpl;
+            });
+
+            if (hasil.length === 0) {
+                box.innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#64748b;">Tidak ada media untuk filter Kelas &amp; Mata Pelajaran ini.</div>';
+                return;
             }
-            if (typeof openDuniaIlmuModal === 'function') {
-                openDuniaIlmuModal();
-            }
+
+            box.innerHTML = hasil.map(function(item) {
+                return '<a href="' + item.url + '" target="' + (item.tipe === 'link' ? '_blank' : '_self') +
+                    '" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px;text-decoration:none;color:inherit;">' +
+                    '<div style="display:flex;align-items:center;gap:12px;">' +
+                    '<img src="' + item.avatar +
+                    '" style="width:46px;height:46px;border-radius:12px;object-fit:contain;border:1px solid #e2e8f0;padding:4px;">' +
+                    '<div>' +
+                    '<span style="display:inline-block;background:#ecfdf5;color:#059669;font-size:10px;font-weight:800;padding:2px 8px;border-radius:9999px;margin-bottom:3px;">' +
+                    item.kelas + '</span>' +
+                    '<div style="font-weight:800;font-size:0.95rem;color:#0f172a;line-height:1.25;">' + item.nama +
+                    '</div>' +
+                    '<div style="font-size:0.78rem;color:#0d6a56;font-weight:700;">' + item.mapel + '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<p style="font-size:0.8rem;color:#64748b;margin:0;line-height:1.4;">' + item.deskripsi +
+                    '</p>' +
+                    '<div style="border-top:1px solid #f1f5f9;padding-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;font-weight:800;color:#0d6a56;">' +
+                    '<span>' + (item.tipe === 'kode_interaktif' ? '⚡ Aplikasi Interaktif' : '🔗 Tautan Web') +
+                    '</span>' +
+                    '<span>Buka &rarr;</span>' +
+                    '</div>' +
+                    '</a>';
+            }).join('');
         }
 
         function toggleLayananCepat() {

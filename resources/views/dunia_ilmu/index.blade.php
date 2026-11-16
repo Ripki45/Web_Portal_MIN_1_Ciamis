@@ -1,15 +1,15 @@
 @extends('layouts.admin')
 
-@section('title', 'Dunia Ilmu MIN 1 Ciamis (Link & Aplikasi TSX/JS) - Dashboard')
+@section('title', 'Dunia Ilmu MIN 1 Ciamis (Filter Kelas & Mapel) - Dashboard')
 
 @section('content')
 
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
         <div>
-            <h6 class="fw-semibold mb-1">Manajemen Dunia Ilmu MIN 1 Ciamis (Media Pembelajaran Digital)</h6>
+            <h6 class="fw-semibold mb-1">Manajemen Dunia Ilmu MIN 1 Ciamis (Berbasis Kelas &amp; Mata Pelajaran)</h6>
             <span class="text-xs text-secondary-light">
-                Tambahkan media belajar berupa <b>Link Eksternal</b> maupun <b>File Aplikasi Interaktif (.tsx / .jsx / .js /
-                    .html)</b> hasil kreasi Google AI Studio
+                Kelola media pembelajaran digital (<b>File Aplikasi .TSX / .JS</b> maupun <b>Link Web</b>) yang
+                dikelompokkan berdasarkan <b>Kelas</b> dan <b>Mata Pelajaran</b>
             </span>
         </div>
         <a href="{{ url('/') }}#dunia-ilmu" target="_blank"
@@ -21,7 +21,7 @@
     <div class="row gy-4">
 
         <!-- ========================================================================= -->
-        <!-- SISI KIRI (5 KOLOM): FORM TAMBAH MEDIA BARU (LINK ATAU FILE TSX/JS)       -->
+        <!-- SISI KIRI (5 KOLOM): FORM TAMBAH MEDIA BARU (PILIH KELAS & MAPEL DB)      -->
         <!-- ========================================================================= -->
         <div class="col-lg-5">
             <div class="card radius-12 border shadow-sm">
@@ -34,7 +34,7 @@
                     <div class="card-body p-20">
 
                         <!-- Pilihan Tipe Sumber Media -->
-                        <div class="mb-16 p-12 radius-12 bg-primary-50 border border-primary-200">
+                        <div class="mb-14 p-12 radius-12 bg-primary-50 border border-primary-200">
                             <label class="form-label fw-bold text-xs text-primary-600 mb-6 d-block">
                                 1. Pilih Jenis Sumber Media Pembelajaran <span class="text-danger-600">*</span>
                             </label>
@@ -45,27 +45,33 @@
                             </select>
                         </div>
 
-                        <!-- Judul & Subjudul -->
+                        <!-- Judul Media -->
                         <div class="mb-14">
                             <label class="form-label fw-bold text-sm mb-4">Judul Media Pembelajaran <span
                                     class="text-danger-600">*</span></label>
                             <input type="text" name="judul" class="form-control radius-8 fw-bold"
-                                placeholder="Contoh: Game Pecahan Matematika 3D" required>
+                                placeholder="Contoh: Petualangan PJOK Gerak Dasar" required>
                         </div>
 
+                        <!-- Pilihan Kelas & Mata Pelajaran dari Database -->
                         <div class="row g-2 mb-14">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-xs mb-4">Label Sub-Judul Kartu <span
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold text-xs mb-4">Pilih Kelas (Database) <span
                                         class="text-danger-600">*</span></label>
-                                <input type="text" name="kategori_label"
-                                    class="form-control form-control-sm radius-8 fw-semibold"
-                                    value="Media Interaktif Santri" required>
+                                <select name="kelas" class="form-select form-select-sm radius-8 fw-bold border-success"
+                                    required>
+                                    @foreach ($daftarKelas as $kls)
+                                        <option value="{{ $kls }}">{{ $kls }}</option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold text-xs mb-4">Kategori Filter Katalog</label>
-                                <select name="kategori_filter" class="form-select form-select-sm radius-8 fw-semibold">
-                                    @foreach ($daftarKategori as $kKey => $kLabel)
-                                        <option value="{{ $kKey }}">{{ $kLabel }}</option>
+                            <div class="col-md-7">
+                                <label class="form-label fw-bold text-xs mb-4">Mata Pelajaran (Database) <span
+                                        class="text-danger-600">*</span></label>
+                                <select name="mapel" class="form-select form-select-sm radius-8 fw-bold border-primary"
+                                    required>
+                                    @foreach ($daftarMapel as $mpl)
+                                        <option value="{{ $mpl }}">{{ $mpl }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -83,13 +89,9 @@
                             <label class="form-label fw-bold text-xs text-secondary-light mb-4 d-block">
                                 💻 Atau Tempel / Edit Langsung Kode (.tsx / .js / .html) di Sini:
                             </label>
-                            <textarea name="isi_kode" id="textareaKodeAdd" rows="7"
+                            <textarea name="isi_kode" id="textareaKodeAdd" rows="6"
                                 class="form-control radius-8 font-monospace text-xs bg-dark text-white"
                                 placeholder="import React, { useState } from 'react';&#10;export default function App() { ... }"></textarea>
-                            <small class="text-xs text-secondary-light d-block mt-4">
-                                Sistem otomatis menjalankan komponen React (<code>.tsx</code>/<code>.jsx</code>),
-                                <code>lucide-react</code>, &amp; Tailwind CSS menjadi link siap pakai!
-                            </small>
                         </div>
 
                         <!-- BOX B: KHUSUS LINK EKSTERNAL -->
@@ -126,10 +128,9 @@
                         </div>
 
                         <div class="mb-16">
-                            <label class="form-label fw-bold text-xs mb-4">Deskripsi Singkat (Tampil di Katalog Semua
-                                Media)</label>
+                            <label class="form-label fw-bold text-xs mb-4">Deskripsi Singkat Materi</label>
                             <textarea name="deskripsi" rows="2" class="form-control radius-8 text-xs"
-                                placeholder="Jelaskan secara singkat manfaat media pembelajaran ini..."></textarea>
+                                placeholder="Jelaskan secara singkat kompetensi atau materi pada media ini..."></textarea>
                         </div>
 
                         <div class="p-10 radius-8 bg-neutral-50 border mb-16">
@@ -143,7 +144,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary-600 w-100 radius-8 py-10 fw-bold shadow-sm">
-                            <i class="ph-bold ph-floppy-disk me-1"></i> Simpan &amp; Buat Link Media
+                            <i class="ph-bold ph-floppy-disk me-1"></i> Simpan &amp; Terbitkan Media
                         </button>
                     </div>
                 </form>
@@ -151,17 +152,39 @@
         </div>
 
         <!-- ========================================================================= -->
-        <!-- SISI KANAN (7 KOLOM): DAFTAR MEDIA DUNIA ILMU TERPASANG                   -->
+        <!-- SISI KANAN (7 KOLOM): DAFTAR MEDIA + FILTER CEPAT KELAS & MAPEL           -->
         <!-- ========================================================================= -->
         <div class="col-lg-7">
             <div class="card radius-12 border shadow-sm">
                 <div
-                    class="card-header border-bottom bg-base py-16 px-24 d-flex align-items-center justify-content-between">
+                    class="card-header border-bottom bg-base py-16 px-20 d-flex flex-wrap align-items-center justify-content-between gap-2">
                     <div>
-                        <h6 class="text-md fw-bold mb-0">Daftar Media Dunia Ilmu ({{ $medias->count() }} Media)</h6>
-                        <span class="text-xs text-secondary-light">Klik tombol <b>🚀 Jalankan Media</b> untuk mencoba
-                            langsung aplikasi <code>.tsx</code> / <code>.js</code></span>
+                        <h6 class="text-md fw-bold mb-0">Daftar Media Dunia Ilmu ({{ $medias->count() }})</h6>
                     </div>
+
+                    <!-- Filter Cepat Kelas & Mapel di Dashboard -->
+                    <form action="{{ route('dunia-ilmu.index') }}" method="GET" class="d-flex flex-wrap gap-2">
+                        <select name="filter_kelas" class="form-select form-select-sm radius-8 text-xs fw-bold"
+                            style="width: auto;" onchange="this.form.submit()">
+                            <option value="">-- Semua Kelas --</option>
+                            @foreach ($daftarKelas as $kls)
+                                <option value="{{ $kls }}"
+                                    {{ request('filter_kelas') === $kls ? 'selected' : '' }}>{{ $kls }}</option>
+                            @endforeach
+                        </select>
+                        <select name="filter_mapel" class="form-select form-select-sm radius-8 text-xs fw-bold"
+                            style="width: auto;" onchange="this.form.submit()">
+                            <option value="">-- Semua Mapel --</option>
+                            @foreach ($daftarMapel as $mpl)
+                                <option value="{{ $mpl }}"
+                                    {{ request('filter_mapel') === $mpl ? 'selected' : '' }}>{{ $mpl }}</option>
+                            @endforeach
+                        </select>
+                        @if (request()->filled('filter_kelas') or request()->filled('filter_mapel'))
+                            <a href="{{ route('dunia-ilmu.index') }}"
+                                class="btn btn-sm btn-secondary radius-8 text-xs">Reset</a>
+                        @endif
+                    </form>
                 </div>
 
                 <div class="card-body p-20">
@@ -169,53 +192,55 @@
                         <table class="table bordered-table align-middle mb-0">
                             <thead>
                                 <tr class="bg-neutral-50">
-                                    <th width="6%">Urut</th>
-                                    <th>Judul Media &amp; Link Akses</th>
-                                    <th>Jenis</th>
-                                    <th class="text-center">Dibuka</th>
+                                    <th width="5%">#</th>
+                                    <th>Judul Media &amp; Link</th>
+                                    <th>Kelas &amp; Mapel</th>
+                                    <th>Tipe</th>
                                     <th class="text-center" width="22%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($medias as $m)
+                                @forelse ($medias as $m)
                                     <tr>
                                         <td class="text-center fw-bold">{{ $m->urutan }}</td>
                                         <td>
-                                            <div class="d-flex align-items-center gap-3">
+                                            <div class="d-flex align-items-center gap-2">
                                                 <img src="{{ $m->gambar_url }}" alt="{{ $m->judul }}"
                                                     class="radius-8 border p-1 bg-white flex-shrink-0"
-                                                    style="width: 44px; height: 44px; object-fit: contain;">
+                                                    style="width: 40px; height: 40px; object-fit: contain;">
                                                 <div>
                                                     <div class="fw-bold text-sm text-primary-light">{{ $m->judul }}
                                                     </div>
-                                                    <div class="text-xs text-secondary-light">{{ $m->kategori_label }}
-                                                    </div>
                                                     <a href="{{ $m->url_tujuan }}" target="_blank"
                                                         class="text-xs text-primary-600 font-monospace">
-                                                        {{ $m->tipe_sumber === 'kode_interaktif' ? '/dunia-ilmu/play/' . Str::limit($m->slug, 24) : Str::limit($m->link_eksternal, 32) }}
+                                                        {{ $m->tipe_sumber === 'kode_interaktif' ? '/dunia-ilmu/play/' . Str::limit($m->slug, 20) : Str::limit($m->link_eksternal, 26) }}
                                                         &#8599;
                                                     </a>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
+                                            <span
+                                                class="bg-success-focus text-success-main px-10 py-2 rounded-pill text-xs fw-bold d-inline-block mb-1">
+                                                {{ $m->kelas ?: 'Semua Kelas' }}
+                                            </span>
+                                            <div class="text-xs fw-bold text-secondary-light">
+                                                {{ $m->mapel ?: $m->kategori_label }}
+                                            </div>
+                                        </td>
+                                        <td>
                                             @if ($m->tipe_sumber === 'kode_interaktif')
                                                 <span
-                                                    class="bg-success-focus text-success-main border border-success px-10 py-4 rounded-pill text-xs fw-bold d-inline-block">
-                                                    ⚛️ App TSX/JS
+                                                    class="bg-warning-focus text-warning-main border border-warning px-8 py-2 rounded-pill text-xs fw-bold d-inline-block">
+                                                    ⚛️ TSX/JS
                                                 </span>
-                                                @if ($m->nama_file_kode)
-                                                    <div class="text-xs font-monospace text-secondary-light mt-1">
-                                                        {{ Str::limit($m->nama_file_kode, 18) }}</div>
-                                                @endif
                                             @else
                                                 <span
-                                                    class="bg-info-focus text-info-main border border-info px-10 py-4 rounded-pill text-xs fw-bold d-inline-block">
-                                                    🔗 Link Web
+                                                    class="bg-info-focus text-info-main border border-info px-8 py-2 rounded-pill text-xs fw-bold d-inline-block">
+                                                    🔗 Link
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="text-center fw-bold text-xs">{{ number_format($m->views) }}x</td>
                                         <td class="text-center">
                                             <div class="d-flex align-items-center justify-content-center gap-1">
                                                 <a href="{{ $m->url_tujuan }}" target="_blank"
@@ -237,7 +262,13 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-24 text-secondary-light">
+                                            Belum ada media pembelajaran untuk filter Kelas/Mapel ini.
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -288,24 +319,32 @@
                                 </div>
 
                                 <div class="col-md-5">
-                                    <label class="form-label fw-bold text-xs mb-4">Label Sub-Judul</label>
-                                    <input type="text" name="kategori_label" class="form-control radius-8"
-                                        value="{{ $m->kategori_label }}" required>
+                                    <label class="form-label fw-bold text-xs mb-4">Pilih Kelas (Database) <span
+                                            class="text-danger-600">*</span></label>
+                                    <select name="kelas" class="form-select radius-8 fw-bold border-success" required>
+                                        @foreach ($daftarKelas as $kls)
+                                            <option value="{{ $kls }}"
+                                                {{ ($m->kelas ?? 'Semua Kelas') === $kls ? 'selected' : '' }}>
+                                                {{ $kls }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold text-xs mb-4">Kategori Filter</label>
-                                    <select name="kategori_filter" class="form-select radius-8">
-                                        @foreach ($daftarKategori as $kKey => $kLabel)
-                                            <option value="{{ $kKey }}"
-                                                {{ $m->kategori_filter === $kKey ? 'selected' : '' }}>{{ $kLabel }}
+                                <div class="col-md-5">
+                                    <label class="form-label fw-bold text-xs mb-4">Mata Pelajaran (Database) <span
+                                            class="text-danger-600">*</span></label>
+                                    <select name="mapel" class="form-select radius-8 fw-bold border-primary" required>
+                                        @foreach ($daftarMapel as $mpl)
+                                            <option value="{{ $mpl }}"
+                                                {{ ($m->mapel ?? '') === $mpl ? 'selected' : '' }}>{{ $mpl }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <label class="form-label fw-bold text-xs mb-4">Urutan</label>
-                                    <input type="number" name="urutan" class="form-control radius-8 fw-bold"
-                                        value="{{ $m->urutan }}" min="1" required>
+                                    <input type="number" name="urutan"
+                                        class="form-control radius-8 fw-bold text-center" value="{{ $m->urutan }}"
+                                        min="1" required>
                                 </div>
 
                                 <!-- Box Kode Edit -->
@@ -320,9 +359,9 @@
                                             accept=".tsx,.jsx,.js,.ts,.html,.txt"
                                             onchange="bacaFileKodeKeEditor(this, 'textareaKodeEdit{{ $m->id }}')">
 
-                                        <label class="form-label fw-bold text-xs mb-4 d-block">💻 Kode Aplikasi Saat Ini
-                                            (Bisa Diedit Langsung):</label>
-                                        <textarea name="isi_kode" id="textareaKodeEdit{{ $m->id }}" rows="8"
+                                        <label class="form-label fw-bold text-xs mb-4 d-block">💻 Kode Aplikasi Saat
+                                            Ini:</label>
+                                        <textarea name="isi_kode" id="textareaKodeEdit{{ $m->id }}" rows="7"
                                             class="form-control radius-8 font-monospace text-xs bg-dark text-white">{{ $m->isi_kode }}</textarea>
                                     </div>
                                 </div>

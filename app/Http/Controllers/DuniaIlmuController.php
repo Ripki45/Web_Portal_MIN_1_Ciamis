@@ -9,15 +9,26 @@ use Illuminate\Support\Str;
 
 class DuniaIlmuController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         DuniaIlmu::pastikanTabelSiap();
 
-        $medias         = DuniaIlmu::orderBy('urutan', 'asc')->orderBy('id', 'desc')->get();
-        $daftarGradasi  = DuniaIlmu::daftarGradasi();
-        $daftarKategori = DuniaIlmu::daftarKategoriFilter();
+        $daftarKelas   = DuniaIlmu::ambilDaftarKelas();
+        $daftarMapel   = DuniaIlmu::ambilDaftarMapel();
+        $daftarGradasi = DuniaIlmu::daftarGradasi();
 
-        return view('dunia_ilmu.index', compact('medias', 'daftarGradasi', 'daftarKategori'));
+        $query = DuniaIlmu::query();
+
+        if ($request->filled('filter_kelas')) {
+            $query->where('kelas', $request->filter_kelas);
+        }
+        if ($request->filled('filter_mapel')) {
+            $query->where('mapel', $request->filter_mapel);
+        }
+
+        $medias = $query->orderBy('urutan', 'asc')->orderBy('id', 'desc')->get();
+
+        return view('dunia_ilmu.index', compact('medias', 'daftarGradasi', 'daftarKelas', 'daftarMapel'));
     }
 
     public function store(Request $request)
@@ -25,16 +36,16 @@ class DuniaIlmuController extends Controller
         DuniaIlmu::pastikanTabelSiap();
 
         $request->validate([
-            'judul'           => ['required', 'string', 'max:160'],
-            'kategori_label'  => ['required', 'string', 'max:100'],
-            'kategori_filter' => ['required', 'string', 'max:40'],
-            'warna_gradasi'   => ['required', 'string', 'max:50'],
-            'tipe_sumber'     => ['required', 'in:link,kode_interaktif'],
-            'link_eksternal'  => ['nullable', 'string', 'max:255'],
-            'isi_kode'        => ['nullable', 'string'],
-            'deskripsi'       => ['nullable', 'string', 'max:600'],
-            'urutan'          => ['required', 'integer', 'min:1'],
-            'gambar'          => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'judul'          => ['required', 'string', 'max:160'],
+            'kelas'          => ['required', 'string', 'max:80'],
+            'mapel'          => ['required', 'string', 'max:120'],
+            'warna_gradasi'  => ['required', 'string', 'max:50'],
+            'tipe_sumber'    => ['required', 'in:link,kode_interaktif'],
+            'link_eksternal' => ['nullable', 'string', 'max:255'],
+            'isi_kode'       => ['nullable', 'string'],
+            'deskripsi'      => ['nullable', 'string', 'max:600'],
+            'urutan'         => ['required', 'integer', 'min:1'],
+            'gambar'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
         ]);
 
         $baseSlug = Str::slug($request->judul) ?: 'media-' . time();
@@ -44,7 +55,6 @@ class DuniaIlmuController extends Controller
             $slug = $baseSlug . '-' . $counter++;
         }
 
-        // Ambil isi kode dari File Upload (.tsx/.jsx/.js/.html) ATAU dari Textarea Kode
         $isiKode      = $request->input('isi_kode');
         $namaFileKode = null;
 
@@ -65,11 +75,17 @@ class DuniaIlmuController extends Controller
             $gambarPath = $request->file('gambar')->store('dunia_ilmu', 'public');
         }
 
+        $kelasBersih = strip_tags(trim($request->kelas));
+        $mapelBersih = strip_tags(trim($request->mapel));
+        $labelKartu  = $mapelBersih . ' • ' . $kelasBersih;
+
         DuniaIlmu::create([
             'judul'           => strip_tags(trim($request->judul)),
             'slug'            => $slug,
-            'kategori_label'  => strip_tags(trim($request->kategori_label)),
-            'kategori_filter' => $request->kategori_filter,
+            'kelas'           => $kelasBersih,
+            'mapel'           => $mapelBersih,
+            'kategori_label'  => $labelKartu,
+            'kategori_filter' => Str::slug($mapelBersih),
             'warna_gradasi'   => $request->warna_gradasi,
             'gambar'          => $gambarPath,
             'tipe_sumber'     => $request->tipe_sumber,
@@ -82,7 +98,7 @@ class DuniaIlmuController extends Controller
             'is_active'       => $request->has('is_active'),
         ]);
 
-        return redirect()->back()->with('success', 'Media Dunia Ilmu "' . $request->judul . '" berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Media "' . $request->judul . '" (' . $labelKartu . ') berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -92,22 +108,28 @@ class DuniaIlmuController extends Controller
         $media = DuniaIlmu::findOrFail($id);
 
         $request->validate([
-            'judul'           => ['required', 'string', 'max:160'],
-            'kategori_label'  => ['required', 'string', 'max:100'],
-            'kategori_filter' => ['required', 'string', 'max:40'],
-            'warna_gradasi'   => ['required', 'string', 'max:50'],
-            'tipe_sumber'     => ['required', 'in:link,kode_interaktif'],
-            'link_eksternal'  => ['nullable', 'string', 'max:255'],
-            'isi_kode'        => ['nullable', 'string'],
-            'deskripsi'       => ['nullable', 'string', 'max:600'],
-            'urutan'          => ['required', 'integer', 'min:1'],
-            'gambar'          => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'judul'          => ['required', 'string', 'max:160'],
+            'kelas'          => ['required', 'string', 'max:80'],
+            'mapel'          => ['required', 'string', 'max:120'],
+            'warna_gradasi'  => ['required', 'string', 'max:50'],
+            'tipe_sumber'    => ['required', 'in:link,kode_interaktif'],
+            'link_eksternal' => ['nullable', 'string', 'max:255'],
+            'isi_kode'       => ['nullable', 'string'],
+            'deskripsi'      => ['nullable', 'string', 'max:600'],
+            'urutan'         => ['required', 'integer', 'min:1'],
+            'gambar'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
         ]);
+
+        $kelasBersih = strip_tags(trim($request->kelas));
+        $mapelBersih = strip_tags(trim($request->mapel));
+        $labelKartu  = $mapelBersih . ' • ' . $kelasBersih;
 
         $data = [
             'judul'           => strip_tags(trim($request->judul)),
-            'kategori_label'  => strip_tags(trim($request->kategori_label)),
-            'kategori_filter' => $request->kategori_filter,
+            'kelas'           => $kelasBersih,
+            'mapel'           => $mapelBersih,
+            'kategori_label'  => $labelKartu,
+            'kategori_filter' => Str::slug($mapelBersih),
             'warna_gradasi'   => $request->warna_gradasi,
             'tipe_sumber'     => $request->tipe_sumber,
             'link_eksternal'  => trim((string) $request->link_eksternal),
@@ -152,9 +174,6 @@ class DuniaIlmuController extends Controller
         return redirect()->back()->with('success', 'Media pembelajaran berhasil dihapus!');
     }
 
-    /**
-     * 🚀 MESIN PEMUTAR INTERAKTIF (.TSX / .JSX / .JS / .HTML)
-     */
     public function play($slug)
     {
         DuniaIlmu::pastikanTabelSiap();
