@@ -2,6 +2,102 @@
 
 @section('title', 'Beranda - MIN 1 CIAMIS | Madrasah Ibtidaiyah Negeri 1 Ciamis')
 <style>
+        /* Tata Letak Khusus Slide Tunggal Tanpa Foto (Teks di Tengah & Diperbesar) */
+        .hero-slide-centered-single {
+            width: 100% !important;
+            max-width: 1020px !important;
+            margin: 0 auto !important;
+            padding: 0 32px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            position: relative !important;
+            z-index: 4 !important;
+        }
+
+        .hero-slide-centered-single .hero-script-heading {
+            font-size: 4.3rem !important;
+            margin-bottom: 6px !important;
+            color: #0f172a !important;
+        }
+
+        .hero-slide-centered-single .hero-bold-title {
+            font-size: 5.4rem !important;
+            letter-spacing: 1.5px !important;
+            margin-bottom: 14px !important;
+            line-height: 1.02 !important;
+            color: #000000 !important;
+        }
+
+        .hero-slide-centered-single .hero-domain-line {
+            font-size: 1.48rem !important;
+            letter-spacing: 5.5px !important;
+            margin-bottom: 28px !important;
+            color: #1b9c85 !important;
+            font-weight: 700 !important;
+        }
+
+        .hero-slide-centered-single .hero-slogan-lines {
+            font-size: 1.08rem !important;
+            line-height: 1.65 !important;
+            color: #334155 !important;
+            max-width: 780px !important;
+            margin: 0 auto !important;
+            padding-top: 14px !important;
+            border-top: 2px dashed rgba(27, 156, 133, 0.35) !important;
+        }
+
+        /* Slogan pada Slide dengan Foto (Tanpa Badge Hijau, Lebih Bersih) */
+        .hero-slogan-clean {
+            border-left: 3.5px solid #1b9c85;
+            padding-left: 14px;
+            margin-top: 8px;
+        }
+
+        @media (max-width: 991px) {
+            .hero-slide-centered-single .hero-script-heading {
+                font-size: 3.1rem !important;
+            }
+            .hero-slide-centered-single .hero-bold-title {
+                font-size: 3.6rem !important;
+            }
+            .hero-slide-centered-single .hero-domain-line {
+                font-size: 1.15rem !important;
+                letter-spacing: 3px !important;
+                margin-bottom: 18px !important;
+            }
+            .hero-slide-centered-single .hero-slogan-lines {
+                font-size: 0.92rem !important;
+            }
+            .hero-slogan-clean {
+                border-left: none;
+                padding-left: 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-slide-centered-single {
+                padding: 0 18px !important;
+            }
+            .hero-slide-centered-single .hero-script-heading {
+                font-size: 2.25rem !important;
+            }
+            .hero-slide-centered-single .hero-bold-title {
+                font-size: 2.55rem !important;
+            }
+            .hero-slide-centered-single .hero-domain-line {
+                font-size: 0.85rem !important;
+                letter-spacing: 2px !important;
+                margin-bottom: 12px !important;
+            }
+            .hero-slide-centered-single .hero-slogan-lines {
+                font-size: 0.78rem !important;
+                padding-top: 10px !important;
+            }
+        }
+
     /* =========================================================================
        1. BANNER IKLAN PPDB LANDSCAPE (TETAP PROPORSIONAL DI LAPTOP & HP)
        ========================================================================= */
@@ -231,98 +327,95 @@
     @endphp
 
     <!-- ========================================================================= -->
-    <!-- 1. HERO SLIDER SECTION (MOVING GRID & 3 SLIDES)                           -->
+    <!-- 1. HERO SLIDER SECTION (MENDUKUNG MODE TEKS TENGAH BESAR & MODE FOTO)     -->
     <!-- ========================================================================= -->
+    @php
+        \App\Models\BannerCarousel::pastikanTabelSiap();
+        $heroSlides = \App\Models\BannerCarousel::where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+    @endphp
+
+    
+
     <section class="hero-slider-section" id="beranda">
         <div class="hero-animated-grid-wrap">
             <div class="hero-animated-grid-bg"></div>
         </div>
 
         <div class="hero-slider-track">
-            <!-- Slide 1: Selamat Datang di MIN 1 Ciamis -->
-            <div class="hero-slide active" id="hero-slide-1">
-                <div class="hero-slide-flex-container">
-                    <div class="hero-slide-left-text">
-                        <span class="hero-script-heading">Selamat datang di</span>
-                        <h1 class="hero-bold-title">MIN 1 CIAMIS</h1>
-                        <div class="hero-domain-line">w w w . m i n 1 c i a m i s . s c h . i d</div>
+            @foreach ($heroSlides as $idx => $slide)
+                @php
+                    $isModeTengah = ($slide->tipe_layout === 'tanpa_foto');
+                @endphp
 
-                        <div class="hero-slogan-strip">
+                <div class="hero-slide {{ $idx === 0 ? 'active' : '' }}" id="hero-slide-{{ $idx + 1 }}">
+                    @if ($isModeTengah)
+                        <!-- MODE 1: SLIDE TUNGGAL TANPA FOTO (TEKS DI TENGAH & DIPERBESAR) -->
+                        <div class="hero-slide-centered-single">
+                            <span class="hero-script-heading">{{ $slide->aksara_kecil ?: 'Selamat datang di' }}</span>
+                            <h1 class="hero-bold-title">{{ $slide->aksara_besar ?: $slide->judul }}</h1>
+
+                            @if (!empty($slide->teks_domain))
+                                <div class="hero-domain-line">{{ $slide->teks_domain }}</div>
+                            @endif
+
                             <div class="hero-slogan-lines">
-                                <span>Bertaqwa ~ Berakhlaq Mulia ~ Unggul Prestasi</span>
-                                <span>Cakap Berteknologi ~ Berwawasan Global ~ Peduli Lingkungan</span>
+                                <span>{{ $slide->keterangan_1 ?: $slide->keterangan }}</span>
+                                @if (!empty($slide->keterangan_2))
+                                    <span>{{ $slide->keterangan_2 }}</span>
+                                @endif
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    @else
+                        <!-- MODE 2: SLIDE TEKS DI KIRI + FOTO KOLASE DI KANAN (TANPA BADGE HIJAU) -->
+                        <div class="hero-slide-flex-container">
+                            <div class="hero-slide-left-text">
+                                <span class="hero-script-heading">{{ $slide->aksara_kecil ?: 'Program Unggulan' }}</span>
+                                <h2 class="hero-bold-title">{{ $slide->aksara_besar ?: $slide->judul }}</h2>
 
-            <!-- Slide 2: Program Tahfidz & Sains -->
-            <div class="hero-slide" id="hero-slide-2">
-                <div class="hero-slide-flex-container">
-                    <div class="hero-slide-left-text">
-                        <span class="hero-script-heading">Program Unggulan</span>
-                        <h2 class="hero-bold-title">TAHFIDZ &amp; SAINS</h2>
-                        <div class="hero-domain-line">t a h f i d z . m i n 1 c i a m i s . s c h . i d</div>
-                        <div class="hero-slogan-strip">
-                            <div class="hero-slogan-badge-wrap">
-                                <div class="hero-slogan-badge">
-                                    <img src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Emblem" />
-                                    <span class="hero-slogan-badge-text">TAHFIDZ</span>
+                                @if (!empty($slide->teks_domain))
+                                    <div class="hero-domain-line">{{ $slide->teks_domain }}</div>
+                                @endif
+
+                                <div class="hero-slogan-strip">
+                                    <div class="hero-slogan-lines hero-slogan-clean">
+                                        <span>{{ $slide->keterangan_1 ?: $slide->keterangan }}</span>
+                                        @if (!empty($slide->keterangan_2))
+                                            <span>{{ $slide->keterangan_2 }}</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
-                            <div class="hero-slogan-lines">
-                                <span>Target Hafalan Juz 30 ~ Bimbingan Tartil Terarah</span>
-                                <span>Inkubasi Juara KSM Sains ~ Karakter Islami Qur'ani</span>
+
+                            <div class="hero-collage-wrap">
+                                <img src="{{ $slide->gambar_url }}"
+                                     alt="{{ $slide->aksara_besar }}"
+                                     class="hero-collage-main-img"
+                                     style="border-radius: 28px; border: 4px solid #fff; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);"
+                                     onerror="this.onerror=null; this.src='{{ asset('frontend/assets/imgs/page/img-4.png') }}';" />
+
+                                @if ($slide->tampilkan_stiker)
+                                    <img src="{{ asset('frontend/landing/hero-sticker-thtp.png') }}"
+                                         alt="Tiada Hari Tanpa Prestasi"
+                                         class="hero-sticker-thtp"
+                                         onerror="this.style.display='none';" />
+                                @endif
                             </div>
                         </div>
-                    </div>
-
-                    <div class="hero-collage-wrap">
-                        <img src="{{ isset($fotoBanners[1]) ? $fotoBanners[1]->gambar_url : asset('frontend/assets/imgs/page/img-5.png') }}"
-                            alt="Tahfidz & Sains" class="hero-collage-main-img"
-                            style="border-radius: 28px; border: 4px solid #fff; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);" />
-                    </div>
+                    @endif
                 </div>
-            </div>
-
-            <!-- Slide 3: PPDB Online 2026/2027 -->
-            <div class="hero-slide" id="hero-slide-3">
-                <div class="hero-slide-flex-container">
-                    <div class="hero-slide-left-text">
-                        <span class="hero-script-heading">Penerimaan Siswa Baru</span>
-                        <h2 class="hero-bold-title">PPDB 2026/2027</h2>
-                        <div class="hero-domain-line">p p d b . m i n 1 c i a m i s . s c h . i d</div>
-                        <div class="hero-slogan-strip">
-                            <div class="hero-slogan-badge-wrap">
-                                <div class="hero-slogan-badge">
-                                    <img src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Emblem" />
-                                    <span class="hero-slogan-badge-text">PPDB</span>
-                                </div>
-                            </div>
-                            <div class="hero-slogan-lines">
-                                <span>Madrasah Ramah Anak ~ Bebas Perundungan (Anti Bullying)</span>
-                                <span>Lingkungan Belajar Asri &amp; Sejuk di Panjalu Ciamis</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="hero-collage-wrap">
-                        <img src="{{ isset($fotoBanners[2]) ? $fotoBanners[2]->gambar_url : asset('frontend/assets/imgs/page/img-6.png') }}"
-                            alt="PPDB MIN 1 Ciamis" class="hero-collage-main-img"
-                            style="border-radius: 28px; border: 4px solid #fff; box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);" />
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         <button class="slider-arrow prev" aria-label="Slide Sebelumnya"><i class="fas fa-chevron-left"></i></button>
         <button class="slider-arrow next" aria-label="Slide Berikutnya"><i class="fas fa-chevron-right"></i></button>
 
         <div class="slider-dots-container">
-            <span class="slider-dot active"></span>
-            <span class="slider-dot"></span>
-            <span class="slider-dot"></span>
+            @foreach ($heroSlides as $idx => $slide)
+                <span class="slider-dot {{ $idx === 0 ? 'active' : '' }}"></span>
+            @endforeach
         </div>
     </section>
 
