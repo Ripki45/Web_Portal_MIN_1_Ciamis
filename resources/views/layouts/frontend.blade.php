@@ -2,6 +2,13 @@
 <html lang="id" prefix="og: https://ogp.me/ns#">
 
 <head>
+    <!-- Deteksi Mode Tema Lebih Awal (Cegah FOUC Layar Putih) -->
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -118,6 +125,9 @@
 
     <!-- Landing Page Interactive Script MIN 1 Ciamis -->
     <script src="{{ asset('frontend/assets/js/landing-min1.js') }}"></script>
+
+    {{-- Mobile Bottom Navigation Bar --}}
+    @include('frontend.partials.mobile-bottom-nav')
 
     @stack('scripts')
 </body>

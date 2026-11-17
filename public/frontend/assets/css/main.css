@@ -2827,14 +2827,24 @@ Preloader
   transition: all 0.3s ease;
   opacity: 0.7;
 }
+.sidebar-left .sidebar-nav .nav-item .nav-link:not(.collapse-toggle):after {
+  display: none;
+}
 .sidebar-left .sidebar-nav .nav-item .nav-link.collapsed:after {
   transform: translateY(-50%) rotate(-90deg);
 }
 .sidebar-left .sidebar-nav .nav-item .collapse-menu {
   opacity: 0;
+  visibility: hidden;
   transition: all 0.3s ease;
   margin: 0;
   padding-left: 15px;
+}
+.sidebar-left .sidebar-nav .nav-item.active > .collapse-menu {
+  opacity: 1;
+  visibility: visible;
+  max-height: 2000px;
+  padding: 10px 0 5px 15px;
 }
 .sidebar-left .sidebar-nav .nav-item .collapse-menu .nav-item {
   margin-bottom: 5px;

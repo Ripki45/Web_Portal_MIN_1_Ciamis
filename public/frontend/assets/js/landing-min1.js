@@ -28,7 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeadmasterTimeline();
   initTimManajemenCards();
   initProfilBuildingPhoto();
+  initThemeSwitcher();
 });
+
+/* --- THEME SWITCHER (DARK & LIGHT MODE) --- */
+function initThemeSwitcher() {
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.dark-light-switcher');
+    if (!btn) return;
+
+    const currentTheme = document.documentElement.getAttribute('data-bs-theme') || localStorage.getItem('theme') || 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    document.documentElement.setAttribute('data-bs-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    btn.style.transform = 'scale(0.88)';
+    setTimeout(() => {
+      btn.style.transform = '';
+    }, 150);
+  });
+}
 
 /* --- 0. HERO LOTTIE ANIMATION --- */
 function initHeroLottie() {
@@ -822,11 +842,11 @@ function initSearch() {
 /* --- 7. MOBILE DRAWER NAVIGATION --- */
 function initMobileDrawer() {
   const mobileToggle = document.querySelector('.mobile-toggle-btn');
-  const mobileDrawer = document.getElementById('mobile-drawer');
-  const drawerCloseBtn = document.getElementById('drawer-close-btn');
+  const mobileDrawer = document.getElementById('mobile-nav-drawer') || document.getElementById('mobile-drawer');
+  const drawerCloseBtn = document.getElementById('mobile-drawer-close') || document.getElementById('drawer-close-btn');
   const drawerOverlay = document.getElementById('mobile-drawer-overlay');
 
-  if (!mobileToggle || !mobileDrawer) return;
+  if (!mobileDrawer) return;
 
   function openDrawer() {
     mobileDrawer.classList.add('active');
@@ -840,7 +860,11 @@ function initMobileDrawer() {
     document.body.style.overflow = '';
   }
 
-  mobileToggle.addEventListener('click', openDrawer);
+  // Make functions globally accessible
+  window.openMobileDrawer = openDrawer;
+  window.closeMobileDrawer = closeDrawer;
+
+  if (mobileToggle) mobileToggle.addEventListener('click', openDrawer);
   if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
   if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
 
@@ -850,21 +874,8 @@ function initMobileDrawer() {
     }
   });
 
-  // Accordion for mobile submenus
-  document.querySelectorAll('.mobile-nav-link.has-sub').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const subMenu = item.nextElementSibling;
-      if (subMenu) {
-        subMenu.classList.toggle('open');
-        const icon = item.querySelector('i');
-        if (icon) icon.classList.toggle('fa-rotate-180');
-      }
-    });
-  });
-
-  // Close drawer when clicking mobile links
-  document.querySelectorAll('.mobile-sub-menu a, .mobile-nav-link:not(.has-sub)').forEach(link => {
+  // Close drawer when clicking leaf links
+  document.querySelectorAll('.mobile-drawer-body a:not(.has-sub):not(.has-nested-sub)').forEach(link => {
     link.addEventListener('click', () => {
       closeDrawer();
     });
@@ -3155,3 +3166,95 @@ if (document.readyState === 'loading') {
 } else {
   initDuniaIlmuSlider();
 }
+
+
+/* ==========================================================================
+   MOBILE BOTTOM NAV - SCROLL SPY & ACTIVE HIGHLIGHT
+   ========================================================================== */
+(function() {
+  function initMobileBottomNav() {
+    const nav = document.getElementById('mobileBottomNav');
+    if (!nav) return;
+
+    const items = nav.querySelectorAll('.mobile-bottom-nav__item[data-section]');
+    const homeItem = nav.querySelector('.mobile-bottom-nav__item:not([data-section])');
+    const sectionIds = [];
+
+    items.forEach(item => {
+      const sectionId = item.getAttribute('data-section');
+      if (sectionId) sectionIds.push(sectionId);
+    });
+
+    // Smooth scroll ke section saat diklik (hanya jika sudah di halaman home)
+    items.forEach(item => {
+      item.addEventListener('click', function(e) {
+        const sectionId = this.getAttribute('data-section');
+        const target = document.getElementById(sectionId);
+        if (target) {
+          e.preventDefault();
+          const headerOffset = 80;
+          const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: elementPosition - headerOffset,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Scroll-spy: update active state berdasarkan posisi scroll
+    function updateActiveNav() {
+      const scrollPos = window.scrollY + window.innerHeight / 3;
+      let activeSection = null;
+
+      sectionIds.forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+          const top = section.offsetTop - 100;
+          const bottom = top + section.offsetHeight;
+          if (scrollPos >= top && scrollPos < bottom) {
+            activeSection = id;
+          }
+        }
+      });
+
+      // Reset semua
+      items.forEach(item => item.classList.remove('active'));
+      if (homeItem) homeItem.classList.remove('active');
+
+      if (activeSection) {
+        const activeItem = nav.querySelector(`[data-section="${activeSection}"]`);
+        if (activeItem) activeItem.classList.add('active');
+      } else {
+        // Jika belum scroll ke section manapun, Home aktif
+        if (homeItem) homeItem.classList.add('active');
+      }
+    }
+
+    // Hanya jalankan scroll-spy di halaman home
+    if (document.getElementById('beranda') || window.location.pathname === '/') {
+      let ticking = false;
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            updateActiveNav();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      // Set initial state
+      updateActiveNav();
+    }
+
+    // Bottom nav selalu tampil (tidak di-hide saat scroll)
+  }
+
+  // Init on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileBottomNav);
+  } else {
+    initMobileBottomNav();
+  }
+})();

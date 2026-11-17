@@ -208,6 +208,164 @@
     </div>
 </div>
 
+<!-- MOBILE NAVIGATION DRAWER STYLES -->
+<style>
+    .mobile-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 320px;
+        max-width: 86vw;
+        height: 100%;
+        background: #FFFFFF;
+        z-index: 2100;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        transform: translateX(-100%);
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+    }
+    .mobile-drawer.active {
+        transform: translateX(0);
+    }
+    .mobile-drawer-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 2099;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .mobile-drawer-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .mobile-nav-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 13px 18px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #0f172a;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid #f1f5f9;
+        text-decoration: none;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+    .mobile-nav-link:hover, .mobile-nav-link:active {
+        background: rgba(27, 156, 133, 0.06);
+        color: #1b9c85;
+    }
+    .mobile-nav-link.active-toggle {
+        background: rgba(27, 156, 133, 0.08);
+        color: #1b9c85;
+        border-bottom-color: transparent;
+    }
+    .mobile-submenu-arrow {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s ease;
+    }
+    .mobile-nav-link.active-toggle .mobile-submenu-arrow {
+        transform: rotate(180deg) !important;
+        color: #1b9c85 !important;
+    }
+    .mobile-sub-menu {
+        display: none;
+        background: #f8fafc;
+        border-radius: 10px;
+        margin: 4px 0 8px;
+        padding: 6px 4px;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+    }
+    .mobile-sub-menu.open {
+        display: block !important;
+    }
+    .mobile-sub-link {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 11px 18px;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #334155;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        text-decoration: none;
+        text-align: left;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+    .mobile-sub-link.has-nested-sub {
+        justify-content: space-between;
+    }
+    .mobile-sub-link:last-child {
+        border-bottom: none;
+    }
+    .mobile-sub-link:hover, .mobile-sub-link:active {
+        color: #1b9c85;
+        background: rgba(27, 156, 133, 0.07);
+        padding-left: 22px;
+    }
+    .mobile-sub-link.active-toggle {
+        color: #1b9c85;
+        background: rgba(27, 156, 133, 0.07);
+    }
+    .mobile-nested-arrow {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        transition: transform 0.25s ease;
+    }
+    .mobile-sub-link.active-toggle .mobile-nested-arrow {
+        transform: rotate(180deg) !important;
+        color: #1b9c85 !important;
+    }
+    .mobile-nested-menu {
+        display: none;
+        background: #ffffff;
+        padding: 4px 0 4px 8px;
+        border-left: 2.5px solid #1b9c85;
+        margin: 4px 10px 6px 18px;
+        border-radius: 0 8px 8px 0;
+    }
+    .mobile-nested-menu.open {
+        display: block !important;
+    }
+    .mobile-nested-link {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        font-size: 0.83rem;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    .mobile-nested-link:hover, .mobile-nested-link:active {
+        color: #1b9c85;
+        font-weight: 600;
+        background: rgba(27, 156, 133, 0.06);
+    }
+</style>
+
 <!-- MOBILE NAVIGATION DRAWER -->
 <div class="mobile-drawer-overlay" id="mobile-drawer-overlay" onclick="closeMobileDrawer()"></div>
 <div class="mobile-drawer" id="mobile-nav-drawer">
@@ -224,18 +382,86 @@
             <i class="fas fa-times"></i>
         </button>
     </div>
-    <div class="mobile-drawer-body" style="padding: 16px 20px">
+    <div class="mobile-drawer-body" style="padding: 12px 16px 80px;">
+        <!-- Pilihan Mode Siang / Malam -->
+        <div class="mobile-theme-row" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; margin-bottom: 14px; background: rgba(27, 156, 133, 0.08); border-radius: 12px; border: 1px solid rgba(27, 156, 133, 0.2);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-circle-half-stroke" style="color: #1b9c85; font-size: 1rem;"></i>
+                <span class="mobile-theme-title" style="font-weight: 700; font-size: 0.86rem; font-family: 'Plus Jakarta Sans', sans-serif;">Mode Tampilan</span>
+            </div>
+            <button type="button" class="dark-light-switcher mobile-theme-btn" aria-label="Ganti Tema" style="background: #ffffff; border: 1px solid #cbd5e1; padding: 6px 14px; border-radius: 50px; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.8rem; font-weight: 700; display: inline-flex; align-items: center;">
+                <span class="svg-dark" style="display: flex; align-items: center; gap: 6px; color: #b45309;">
+                    <i class="fas fa-sun" style="color: #f59e0b;"></i> Mode Siang
+                </span>
+                <span class="svg-white" style="display: none; align-items: center; gap: 6px; color: #38bdf8;">
+                    <i class="fas fa-moon" style="color: #38bdf8;"></i> Mode Malam
+                </span>
+            </button>
+        </div>
         @foreach (\App\Models\NavMenu::getTree() as $mInduk)
-            <a href="{{ $mInduk->url }}" class="mobile-nav-link" onclick="closeMobileDrawer()">
-                <span>{{ $mInduk->nama_menu }}</span>
-                <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
-            </a>
+            @php
+                $punyaAnak = $mInduk->activeChildren->isNotEmpty();
+            @endphp
+
+            @if (!$punyaAnak)
+                <a href="{{ $mInduk->url }}" target="{{ $mInduk->target }}" class="mobile-nav-link" onclick="closeMobileDrawer()">
+                    <span>{{ $mInduk->nama_menu }}</span>
+                    <i class="fas fa-arrow-right" style="font-size: 0.75rem; opacity: 0.4;"></i>
+                </a>
+            @else
+                <div class="mobile-nav-group">
+                    <button type="button" class="mobile-nav-link has-sub" onclick="toggleMobileSubmenu(this, event)">
+                        <span>{{ $mInduk->nama_menu }}</span>
+                        <i class="fas fa-chevron-down mobile-submenu-arrow"></i>
+                    </button>
+                    <div class="mobile-sub-menu">
+                        @foreach ($mInduk->activeChildren as $mAnak)
+                            @php
+                                $punyaCucu = $mAnak->activeChildren->isNotEmpty();
+                            @endphp
+
+                            @if (!$punyaCucu)
+                                <a href="{{ $mAnak->url }}" target="{{ $mAnak->target }}" class="mobile-sub-link" onclick="closeMobileDrawer()">
+                                    <span>{{ $mAnak->nama_menu }}</span>
+                                </a>
+                            @else
+                                <div class="mobile-nested-group">
+                                    <button type="button" class="mobile-sub-link has-nested-sub" onclick="toggleMobileNestedSubmenu(this, event)">
+                                        <span>{{ $mAnak->nama_menu }}</span>
+                                        <i class="fas fa-chevron-down mobile-nested-arrow"></i>
+                                    </button>
+                                    <div class="mobile-nested-menu">
+                                        @foreach ($mAnak->activeChildren as $mCucu)
+                                            <a href="{{ $mCucu->url }}" target="{{ $mCucu->target }}" class="mobile-nested-link" onclick="closeMobileDrawer()">
+                                                <i class="fas fa-angle-right" style="font-size: 0.65rem; margin-right: 6px; color: #94a3b8;"></i>
+                                                <span>{{ $mCucu->nama_menu }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         @endforeach
-        <div style="margin-top: 20px">
+
+        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px;">
             <a href="{{ route('presensi.scanner') }}"
-                style="display: block; text-align: center; background: #1b9c85; color: #fff; padding: 12px; border-radius: 9999px; font-weight: 800; text-decoration: none;">
+                style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #1b9c85; color: #fff; padding: 12px 16px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(27, 156, 133, 0.25);">
                 <i class="fas fa-qrcode"></i> Layar Presensi QR
             </a>
+            @auth
+                <a href="{{ route('dashboard') }}"
+                    style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">
+                    <i class="fas fa-th-large"></i> Buka Dashboard
+                </a>
+            @else
+                <a href="{{ route('login') }}"
+                    style="display: flex; align-items: center; justify-content: center; gap: 8px; background: #f1f5f9; color: #0f172a; padding: 12px 16px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 0.9rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login Guru / Admin
+                </a>
+            @endauth
         </div>
     </div>
 </div>
@@ -258,7 +484,7 @@
     }
 
     function openMobileDrawer() {
-        var drawer = document.getElementById("mobile-nav-drawer");
+        var drawer = document.getElementById("mobile-nav-drawer") || document.getElementById("mobile-drawer");
         var overlay = document.getElementById("mobile-drawer-overlay");
         if (drawer) drawer.classList.add("active");
         if (overlay) overlay.classList.add("active");
@@ -266,11 +492,68 @@
     }
 
     function closeMobileDrawer() {
-        var drawer = document.getElementById("mobile-nav-drawer");
+        var drawer = document.getElementById("mobile-nav-drawer") || document.getElementById("mobile-drawer");
         var overlay = document.getElementById("mobile-drawer-overlay");
         if (drawer) drawer.classList.remove("active");
         if (overlay) overlay.classList.remove("active");
         document.body.style.overflow = "";
+    }
+
+    function toggleMobileSubmenu(btn, e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        var group = btn.closest(".mobile-nav-group") || btn.parentElement;
+        var subMenu = group ? group.querySelector(".mobile-sub-menu") : btn.nextElementSibling;
+        if (!subMenu) return;
+
+        var isCurrentlyOpen = subMenu.classList.contains("open") || subMenu.style.display === "block";
+
+        // Tutup submenu level 1 lain di dalam drawer (accordion behavior)
+        var drawerBody = btn.closest(".mobile-drawer-body");
+        if (drawerBody) {
+            drawerBody.querySelectorAll(".mobile-sub-menu").forEach(function(menu) {
+                if (menu !== subMenu) {
+                    menu.classList.remove("open");
+                    menu.style.display = "none";
+                    var prevBtn = menu.previousElementSibling;
+                    if (prevBtn) prevBtn.classList.remove("active-toggle");
+                }
+            });
+        }
+
+        if (isCurrentlyOpen) {
+            subMenu.classList.remove("open");
+            subMenu.style.display = "none";
+            btn.classList.remove("active-toggle");
+        } else {
+            subMenu.classList.add("open");
+            subMenu.style.display = "block";
+            btn.classList.add("active-toggle");
+        }
+    }
+
+    function toggleMobileNestedSubmenu(btn, e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        var group = btn.closest(".mobile-nested-group") || btn.parentElement;
+        var nestedMenu = group ? group.querySelector(".mobile-nested-menu") : btn.nextElementSibling;
+        if (!nestedMenu) return;
+
+        var isCurrentlyOpen = nestedMenu.classList.contains("open") || nestedMenu.style.display === "block";
+
+        if (isCurrentlyOpen) {
+            nestedMenu.classList.remove("open");
+            nestedMenu.style.display = "none";
+            btn.classList.remove("active-toggle");
+        } else {
+            nestedMenu.classList.add("open");
+            nestedMenu.style.display = "block";
+            btn.classList.add("active-toggle");
+        }
     }
 
     function openPPDBModal() {

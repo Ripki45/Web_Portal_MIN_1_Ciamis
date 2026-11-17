@@ -341,19 +341,17 @@
             toggle.addEventListener('click', function (e) {
                 e.preventDefault();
                 const parentItem = this.closest('.nav-item');
-                const submenu = this.nextElementSibling;
 
-                // Toggle active class on parent item
-                parentItem.classList.toggle('active');
-
-                // Toggle the submenu
-                if (submenu && submenu.classList.contains('collapse-menu')) {
-                    if (submenu.style.maxHeight) {
-                        submenu.style.maxHeight = null;
-                    } else {
-                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                // Tutup semua sibling yang sedang terbuka (accordion behavior)
+                const allSiblings = parentItem.parentElement.querySelectorAll(':scope > .nav-item.active');
+                allSiblings.forEach((sibling) => {
+                    if (sibling !== parentItem) {
+                        sibling.classList.remove('active');
                     }
-                }
+                });
+
+                // Toggle active class — CSS handles max-height, opacity & visibility
+                parentItem.classList.toggle('active');
             });
         });
 
@@ -362,19 +360,9 @@
             childToggle.addEventListener('click', function (e) {
                 e.preventDefault();
                 const parentItem = this.closest('.nav-item-has-child');
-                const submenu = this.nextElementSibling;
 
-                // Toggle active class on parent item
+                // Toggle active class — CSS handles max-height, opacity & visibility
                 parentItem.classList.toggle('active');
-
-                // Toggle the submenu
-                if (submenu && submenu.classList.contains('sub-menu')) {
-                    if (submenu.style.maxHeight) {
-                        submenu.style.maxHeight = null;
-                    } else {
-                        submenu.style.maxHeight = submenu.scrollHeight + 'px';
-                    }
-                }
             });
         });
 

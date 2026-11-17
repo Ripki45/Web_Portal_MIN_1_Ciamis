@@ -91,6 +91,12 @@
                 <i class="fas fa-search"></i>
             </button>
 
+            <!-- Tombol Ganti Mode Siang / Malam -->
+            <button type="button" class="dark-light-switcher header-theme-toggle-btn" aria-label="Ganti Mode Gelap / Terang" title="Ganti Mode Gelap / Terang">
+                <i class="fas fa-sun svg-dark" style="color: #F59E0B; font-size: 0.95rem;"></i>
+                <i class="fas fa-moon svg-white" style="color: #38BDF8; font-size: 0.95rem; display: none;"></i>
+            </button>
+
             @auth
                 <a href="{{ route('dashboard') }}" class="header-btn-ppdb" style="margin-left: 4px;">
                     <i class="fas fa-th-large"></i> <span class="btn-dashboard-text">Dashboard</span>

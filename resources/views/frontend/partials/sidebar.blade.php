@@ -52,8 +52,8 @@
                         target="{{ $induk->target }}">{{ $induk->nama_menu }}</a>
                 </li>
             @else
-                <li class="nav-item collapse">
-                    <a class="nav-link mb-2 collapse-toggle" href="#">{{ $induk->nama_menu }}</a>
+                <li class="nav-item">
+                    <a class="nav-link mb-2 collapse-toggle" href="javascript:void(0);">{{ $induk->nama_menu }}</a>
                     <ul class="collapse-menu d-flex flex-column gap-1 list-unstyled">
                         @foreach ($induk->activeChildren as $anak)
                             <li>

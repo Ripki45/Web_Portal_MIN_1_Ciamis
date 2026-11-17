@@ -11,11 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
             var lightIcon = switcher.querySelector('.svg-dark');
 
             if (isDarkMode) {
-                lightIcon.style.display = 'none';
-                darkIcon.style.display = 'block';
+                if (lightIcon) lightIcon.style.display = 'none';
+                if (darkIcon) darkIcon.style.display = 'inline-flex';
             } else {
-                lightIcon.style.display = 'block';
-                darkIcon.style.display = 'none';
+                if (lightIcon) lightIcon.style.display = 'inline-flex';
+                if (darkIcon) darkIcon.style.display = 'none';
             }
         });
 

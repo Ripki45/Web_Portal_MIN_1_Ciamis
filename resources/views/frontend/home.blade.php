@@ -2,109 +2,293 @@
 
 @section('title', 'Beranda - MIN 1 CIAMIS | Madrasah Ibtidaiyah Negeri 1 Ciamis')
 <style>
-        /* Tata Letak Khusus Slide Tunggal Tanpa Foto (Teks di Tengah & Diperbesar) */
-        .hero-slide-centered-single {
-            width: 100% !important;
-            max-width: 1020px !important;
-            margin: 0 auto !important;
-            padding: 0 32px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
-            position: relative !important;
-            z-index: 4 !important;
-        }
-
-        .hero-slide-centered-single .hero-script-heading {
-            font-size: 4.3rem !important;
-            margin-bottom: 6px !important;
-            color: #0f172a !important;
-        }
-
-        .hero-slide-centered-single .hero-bold-title {
-            font-size: 5.4rem !important;
-            letter-spacing: 1.5px !important;
-            margin-bottom: 14px !important;
-            line-height: 1.02 !important;
-            color: #000000 !important;
-        }
-
-        .hero-slide-centered-single .hero-domain-line {
-            font-size: 1.48rem !important;
-            letter-spacing: 5.5px !important;
-            margin-bottom: 28px !important;
-            color: #1b9c85 !important;
-            font-weight: 700 !important;
-        }
-
-        .hero-slide-centered-single .hero-slogan-lines {
-            font-size: 1.08rem !important;
-            line-height: 1.65 !important;
-            color: #334155 !important;
-            max-width: 780px !important;
-            margin: 0 auto !important;
-            padding-top: 14px !important;
-            border-top: 2px dashed rgba(27, 156, 133, 0.35) !important;
-        }
-
-        /* Slogan pada Slide dengan Foto (Tanpa Badge Hijau, Lebih Bersih) */
-        .hero-slogan-clean {
-            border-left: 3.5px solid #1b9c85;
-            padding-left: 14px;
-            margin-top: 8px;
-        }
-
-        @media (max-width: 991px) {
-            .hero-slide-centered-single .hero-script-heading {
-                font-size: 3.1rem !important;
-            }
-            .hero-slide-centered-single .hero-bold-title {
-                font-size: 3.6rem !important;
-            }
-            .hero-slide-centered-single .hero-domain-line {
-                font-size: 1.15rem !important;
-                letter-spacing: 3px !important;
-                margin-bottom: 18px !important;
-            }
-            .hero-slide-centered-single .hero-slogan-lines {
-                font-size: 0.92rem !important;
-            }
-            .hero-slogan-clean {
-                border-left: none;
-                padding-left: 0;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .hero-slide-centered-single {
-                padding: 0 18px !important;
-            }
-            .hero-slide-centered-single .hero-script-heading {
-                font-size: 2.25rem !important;
-            }
-            .hero-slide-centered-single .hero-bold-title {
-                font-size: 2.55rem !important;
-            }
-            .hero-slide-centered-single .hero-domain-line {
-                font-size: 0.85rem !important;
-                letter-spacing: 2px !important;
-                margin-bottom: 12px !important;
-            }
-            .hero-slide-centered-single .hero-slogan-lines {
-                font-size: 0.78rem !important;
-                padding-top: 10px !important;
-            }
-        }
-
     /* =========================================================================
-       1. BANNER IKLAN PPDB LANDSCAPE (TETAP PROPORSIONAL DI LAPTOP & HP)
+       HARMONISASI TAMPILAN RESMI LANDING PAGE MIN 1 CIAMIS (DESKTOP & MOBILE)
+       Design Tokens:
+       - Primary Green: #1B9C85 (Dark: #0D6A56, Soft: #EDF6EE)
+       - Accent Gold: #F59E0B / #FFE15D
+       - Dark Slate: #0F172A / #1E293B
+       - Text Body: #334155 / #475569
+       - Fonts: 'Outfit' (Headings), 'Plus Jakarta Sans' (Pills/Buttons),
+                'Caveat'/'Dancing Script' (Script), 'Rubik'/'Poppins' (Body)
        ========================================================================= */
+
+    /* -------------------------------------------------------------------------
+       1. HERO SLIDER SECTION (FLUID TYPOGRAPHY & ADAPTIVE HEIGHT)
+       ------------------------------------------------------------------------- */
+    .hero-slider-section {
+        position: relative !important;
+        overflow: hidden !important;
+        background: #F8FAFC !important;
+    }
+
+    .hero-slider-track {
+        height: 520px !important;
+        transition: height 0.3s ease !important;
+    }
+
+    /* Mode 1: Teks di Tengah (Center Single) */
+    .hero-slide-centered-single {
+        width: 100% !important;
+        max-width: 980px !important;
+        margin: 0 auto !important;
+        padding: 0 28px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        position: relative !important;
+        z-index: 4 !important;
+    }
+
+    .hero-slide-centered-single .hero-script-heading {
+        font-family: 'Caveat', 'Dancing Script', cursive !important;
+        font-size: clamp(1.8rem, 3.4vw, 2.7rem) !important;
+        font-weight: 700 !important;
+        color: #1B9C85 !important;
+        line-height: 1.2 !important;
+        margin-bottom: 2px !important;
+        letter-spacing: -0.5px !important;
+    }
+
+    .hero-slide-centered-single .hero-bold-title {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: clamp(2.3rem, 5vw, 4.2rem) !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+        margin-bottom: 12px !important;
+        line-height: 1.1 !important;
+        color: #0F172A !important;
+        text-transform: uppercase !important;
+    }
+
+    .hero-slide-centered-single .hero-domain-line {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: clamp(0.85rem, 1.6vw, 1.15rem) !important;
+        letter-spacing: clamp(1.5px, 0.4vw, 3.8px) !important;
+        margin-bottom: 20px !important;
+        color: #1B9C85 !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+    }
+
+    .hero-slide-centered-single .hero-slogan-lines {
+        font-family: 'Rubik', 'Poppins', sans-serif !important;
+        font-size: clamp(0.88rem, 1.25vw, 1.05rem) !important;
+        line-height: 1.7 !important;
+        color: #475569 !important;
+        max-width: 740px !important;
+        margin: 0 auto !important;
+        padding-top: 14px !important;
+        border-top: 1.5px dashed rgba(27, 156, 133, 0.35) !important;
+    }
+
+    /* Mode 2: Teks di Kiri + Foto di Kanan */
+    .hero-slide-flex-container {
+        width: 100% !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding: 0 36px !important;
+        display: grid !important;
+        grid-template-columns: 1.1fr 1fr !important;
+        gap: 36px !important;
+        align-items: center !important;
+    }
+
+    .hero-slide-left-text .hero-script-heading {
+        font-family: 'Caveat', 'Dancing Script', cursive !important;
+        font-size: clamp(1.8rem, 3vw, 2.5rem) !important;
+        font-weight: 700 !important;
+        color: #1B9C85 !important;
+        line-height: 1.2 !important;
+        margin-bottom: 2px !important;
+    }
+
+    .hero-slide-left-text .hero-bold-title {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: clamp(2.1rem, 4.4vw, 3.6rem) !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
+        line-height: 1.1 !important;
+        color: #0F172A !important;
+        margin-bottom: 10px !important;
+        text-transform: uppercase !important;
+    }
+
+    .hero-slogan-clean {
+        border-left: 3.5px solid #1B9C85 !important;
+        padding-left: 14px !important;
+        margin-top: 8px !important;
+        color: #475569 !important;
+        line-height: 1.65 !important;
+        font-size: clamp(0.88rem, 1.2vw, 1rem) !important;
+    }
+
+    .hero-collage-wrap {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .hero-collage-main-img {
+        max-height: 380px !important;
+        width: 100% !important;
+        object-fit: cover !important;
+        border-radius: 24px !important;
+    }
+
+    /* Responsive Hero on Tablet & Mobile */
+    @media (max-width: 991px) {
+        .hero-slider-track {
+            height: 480px !important;
+        }
+        .hero-slide-flex-container {
+            grid-template-columns: 1fr !important;
+            text-align: center !important;
+            gap: 20px !important;
+            padding: 0 24px !important;
+        }
+        .hero-slogan-clean {
+            border-left: none !important;
+            padding-left: 0 !important;
+        }
+        .hero-collage-wrap {
+            max-width: 380px !important;
+            margin: 0 auto !important;
+        }
+        .hero-collage-main-img {
+            max-height: 260px !important;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-slider-track {
+            height: auto !important;
+            min-height: 400px !important;
+            padding: 24px 0 56px 0 !important;
+        }
+        .hero-slide {
+            position: relative !important;
+            height: auto !important;
+            min-height: 380px !important;
+            display: none !important;
+        }
+        .hero-slide.active {
+            display: flex !important;
+        }
+        .hero-slide-centered-single {
+            padding: 0 16px !important;
+        }
+        .hero-slide-centered-single .hero-script-heading {
+            font-size: 1.85rem !important;
+        }
+        .hero-slide-centered-single .hero-bold-title {
+            font-size: 2.15rem !important;
+            margin-bottom: 8px !important;
+        }
+        .hero-slide-centered-single .hero-domain-line {
+            font-size: 0.85rem !important;
+            letter-spacing: 1.8px !important;
+            margin-bottom: 12px !important;
+        }
+        .hero-slide-centered-single .hero-slogan-lines {
+            font-size: 0.82rem !important;
+            padding-top: 10px !important;
+            line-height: 1.6 !important;
+        }
+        .hero-slider-section .slider-arrow {
+            width: 36px !important;
+            height: 36px !important;
+            font-size: 0.85rem !important;
+            opacity: 0.75 !important;
+        }
+        .hero-slider-section .slider-arrow.prev { left: 8px !important; }
+        .hero-slider-section .slider-arrow.next { right: 8px !important; }
+        .slider-dots-container {
+            bottom: 12px !important;
+            padding: 4px 10px !important;
+            gap: 6px !important;
+        }
+        .slider-dot { width: 8px !important; height: 8px !important; }
+        .slider-dot.active { width: 22px !important; }
+    }
+
+    /* -------------------------------------------------------------------------
+       2. SAMBUTAN & SEKILAS MADRASAH (#profil)
+       ------------------------------------------------------------------------- */
+    .sekilas-section {
+        padding: 65px 0 !important;
+    }
+    .sekilas-grid {
+        gap: 48px !important;
+    }
+    .sekilas-title {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: clamp(1.8rem, 3.2vw, 2.5rem) !important;
+        font-weight: 800 !important;
+        line-height: 1.2 !important;
+        margin-bottom: 20px !important;
+    }
+    .sekilas-quote {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: clamp(1.05rem, 1.8vw, 1.35rem) !important;
+        font-weight: 700 !important;
+        color: #0F172A !important;
+        line-height: 1.45 !important;
+        margin-bottom: 12px !important;
+    }
+    .sekilas-text {
+        font-size: clamp(0.88rem, 1.1vw, 0.96rem) !important;
+        line-height: 1.75 !important;
+        color: #475569 !important;
+    }
+
+    /* Horizontal swipeable tabs on mobile */
+    @media (max-width: 768px) {
+        .sekilas-section {
+            padding: 40px 0 !important;
+        }
+        .sekilas-tabs-nav {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding: 4px 2px 10px 2px !important;
+            gap: 8px !important;
+            margin-bottom: 18px !important;
+            scrollbar-width: none !important;
+        }
+        .sekilas-tabs-nav::-webkit-scrollbar {
+            display: none !important;
+        }
+        .sekilas-tab-btn {
+            flex-shrink: 0 !important;
+            white-space: nowrap !important;
+            padding: 8px 18px !important;
+            font-size: 11.5px !important;
+        }
+        .sekilas-card-frame {
+            border-radius: 24px !important;
+            padding: 12px !important;
+        }
+        .sekilas-card-img-wrapper {
+            height: 330px !important;
+            border-radius: 20px !important;
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+       3. BANNER PPDB & LAYANAN CEPAT (#ppdb)
+       ------------------------------------------------------------------------- */
+    .hero-bottom-features-section {
+        margin: 32px 0 54px 0 !important;
+    }
     .ppdb-landscape-banner-wrap {
         width: 100%;
-        margin-bottom: 18px;
-        border-radius: 18px;
+        margin-bottom: 20px;
+        border-radius: 20px;
         overflow: hidden;
         box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
         border: 2px solid #ffffff;
@@ -113,185 +297,965 @@
         cursor: pointer;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
     .ppdb-landscape-banner-wrap:hover {
         transform: translateY(-3px);
         box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
     }
-
     .ppdb-landscape-banner-img {
         width: 100% !important;
         height: auto !important;
         aspect-ratio: 16 / 5.6;
-        object-fit: fill !important;
+        object-fit: cover !important;
         display: block !important;
     }
 
-    /* =========================================================================
-       2. LAYANAN CEPAT VERSI RAMPING & ELEGAN (TIDAK BONGSOR DI HP MAUPUN LAPTOP)
-       ========================================================================= */
     #layanan-cepat.layanan-cepat-card {
-        padding: 24px 28px !important;
-        border-radius: 22px !important;
+        padding: 28px 32px !important;
+        border-radius: 24px !important;
+        background: linear-gradient(135deg, #064E3B 0%, #0D6A56 50%, #1B9C85 100%) !important;
+        box-shadow: 0 16px 36px rgba(13, 106, 86, 0.22) !important;
     }
-
     #layanan-cepat .layanan-cepat-header {
-        margin-bottom: 16px !important;
+        margin-bottom: 18px !important;
     }
-
     #layanan-cepat .layanan-cepat-title {
-        font-size: 1.55rem !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1.6rem !important;
+        font-weight: 800 !important;
+        color: #FFFFFF !important;
         margin: 0 0 4px 0 !important;
     }
-
     #layanan-cepat .layanan-cepat-subtitle {
-        font-size: 0.85rem !important;
-        opacity: 0.9;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.88rem !important;
+        color: #E2E8F0 !important;
     }
-
     .layanan-cepat-grid-custom {
-        position: relative !important;
-        z-index: 2 !important;
         display: grid !important;
         grid-template-columns: repeat(6, 1fr) !important;
         gap: 12px !important;
     }
-
-    #layanan-cepat .layanan-cepat-item {
-        padding: 12px 8px !important;
-        min-height: 82px !important;
-        border-radius: 14px !important;
-        gap: 6px !important;
-    }
-
-    #layanan-cepat .lc-icon {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 1.1rem !important;
-    }
-
-    #layanan-cepat .lc-label {
-        font-size: 0.76rem !important;
-        line-height: 1.2 !important;
-    }
-
-    /* Item ke-7 dst disembunyikan sampai klik Lihat Selengkapnya */
-    .layanan-cepat-item.lc-extra-item {
+    .layanan-cepat-grid-custom .lc-extra-item {
         display: none !important;
     }
-
-    .layanan-cepat-grid-custom.expanded .layanan-cepat-item.lc-extra-item {
+    .layanan-cepat-grid-custom.expanded .lc-extra-item {
         display: flex !important;
-        animation: lcFadeIn 0.25s ease-out;
+        animation: fadeInLayanan 0.35s ease forwards;
     }
-
-    @keyframes lcFadeIn {
+    @keyframes fadeInLayanan {
         from {
             opacity: 0;
-            transform: translateY(6px);
+            transform: translateY(8px);
         }
-
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
+    #layanan-cepat .layanan-cepat-item {
+        background: rgba(255, 255, 255, 0.94) !important;
+        padding: 14px 10px !important;
+        min-height: 84px !important;
+        border-radius: 16px !important;
+        gap: 6px !important;
+        text-decoration: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.2s ease !important;
+    }
+    #layanan-cepat .layanan-cepat-item:hover {
+        transform: translateY(-4px) !important;
+        background: #FFFFFF !important;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15) !important;
+    }
+    #layanan-cepat .lc-icon {
+        width: 32px !important;
+        height: 32px !important;
+        color: #1B9C85 !important;
+        font-size: 1.15rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    #layanan-cepat .lc-label {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.78rem !important;
+        font-weight: 700 !important;
+        color: #0F172A !important;
+        line-height: 1.25 !important;
+    }
 
+    /* Tombol Lihat Selengkapnya Layanan Cepat */
     .btn-layanan-more-wrap {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        margin-top: 14px;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin-top: 22px !important;
+        position: relative !important;
+        z-index: 5 !important;
     }
-
     .btn-layanan-more {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(255, 225, 93, 0.14);
-        border: 1px solid rgba(255, 225, 93, 0.5);
-        color: #FFE15D;
-        padding: 7px 18px;
-        border-radius: 9999px;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        font-size: 0.76rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s ease;
+        background: rgba(255, 255, 255, 0.16) !important;
+        color: #FFFFFF !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
+        padding: 9px 24px !important;
+        border-radius: 50px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.3px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        cursor: pointer !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        outline: none !important;
     }
-
     .btn-layanan-more:hover {
-        background: #FFE15D;
-        color: #09332C;
+        background: #FFFFFF !important;
+        color: #0D6A56 !important;
+        border-color: #FFFFFF !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+    }
+    .btn-layanan-more:active {
+        transform: translateY(0) !important;
+    }
+    .btn-layanan-more i {
+        font-size: 0.8rem !important;
+        transition: transform 0.25s ease !important;
     }
 
-    /* Tampilan Tablet */
     @media (max-width: 991px) {
         .layanan-cepat-grid-custom {
             grid-template-columns: repeat(3, 1fr) !important;
             gap: 10px !important;
         }
     }
-
-    /* Tampilan HP: Ramping 3 Kolom x 2 Baris (6 Akses Muat Satu Layar dengan Manis) */
     @media (max-width: 576px) {
+        .hero-bottom-features-section {
+            margin: 18px 0 36px 0 !important;
+        }
         .ppdb-landscape-banner-wrap {
-            border-radius: 12px;
+            border-radius: 14px;
             margin-bottom: 14px;
         }
-
         #layanan-cepat.layanan-cepat-card {
             padding: 18px 14px !important;
             border-radius: 18px !important;
         }
-
-        #layanan-cepat .layanan-cepat-header {
-            margin-bottom: 12px !important;
-            text-align: left;
-        }
-
         #layanan-cepat .layanan-cepat-title {
-            font-size: 1.2rem !important;
-            margin-bottom: 2px !important;
+            font-size: 1.25rem !important;
         }
-
         #layanan-cepat .layanan-cepat-subtitle {
             font-size: 0.74rem !important;
-            line-height: 1.35 !important;
         }
-
         .layanan-cepat-grid-custom {
             grid-template-columns: repeat(3, 1fr) !important;
             gap: 8px !important;
         }
-
         #layanan-cepat .layanan-cepat-item {
             padding: 10px 6px !important;
-            min-height: 68px !important;
+            min-height: 70px !important;
             border-radius: 12px !important;
-            gap: 5px !important;
         }
-
         #layanan-cepat .lc-icon {
             width: 24px !important;
             height: 24px !important;
             font-size: 0.95rem !important;
         }
-
         #layanan-cepat .lc-label {
             font-size: 0.68rem !important;
-            font-weight: 600 !important;
-            line-height: 1.15 !important;
         }
+    }
 
-        .btn-layanan-more-wrap {
-            margin-top: 12px;
+    /* -------------------------------------------------------------------------
+       4. CAROUSEL SOROTAN BERITA (#carousel-banner)
+       ------------------------------------------------------------------------- */
+    .sec-9-home-1 {
+        padding-top: 10px !important;
+        padding-bottom: 45px !important;
+    }
+    .block-card-swiper {
+        padding: 70px 0 !important;
+        border-radius: 24px !important;
+    }
+    @media (max-width: 768px) {
+        .block-card-swiper {
+            padding: 32px 14px !important;
+            border-radius: 18px !important;
         }
+        .block-card-swiper .card-swiper-thumb .thumb {
+            width: 72px !important;
+            height: 58px !important;
+            min-width: 72px !important;
+            min-height: 58px !important;
+        }
+    }
 
-        .btn-layanan-more {
-            padding: 6px 14px;
-            font-size: 0.72rem;
+    /* -------------------------------------------------------------------------
+       5. DIREKTORI GURU & TENDIK (#guru)
+       ------------------------------------------------------------------------- */
+    .guru-tendik-section {
+        padding: 55px 0 !important;
+    }
+    .guru-main-title {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: clamp(1.6rem, 2.8vw, 2.2rem) !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+    }
+    .guru-card {
+        border-radius: 20px !important;
+        overflow: hidden !important;
+        border: 1px solid #E2E8F0 !important;
+        transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    }
+    .guru-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    /* -------------------------------------------------------------------------
+       RESET & HARMONISASI SECTION HEADERS (.section-title, .section-subtitle, etc.)
+       Mengatasi bentrokan class .section-title dengan main.css (Magzin template)
+       ------------------------------------------------------------------------- */
+    .section-header {
+        text-align: center !important;
+        max-width: 760px !important;
+        margin: 0 auto 40px auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .section-title {
+        display: block !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-size: clamp(1.8rem, 3.2vw, 2.5rem) !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+        text-align: center !important;
+        margin: 0 auto 12px auto !important;
+        position: relative !important;
+        width: 100% !important;
+        line-height: 1.25 !important;
+    }
+    .section-title.white {
+        color: #FFFFFF !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .section-subtitle {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-size: 0.88rem !important;
+        font-weight: 800 !important;
+        color: #1B9C85 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1.5px !important;
+        margin-bottom: 8px !important;
+        display: inline-block !important;
+        text-align: center !important;
+    }
+    .section-subtitle.white {
+        color: #4EBAA6 !important;
+    }
+    .section-desc {
+        font-family: 'Rubik', 'Poppins', sans-serif !important;
+        font-size: clamp(0.9rem, 1.2vw, 1.05rem) !important;
+        color: #64748B !important;
+        line-height: 1.65 !important;
+        text-align: center !important;
+        margin: 0 auto !important;
+        max-width: 650px !important;
+    }
+    .section-divider {
+        width: 60px !important;
+        height: 4px !important;
+        background-color: #1B9C85 !important;
+        margin: 14px auto 0 auto !important;
+        border-radius: 9999px !important;
+    }
+
+    /* Penyelarasan Khusus Kabar Madrasah Header */
+    .news-header-row {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        margin-bottom: 35px !important;
+    }
+    .news-header-row .section-title {
+        text-align: center !important;
+        margin: 0 auto !important;
+    }
+
+    /* -------------------------------------------------------------------------
+       6. PRESTASI SISWA (#prestasi)
+       ------------------------------------------------------------------------- */
+    .stats-section {
+        padding: 65px 0 !important;
+    }
+    .stat-card {
+        border-radius: 20px !important;
+        padding: 24px 18px !important;
+    }
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
         }
+        .stat-card {
+            padding: 16px 12px !important;
+        }
+        .stat-number {
+            font-size: 1.8rem !important;
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+       7. PROGRAM UNGGULAN (#program)
+       ------------------------------------------------------------------------- */
+    .programs-section {
+        padding: 65px 0 !important;
+    }
+    .program-card-title {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1.2rem !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+    }
+
+    /* -------------------------------------------------------------------------
+       8. DUNIA ILMU MADRASAH (#dunia-ilmu)
+       ------------------------------------------------------------------------- */
+    .dunia-ilmu-section {
+        padding: 55px 0 !important;
+    }
+    .dunia-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        padding: 12px 18px;
+        border-radius: 18px;
+        margin-bottom: 22px;
+    }
+    @media (max-width: 768px) {
+        .dunia-filter-bar {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+            padding: 12px !important;
+        }
+        .dunia-filter-bar .filter-title {
+            grid-column: 1 / -1 !important;
+        }
+        .dunia-filter-bar select {
+            width: 100% !important;
+            font-size: 0.8rem !important;
+            padding: 8px 10px !important;
+        }
+        .dunia-filter-bar .btn-reset-filter {
+            grid-column: 1 / -1 !important;
+            text-align: center !important;
+            margin: 4px auto 0 !important;
+        }
+    }
+
+    /* -------------------------------------------------------------------------
+       9. KABAR MADRASAH (#berita)
+       ------------------------------------------------------------------------- */
+    .news-card {
+        border-radius: 20px !important;
+        overflow: hidden !important;
+        border: 1px solid #E2E8F0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+    }
+    .news-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08) !important;
+    }
+    .news-thumb {
+        width: 100% !important;
+        aspect-ratio: 16 / 10 !important;
+        object-fit: cover !important;
+    }
+    .news-title {
+        font-family: 'Outfit', sans-serif !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        color: #0F172A !important;
+        line-height: 1.4 !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+    .news-excerpt {
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+
+    /* -------------------------------------------------------------------------
+       10. MUTIARA HIKMAH (#mutiara-hikmah)
+       ------------------------------------------------------------------------- */
+    .mutiara-section {
+        padding: 50px 0 70px 0 !important;
+    }
+    .mutiara-card {
+        border-radius: 24px !important;
+        padding: 38px 32px !important;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12) !important;
+    }
+    .mutiara-quote-text {
+        font-size: clamp(1.05rem, 2.2vw, 1.35rem) !important;
+        line-height: 1.65 !important;
+    }
+    @media (max-width: 576px) {
+        .mutiara-card {
+            padding: 24px 18px !important;
+            border-radius: 18px !important;
+        }
+        .mutiara-actions {
+            display: flex !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+        .mutiara-actions button {
+            flex: 1 !important;
+            justify-content: center !important;
+            padding: 8px 12px !important;
+            font-size: 0.8rem !important;
+        }
+    }
+
+    /* =========================================================================
+       DUKUNGAN MODE MALAM & MODE SIANG (DARK & LIGHT MODE UNTUK MIN 1 CIAMIS)
+       ========================================================================= */
+    /* 1. Global & Background */
+    [data-bs-theme="dark"] body {
+        background-color: #0B1317 !important;
+        color: #CBD5E1 !important;
+    }
+    [data-bs-theme="dark"] main {
+        background-color: #0B1317 !important;
+    }
+
+    /* Icon Switching Automation */
+    [data-bs-theme="dark"] .dark-light-switcher .svg-dark {
+        display: none !important;
+    }
+    [data-bs-theme="dark"] .dark-light-switcher .svg-white {
+        display: inline-flex !important;
+    }
+    :root:not([data-bs-theme="dark"]) .dark-light-switcher .svg-dark,
+    [data-bs-theme="light"] .dark-light-switcher .svg-dark {
+        display: inline-flex !important;
+    }
+    :root:not([data-bs-theme="dark"]) .dark-light-switcher .svg-white,
+    [data-bs-theme="light"] .dark-light-switcher .svg-white {
+        display: none !important;
+    }
+
+    /* 2. Floating Navbar & Controls */
+    [data-bs-theme="dark"] .site-header {
+        background: transparent !important;
+    }
+    [data-bs-theme="dark"] .header-container {
+        background: rgba(15, 23, 42, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+    }
+    [data-bs-theme="dark"] .nav-menu .menu-link {
+        color: #E2E8F0 !important;
+    }
+    [data-bs-theme="dark"] .nav-menu .menu-link:hover,
+    [data-bs-theme="dark"] .nav-menu .menu-item.active > .menu-link {
+        color: #2DD4BF !important;
+        background: rgba(45, 212, 191, 0.12) !important;
+    }
+    [data-bs-theme="dark"] .sub-menu,
+    [data-bs-theme="dark"] .sub-menu .cucu-menu {
+        background: rgba(19, 34, 40, 0.98) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 20px 42px rgba(0, 0, 0, 0.55) !important;
+    }
+    [data-bs-theme="dark"] .sub-menu .menu-link {
+        color: #CBD5E1 !important;
+    }
+    [data-bs-theme="dark"] .sub-menu .menu-link:hover {
+        color: #2DD4BF !important;
+        background: rgba(45, 212, 191, 0.12) !important;
+    }
+    [data-bs-theme="dark"] .header-social-item,
+    [data-bs-theme="dark"] .header-search-circle-btn,
+    [data-bs-theme="dark"] .header-theme-toggle-btn {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+        color: #E2E8F0 !important;
+    }
+    [data-bs-theme="dark"] .header-social-item:hover,
+    [data-bs-theme="dark"] .header-search-circle-btn:hover,
+    [data-bs-theme="dark"] .header-theme-toggle-btn:hover {
+        background: rgba(45, 212, 191, 0.2) !important;
+        color: #2DD4BF !important;
+        border-color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .mobile-toggle-btn {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: rgba(255, 255, 255, 0.14) !important;
+        color: #E2E8F0 !important;
+    }
+
+    /* 3. Section Titles & Dividers */
+    [data-bs-theme="dark"] .section-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .section-subtitle {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .section-desc {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .section-bg-alt {
+        background-color: #0D171C !important;
+    }
+
+    /* 4. Hero Slider */
+    [data-bs-theme="dark"] .hero-slider-section {
+        background: #0B1317 !important;
+    }
+    [data-bs-theme="dark"] .hero-animated-grid-bg {
+        opacity: 0.05 !important;
+    }
+    [data-bs-theme="dark"] .hero-slide-centered-single .hero-bold-title,
+    [data-bs-theme="dark"] .hero-slide-left-text .hero-bold-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .hero-slide-centered-single .hero-script-heading,
+    [data-bs-theme="dark"] .hero-slide-left-text .hero-script-heading {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .hero-slide-centered-single .hero-domain-line,
+    [data-bs-theme="dark"] .hero-slide-left-text .hero-domain-line {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .hero-slide-centered-single .hero-slogan-lines,
+    [data-bs-theme="dark"] .hero-slide-left-text .hero-desc {
+        color: #94A3B8 !important;
+        border-top-color: rgba(45, 212, 191, 0.25) !important;
+    }
+    [data-bs-theme="dark"] .hero-slider-nav-btn {
+        background: rgba(19, 34, 40, 0.9) !important;
+        color: #E2E8F0 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    [data-bs-theme="dark"] .hero-slider-nav-btn:hover {
+        background: #1B9C85 !important;
+        color: #FFFFFF !important;
+    }
+    [data-bs-theme="dark"] .hero-slider-dot {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    [data-bs-theme="dark"] .hero-slider-dot.active {
+        background: #2DD4BF !important;
+    }
+
+    /* 5. Profil & Sambutan */
+    [data-bs-theme="dark"] .sekilas-section {
+        background: #0D171C !important;
+    }
+    [data-bs-theme="dark"] .sekilas-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .title-italic {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .title-highlight {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .sekilas-quote {
+        color: #F1F5F9 !important;
+    }
+    [data-bs-theme="dark"] .sekilas-text {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .sekilas-tab-btn {
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: #94A3B8 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    [data-bs-theme="dark"] .sekilas-tab-btn:hover {
+        color: #2DD4BF !important;
+        background: rgba(45, 212, 191, 0.12) !important;
+    }
+    [data-bs-theme="dark"] .sekilas-tab-btn.active {
+        background: #1B9C85 !important;
+        color: #FFFFFF !important;
+        border-color: #1B9C85 !important;
+    }
+    [data-bs-theme="dark"] .sekilas-card-frame {
+        background: #162B28 !important;
+        border-color: rgba(45, 212, 191, 0.3) !important;
+    }
+    [data-bs-theme="dark"] .sekilas-feature-pill {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        color: #E2E8F0 !important;
+    }
+    [data-bs-theme="dark"] .sekilas-feature-pill i {
+        color: #2DD4BF !important;
+    }
+
+    /* 6. Layanan Cepat */
+    [data-bs-theme="dark"] #layanan-cepat.layanan-cepat-card {
+        background: linear-gradient(135deg, #032119 0%, #064E3B 50%, #0A5A4A 100%) !important;
+        border: 1.5px solid rgba(45, 212, 191, 0.25) !important;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45) !important;
+    }
+    [data-bs-theme="dark"] #layanan-cepat .layanan-cepat-item {
+        background: rgba(15, 23, 42, 0.88) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] #layanan-cepat .layanan-cepat-item:hover {
+        background: rgba(27, 156, 133, 0.35) !important;
+        border-color: #2DD4BF !important;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35) !important;
+    }
+    [data-bs-theme="dark"] #layanan-cepat .lc-label {
+        color: #F1F5F9 !important;
+    }
+    [data-bs-theme="dark"] #layanan-cepat .lc-icon {
+        color: #2DD4BF !important;
+    }
+
+    /* 7. Carousel Berita */
+    [data-bs-theme="dark"] .sec-9-home-1 {
+        background: #0B1317 !important;
+    }
+    [data-bs-theme="dark"] .block-card-swiper {
+        background: #111E24 !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45) !important;
+    }
+    [data-bs-theme="dark"] .block-card-swiper .title h3,
+    [data-bs-theme="dark"] .block-card-swiper .title a {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .block-card-swiper .card-swiper-desc,
+    [data-bs-theme="dark"] .block-card-swiper .card-swiper-desc p {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .block-card-swiper .slider-nav-thumb .card-swiper-item {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    }
+    [data-bs-theme="dark"] .block-card-swiper .slider-nav-thumb .card-swiper-item.swiper-slide-thumb-active {
+        background: rgba(45, 212, 191, 0.12) !important;
+        border-color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .block-card-swiper .slider-nav-thumb .card-swiper-item .content-title {
+        color: #E2E8F0 !important;
+    }
+
+    /* 8. Guru & Tendik */
+    [data-bs-theme="dark"] .guru-tendik-section {
+        background: #0D171C !important;
+    }
+    [data-bs-theme="dark"] .guru-tendik-card {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35) !important;
+    }
+    [data-bs-theme="dark"] .guru-main-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .guru-sub-desc {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .guru-card {
+        background: #172A32 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .guru-card:hover {
+        border-color: #2DD4BF !important;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4) !important;
+    }
+    [data-bs-theme="dark"] .guru-name {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .guru-role {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .guru-nav-btn {
+        background: #1B2F38 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        color: #F1F5F9 !important;
+    }
+    [data-bs-theme="dark"] .guru-nav-btn:hover {
+        background: #1B9C85 !important;
+        color: #FFFFFF !important;
+    }
+
+    /* 9. Prestasi Siswa */
+    [data-bs-theme="dark"] .stats-section {
+        background: linear-gradient(135deg, #020A06 0%, #05140C 100%) !important;
+    }
+    [data-bs-theme="dark"] .stat-card {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .stat-card:hover {
+        background: rgba(45, 212, 191, 0.1) !important;
+        border-color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .total-prestasi-banner {
+        background: linear-gradient(135deg, rgba(3, 24, 20, 0.98) 0%, rgba(7, 48, 44, 0.96) 50%, rgba(3, 24, 20, 0.98) 100%) !important;
+        border-color: rgba(251, 191, 36, 0.45) !important;
+    }
+
+    /* 10. Program Unggulan */
+    [data-bs-theme="dark"] .programs-section {
+        background: #0B1317 !important;
+    }
+    [data-bs-theme="dark"] .program-card-modern {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3) !important;
+    }
+    [data-bs-theme="dark"] .program-card-modern:hover {
+        border-color: #2DD4BF !important;
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45) !important;
+    }
+    [data-bs-theme="dark"] .program-card-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .program-card-desc {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .program-card-features li {
+        color: #CBD5E1 !important;
+    }
+    [data-bs-theme="dark"] .program-card-features li i {
+        color: #2DD4BF !important;
+    }
+
+    /* 11. Dunia Ilmu Madrasah */
+    [data-bs-theme="dark"] .dunia-ilmu-section {
+        background: #0D171C !important;
+    }
+    [data-bs-theme="dark"] .dunia-filter-bar {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25) !important;
+    }
+    [data-bs-theme="dark"] .dunia-filter-bar .filter-title {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .dunia-filter-bar select {
+        background: #1A2F37 !important;
+        color: #F1F5F9 !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+    [data-bs-theme="dark"] .dunia-filter-bar .btn-reset-filter {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .dunia-filter-bar .btn-reset-filter:hover {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .dunia-media-card {
+        background: #172A32 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .dunia-media-card:hover {
+        border-color: #2DD4BF !important;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4) !important;
+    }
+    [data-bs-theme="dark"] .dunia-link-action {
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+        color: #2DD4BF !important;
+    }
+
+    /* 12. Kabar Madrasah */
+    [data-bs-theme="dark"] #berita.section-bg-alt {
+        background: #0B1317 !important;
+    }
+    [data-bs-theme="dark"] .news-card {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+    [data-bs-theme="dark"] .news-card:hover {
+        border-color: #2DD4BF !important;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45) !important;
+    }
+    [data-bs-theme="dark"] .news-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .news-date {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .news-excerpt {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .news-read-more {
+        color: #2DD4BF !important;
+    }
+
+    /* 13. Mutiara Hikmah */
+    [data-bs-theme="dark"] .mutiara-section {
+        background: #0D171C !important;
+    }
+    [data-bs-theme="dark"] .mutiara-card {
+        background: linear-gradient(135deg, #05261F 0%, #0C3D33 100%) !important;
+        border-color: rgba(251, 191, 36, 0.35) !important;
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45) !important;
+    }
+    [data-bs-theme="dark"] .mutiara-quote-text {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .mutiara-author {
+        color: #FDE047 !important;
+    }
+
+    /* 14. Mobile Drawer */
+    [data-bs-theme="dark"] .mobile-drawer {
+        background: #0F172A !important;
+        box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6) !important;
+    }
+    [data-bs-theme="dark"] .mobile-drawer-header {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .mobile-drawer-header span {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] #mobile-drawer-close {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .mobile-theme-row {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    [data-bs-theme="dark"] .mobile-theme-title {
+        color: #E2E8F0 !important;
+    }
+    [data-bs-theme="dark"] .mobile-theme-btn {
+        background: #1E293B !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+    [data-bs-theme="dark"] .mobile-nav-link {
+        background: #172A32 !important;
+        color: #F8FAFC !important;
+        border-color: rgba(255, 255, 255, 0.06) !important;
+    }
+    [data-bs-theme="dark"] .mobile-nav-link:hover,
+    [data-bs-theme="dark"] .mobile-nav-link:active,
+    [data-bs-theme="dark"] .mobile-nav-link.open {
+        background: rgba(45, 212, 191, 0.15) !important;
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .mobile-sub-menu {
+        background: #111E24 !important;
+        border-color: rgba(255, 255, 255, 0.06) !important;
+    }
+    [data-bs-theme="dark"] .mobile-sub-link {
+        color: #CBD5E1 !important;
+        border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+    }
+    [data-bs-theme="dark"] .mobile-sub-link:hover,
+    [data-bs-theme="dark"] .mobile-sub-link:active,
+    [data-bs-theme="dark"] .mobile-sub-link.active-toggle {
+        color: #2DD4BF !important;
+        background: rgba(45, 212, 191, 0.1) !important;
+    }
+    [data-bs-theme="dark"] .mobile-nested-menu {
+        background: #0A1317 !important;
+        border-left-color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .mobile-nested-link {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .mobile-nested-link:hover {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .mobile-drawer-body a[style*="background: #f1f5f9"] {
+        background: #1E293B !important;
+        color: #F8FAFC !important;
+    }
+
+    /* 15. Mobile Bottom Nav */
+    [data-bs-theme="dark"] .mobile-bottom-nav {
+        background: rgba(15, 23, 42, 0.95) !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5) !important;
+    }
+    [data-bs-theme="dark"] .mobile-bottom-nav__item {
+        color: #94A3B8 !important;
+    }
+    [data-bs-theme="dark"] .mobile-bottom-nav__item.active {
+        color: #2DD4BF !important;
+    }
+    [data-bs-theme="dark"] .mobile-bottom-nav__item.active i {
+        background: rgba(45, 212, 191, 0.18) !important;
+        color: #2DD4BF !important;
+    }
+
+    /* 16. Footer */
+    [data-bs-theme="dark"] .site-footer {
+        background: #060C0F !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .footer-bottom {
+        border-top-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    /* 17. Search Modal & Catalog Modals */
+    [data-bs-theme="dark"] .search-modal-content {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    [data-bs-theme="dark"] .search-input {
+        background: #1A2F37 !important;
+        color: #F8FAFC !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
+    }
+    [data-bs-theme="dark"] .dunia-modal-box {
+        background: #132228 !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    [data-bs-theme="dark"] .dunia-modal-header {
+        border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .dunia-modal-title {
+        color: #F8FAFC !important;
+    }
+    [data-bs-theme="dark"] .dunia-modal-filter-select {
+        background: #1A2F37 !important;
+        color: #F1F5F9 !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
     }
 </style>
 @section('content')
@@ -593,7 +1557,7 @@
     <!-- ========================================================================= -->
     <!-- 3. BANNER IKLAN PPDB (LANDSCAPE TETAP) & LAYANAN CEPAT (6 AKSES + MORE)   -->
     <!-- ========================================================================= -->
-    <section class="hero-bottom-features-section" id="ppdb" style="margin-top: 10px;">
+    <section class="hero-bottom-features-section" id="ppdb">
         <div class="container">
 
             @php
@@ -874,12 +1838,12 @@
     <section class="section stats-section" id="prestasi">
         <div class="stats-bg-decor"></div>
         <div class="container" style="position: relative; z-index: 2">
-            <div class="section-header">
-                <span class="section-subtitle white" style="color: var(--primary-ligh)t">Capaian Gemilang</span>
-                <h2 class="section-title white">Prestasi Siswa &amp; Data Madrasah</h2>
-                <p class="section-desc" style="color: #cbd5e1">Rekap Capaian Kejuaraan &amp; Statistik Akademik MIN 1
+            <div class="section-header" style="text-align: center;">
+                <span class="section-subtitle white" style="display: block; text-align: center; color: #4ebaa6;">Capaian Gemilang</span>
+                <h2 class="section-title white" style="color: #ffffff !important; background: transparent !important; background-color: transparent !important; border: none !important; text-align: center !important;">Prestasi Siswa &amp; Data Madrasah</h2>
+                <p class="section-desc" style="color: #cbd5e1; text-align: center; margin: 0 auto;">Rekap Capaian Kejuaraan &amp; Statistik Akademik MIN 1
                     Ciamis</p>
-                <div class="section-divider"></div>
+                <div class="section-divider" style="margin: 14px auto 0 auto;"></div>
             </div>
 
             <div class="stats-grid">
@@ -944,12 +1908,12 @@
     <!-- ========================================================================= -->
     <section class="programs-section" id="program">
         <div class="container">
-            <div class="section-header">
-                <span class="section-subtitle">Pendidikan Berkualitas</span>
-                <h2 class="section-title">Program Unggulan MIN 1 Ciamis</h2>
-                <p class="section-desc">Mengembangkan potensi intelektual, spiritual, dan emosional santri secara berimbang
+            <div class="section-header" style="text-align: center;">
+                <span class="section-subtitle" style="display: block; text-align: center;">Pendidikan Berkualitas</span>
+                <h2 class="section-title" style="text-align: center;">Program Unggulan MIN 1 Ciamis</h2>
+                <p class="section-desc" style="text-align: center; margin: 0 auto;">Mengembangkan potensi intelektual, spiritual, dan emosional santri secara berimbang
                 </p>
-                <div class="section-divider"></div>
+                <div class="section-divider" style="margin: 14px auto 0 auto;"></div>
             </div>
 
             <div class="programs-grid">
@@ -1072,9 +2036,8 @@
                 </div>
 
                 <!-- Bar Filter Langsung: Pilih Kelas & Pilih Mata Pelajaran -->
-                <div
-                    style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; background: #ffffff; border: 1.5px solid #e2e8f0; padding: 12px 16px; border-radius: 18px; margin-bottom: 22px;">
-                    <div
+                <div class="dunia-filter-bar">
+                    <div class="filter-title"
                         style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 800; color: #0d6a56;">
                         <i class="fas fa-filter"></i> Filter Cepat:
                     </div>
@@ -1097,7 +2060,7 @@
                         @endforeach
                     </select>
 
-                    <button type="button" onclick="resetFilterDuniaHome()"
+                    <button type="button" class="btn-reset-filter" onclick="resetFilterDuniaHome()"
                         style="background: none; border: none; color: #64748b; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-left: auto;">
                         <i class="fas fa-redo-alt"></i> Tampilkan Semua
                     </button>
@@ -1159,11 +2122,11 @@
     <!-- ========================================================================= -->
     <section class="section section-bg-alt" id="berita">
         <div class="container">
-            <div class="news-header-row" style="margin-bottom: 24px">
-                <div>
-                    <span class="section-subtitle">Warta &amp; Informasi Terkini</span>
-                    <h2 class="section-title">Kabar Madrasah</h2>
-                </div>
+            <div class="section-header" style="margin-bottom: 35px; text-align: center;">
+                <span class="section-subtitle" style="display: block; text-align: center;">Warta &amp; Informasi Terkini</span>
+                <h2 class="section-title" style="text-align: center;">Kabar Madrasah</h2>
+                <p class="section-desc" style="text-align: center; margin: 0 auto;">Berita, pengumuman, dan liputan kegiatan terbaru seputar MIN 1 Ciamis</p>
+                <div class="section-divider" style="margin: 14px auto 0 auto;"></div>
             </div>
 
             <div class="news-grid" id="news-cards-grid">
