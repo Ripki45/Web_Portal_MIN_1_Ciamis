@@ -191,17 +191,22 @@
             <i class="fas fa-times"></i>
         </button>
         <div class="modal-body">
-            <h3 style="margin-bottom: 16px; font-size: 1.3rem; font-family: 'Outfit', sans-serif;">
-                Pencarian Website MIN 1 Ciamis
-            </h3>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 6px;">
+                <h3 style="margin-bottom: 0; font-size: 1.25rem; font-family: 'Outfit', sans-serif;">
+                    Pencarian Cerdas MIN 1 Ciamis
+                </h3>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #0D6A56; background: rgba(13, 106, 86, 0.12); border: 1px solid rgba(13, 106, 86, 0.25); padding: 3px 9px; border-radius: 9999px;">
+                    ✨ Semantic AI Vector Search
+                </span>
+            </div>
             <div class="search-input-box" style="display: flex; gap: 10px; margin-bottom: 18px">
                 <input type="text" id="search-input-field"
-                    placeholder="Ketik kata kunci (misal: PPDB, tahfidz, prestasi, panjalu)..."
-                    style="flex: 1; padding: 12px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 1rem;" />
+                    placeholder="Tanyakan apa saja (misal: syarat daftar siswa baru, sholat dhuha, info guru)..."
+                    style="flex: 1; padding: 12px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem;" />
             </div>
-            <div id="search-results-list" style="max-height: 360px; overflow-y: auto">
-                <p style="color: #64748b; font-size: 0.9rem">
-                    Mulai mengetik untuk menemukan warta, informasi program, atau profil madrasah...
+            <div id="search-results-list" style="max-height: 380px; overflow-y: auto">
+                <p style="color: #64748b; font-size: 0.88rem; text-align: center; padding: 20px 10px;">
+                    Mulai mengetik pertanyaan atau kata kunci untuk menemukan informasi madrasah secara kontekstual...
                 </p>
             </div>
         </div>

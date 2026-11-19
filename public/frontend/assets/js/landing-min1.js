@@ -738,7 +738,7 @@ function initVideoLightbox() {
   });
 }
 
-/* --- 6. SEARCH MODAL & INSTANT FILTER --- */
+/* --- 6. SEARCH MODAL & INSTANT FILTER (SEMANTIC AI SEARCH) --- */
 function initSearch() {
   const searchModal = document.getElementById('search-modal');
   const searchToggleBtn = document.querySelector('.search-toggle-btn');
@@ -746,14 +746,14 @@ function initSearch() {
   const searchInput = document.getElementById('search-input-field');
   const searchResults = document.getElementById('search-results-list');
 
-    const searchableItems = [
-    { title: "Profil Resmi MIN 1 Ciamis", snippet: "Profil madrasah, visi misi, sejarah, dan alamat di Panjalu Ciamis", url: "#profil" },
-    { title: "Program Unggulan Tahfidz Qur'an", snippet: "Program target hafalan juz 30 dan tartil metode Al-Qur'an", url: "#program" },
-    { title: "PPDB Online 2026/2027", snippet: "Informasi dan simulasi pendaftaran peserta didik baru MIN 1 Ciamis", url: "#ppdb" },
-    { title: "Prestasi Santri MIN 1 Ciamis", snippet: "Rekap capaian prestasi lomba kabupaten, provinsi, dan nasional", url: "#prestasi" },
-    { title: "Layanan Digital & RDM", snippet: "Portal e-learning, rapor digital madrasah, dan e-perpustakaan", url: "#layanan" },
-    { title: "Kabar Madrasah & Berita", snippet: "Warta kegiatan, upacara hari santri, olimpiade sains KSM", url: "#berita" },
-    { title: "Kontak & Lokasi Panjalu", snippet: "Alamat Jl. Maparah No. 65 Panjalu Ciamis dan nomor WhatsApp", url: "#kontak" }
+  const fallbackItems = [
+    { title: "Profil Resmi MIN 1 Ciamis", snippet: "Profil madrasah, visi misi, sejarah, dan alamat di Panjalu Ciamis", url: "#profil", category: "Profil Madrasah", icon: "fas fa-school" },
+    { title: "Program Unggulan Tahfidz Qur'an", snippet: "Program target hafalan juz 30 dan tartil metode Al-Qur'an", url: "#program", category: "Program Unggulan", icon: "fas fa-quran" },
+    { title: "PPDB Online 2026/2027", snippet: "Informasi dan simulasi pendaftaran peserta didik baru MIN 1 Ciamis", url: "#ppdb", category: "Layanan Siswa", icon: "fas fa-user-plus" },
+    { title: "Prestasi Santri MIN 1 Ciamis", snippet: "Rekap capaian prestasi lomba kabupaten, provinsi, dan nasional", url: "#prestasi", category: "Prestasi", icon: "fas fa-trophy" },
+    { title: "Layanan Digital & RDM", snippet: "Portal e-learning, rapor digital madrasah, dan e-perpustakaan", url: "#layanan", category: "Layanan Digital", icon: "fas fa-laptop" },
+    { title: "Kabar Madrasah & Berita", snippet: "Warta kegiatan, upacara hari santri, olimpiade sains KSM", url: "#berita", category: "Berita", icon: "far fa-newspaper" },
+    { title: "Kontak & Lokasi Panjalu", snippet: "Alamat Jl. Maparah No. 65 Panjalu Ciamis dan nomor WhatsApp", url: "#kontak", category: "Kontak", icon: "fas fa-map-marker-alt" }
   ];
 
   if (!searchModal || !searchToggleBtn) return;
@@ -764,7 +764,7 @@ function initSearch() {
       searchInput.value = '';
       setTimeout(() => searchInput.focus(), 100);
     }
-    renderSearchResults(searchableItems);
+    fetchInitialSuggestions();
     document.body.style.overflow = 'hidden';
   });
 
@@ -778,63 +778,91 @@ function initSearch() {
     if (e.target === searchModal) closeSearchModal();
   });
 
-  function renderSearchResults(items) {
+  function fetchInitialSuggestions() {
+    fetch('/api/semantic-search')
+      .then(res => res.json())
+      .then(data => {
+        if (data.results && data.results.length) {
+          renderSearchResults(data.results);
+        } else {
+          renderSearchResults(fallbackItems);
+        }
+      })
+      .catch(() => renderSearchResults(fallbackItems));
+  }
+
+  function renderSearchResults(items, isSearching = false) {
     if (!searchResults) return;
-    if (!items.length) {
-      searchResults.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">Tidak ada hasil ditemukan</div>';
+    if (isSearching) {
+      searchResults.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted);"><i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Menganalisis pencarian secara semantik dengan AI...</div>';
       return;
     }
-    searchResults.innerHTML = items.map(item => `
-      <div class="search-result-item" data-url="${item.url || ''}" data-type="${item.type || ''}" data-news-id="${item.newsId || ''}">
-        <div class="item-title">${item.title}</div>
-        <div class="item-snippet">${item.snippet}</div>
-      </div>
-    `).join('');
+    if (!items.length) {
+      searchResults.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-muted);"><i class="fas fa-search" style="font-size: 1.6rem; color: #cbd5e1; margin-bottom: 8px; display: block;"></i> Tidak ada konten yang sesuai dengan pencarian Anda.</div>';
+      return;
+    }
+    searchResults.innerHTML = items.map(item => {
+      const icon = item.icon || 'fas fa-chevron-right';
+      const simPill = (item.source === 'semantic' && item.similarity)
+        ? `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3);">✨ AI ${item.similarity}% Cocok</span>`
+        : (item.category ? `<span style="display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 0.72rem; font-weight: 600; background: rgba(13, 106, 86, 0.1); color: #0D6A56;">${item.category}</span>` : '');
 
-    // Attach click handler on search items
+      return `
+        <div class="search-result-item" data-url="${item.url || ''}" style="cursor: pointer; padding: 12px 14px; border-radius: 10px; margin-bottom: 8px; transition: background 0.15s ease;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="${icon}" style="color: #0D6A56; font-size: 0.95rem;"></i>
+              <strong class="item-title" style="font-size: 0.95rem;">${item.title}</strong>
+            </div>
+            ${simPill}
+          </div>
+          <div class="item-snippet" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; padding-left: 22px;">${item.snippet}</div>
+        </div>
+      `;
+    }).join('');
+
     searchResults.querySelectorAll('.search-result-item').forEach(el => {
       el.addEventListener('click', () => {
         closeSearchModal();
         const url = el.getAttribute('data-url');
-        const newsId = el.getAttribute('data-news-id');
-        const type = el.getAttribute('data-type');
-        
         if (url) {
           window.location.href = url;
-        } else if (newsId) {
-          const card = document.querySelector(`.news-card[data-news-id="${newsId}"]`);
-          if (card) {
-            card.click();
-          } else {
-            window.location.href = `index.html#berita`;
-          }
-        } else if (type === 'stats') {
-          const statsSec = document.querySelector('.stats-section');
-          if (statsSec) {
-            statsSec.scrollIntoView({ behavior: 'smooth' });
-          } else {
-            window.location.href = 'index.html#prestasi';
-          }
-        } else if (type) {
-          const trigger = document.querySelector(`[data-modal-trigger="${type}"]`);
-          if (trigger) {
-            trigger.click();
-          } else {
-            window.location.href = `index.html#${type}`;
-          }
         }
       });
     });
   }
 
+  let debounceTimer = null;
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      const filtered = searchableItems.filter(item => 
-        item.title.toLowerCase().includes(query) || 
-        item.snippet.toLowerCase().includes(query)
-      );
-      renderSearchResults(filtered);
+      const query = e.target.value.trim();
+      clearTimeout(debounceTimer);
+
+      if (query.length < 2) {
+        fetchInitialSuggestions();
+        return;
+      }
+
+      renderSearchResults([], true);
+
+      debounceTimer = setTimeout(() => {
+        fetch('/api/semantic-search?q=' + encodeURIComponent(query))
+          .then(res => res.json())
+          .then(data => {
+            if (data.results) {
+              renderSearchResults(data.results);
+            } else {
+              renderSearchResults([]);
+            }
+          })
+          .catch(() => {
+            const filtered = fallbackItems.filter(item =>
+              item.title.toLowerCase().includes(query.toLowerCase()) ||
+              item.snippet.toLowerCase().includes(query.toLowerCase())
+            );
+            renderSearchResults(filtered);
+          });
+      }, 300);
     });
   }
 }

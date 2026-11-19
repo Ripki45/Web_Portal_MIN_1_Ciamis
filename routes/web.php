@@ -22,12 +22,14 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilMadrasahController;
 use App\Http\Controllers\SambutanProfilController;
+use App\Http\Controllers\SemanticSearchController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TahunAjaranController;
 use App\Http\Controllers\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/api/semantic-search', [SemanticSearchController::class, 'search'])->name('api.semantic-search');
 Route::get('/berita/{slug}', [BeritaController::class, 'show'])
     ->where('slug', '^(?!create$|edit$).*')
     ->name('berita.show');
