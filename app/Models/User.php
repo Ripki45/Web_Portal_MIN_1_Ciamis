@@ -62,12 +62,6 @@ class User extends Authenticatable
      */
     public static function pastikanTabelRoleSiap(): void
     {
-        // OPTIMASI: Hanya jalankan pengecekan skema 1 kali per request halaman
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
         // 1. Cek kolom role secara mandiri
         if (! Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {

@@ -1555,145 +1555,73 @@
 
 
     <!-- ========================================================================= -->
-    <!-- 3. BANNER IKLAN PPDB (LANDSCAPE TETAP) & LAYANAN CEPAT (6 AKSES + MORE)   -->
+    <!-- 3. BANNER IKLAN PPDB (LANDSCAPE TETAP) & LAYANAN CEPAT (DINAMIS DARI DB)  -->
     <!-- ========================================================================= -->
+    @php
+        $bannerPpdb = $bannerPpdb ?? \App\Models\BannerPpdb::ambilData();
+        $layananCepats = $layananCepats ?? \App\Models\LayananCepat::where('is_active', true)->orderBy('urutan', 'asc')->orderBy('id', 'asc')->get();
+    @endphp
+
+    @if ($bannerPpdb->is_active || $layananCepats->isNotEmpty())
     <section class="hero-bottom-features-section" id="ppdb">
         <div class="container">
 
-            @php
-                // Dummy Banner Iklan PPDB Landscape (Tampil identik di Laptop & HP)
-                $dummyBannerPpdb =
-                    'data:image/svg+xml;utf8,' .
-                    rawurlencode('
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 580" width="100%" height="100%">
-                        <defs>
-                            <linearGradient id="ppdbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#FFFFFF"/>
-                                <stop offset="55%" stop-color="#F8FAFC"/>
-                                <stop offset="100%" stop-color="#DBEAFE"/>
-                            </linearGradient>
-                        </defs>
-                        <rect width="1600" height="580" fill="url(#ppdbGrad)"/>
-                        <circle cx="1380" cy="290" r="340" fill="#1E3A8A" opacity="0.08"/>
-                        <path d="M1280,580 C1340,420 1480,380 1600,380 L1600,580 Z" fill="#F59E0B"/>
-                        <text x="85" y="135" font-family="Arial, sans-serif" font-size="68" font-weight="900" fill="#1E3A8A">PENERIMAAN</text>
-                        <text x="85" y="210" font-family="Arial, sans-serif" font-size="68" font-weight="900" fill="#F59E0B">PESERTA DIDIK BARU</text>
-                        <rect x="85" y="240" width="370" height="54" rx="12" fill="#1E3A8A"/>
-                        <text x="270" y="276" font-family="Arial, sans-serif" font-size="25" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TAHUN AJARAN 2026/2027</text>
-                        <text x="85" y="345" font-family="Arial, sans-serif" font-size="28" font-style="italic" fill="#334155">"Membentuk Generasi Qur\'ani, Berakhlak Mulia &amp; Unggul Prestasi"</text>
-                        <rect x="85" y="395" width="330" height="68" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
-                        <text x="250" y="438" font-family="Arial, sans-serif" font-size="23" font-weight="bold" fill="#1E3A8A" text-anchor="middle">✓ KURIKULUM MERDEKA</text>
-                        <rect x="435" y="395" width="330" height="68" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
-                        <text x="600" y="438" font-family="Arial, sans-serif" font-size="23" font-weight="bold" fill="#1E3A8A" text-anchor="middle">✓ PRESTASI UNGGUL</text>
-                        <rect x="785" y="395" width="330" height="68" rx="14" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
-                        <text x="950" y="438" font-family="Arial, sans-serif" font-size="23" font-weight="bold" fill="#1E3A8A" text-anchor="middle">✓ FASILITAS LENGKAP</text>
-                        <rect x="1180" y="70" width="330" height="56" rx="28" fill="#1E3A8A"/>
-                        <text x="1345" y="107" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFE15D" text-anchor="middle">KUOTA TERBATAS!</text>
-                        <rect x="1160" y="160" width="370" height="270" rx="24" fill="#1B9C85"/>
-                        <text x="1345" y="280" font-family="Arial, sans-serif" font-size="42" font-weight="900" fill="#FFFFFF" text-anchor="middle">MIN 1 CIAMIS</text>
-                        <text x="1345" y="335" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#FFE15D" text-anchor="middle">KLIK DAFTAR SEKARANG →</text>
-                    </svg>
-                ');
+            @if ($bannerPpdb->is_active)
+                <!-- 1. BANNER IKLAN PPDB (FULL LANDSCAPE GAMBAR — SAMA DI LAPTOP & HP) -->
+                @if ($bannerPpdb->tipe_link === 'popup')
+                    <div class="ppdb-landscape-banner-wrap" onclick="openPPDBModal()"
+                        title="{{ $bannerPpdb->judul }}" style="cursor: pointer;">
+                        <img src="{{ $bannerPpdb->gambar_url }}" alt="{{ $bannerPpdb->judul }}"
+                            class="ppdb-landscape-banner-img" />
+                    </div>
+                @else
+                    <a href="{{ $bannerPpdb->link_url }}" target="_blank" rel="noopener noreferrer"
+                        class="ppdb-landscape-banner-wrap d-block text-decoration-none"
+                        title="{{ $bannerPpdb->judul }}">
+                        <img src="{{ $bannerPpdb->gambar_url }}" alt="{{ $bannerPpdb->judul }}"
+                            class="ppdb-landscape-banner-img" />
+                    </a>
+                @endif
+            @endif
 
-                // Jika Admin mengunggah foto Slide #4 di menu Carousel Banner, otomatis pakai foto tersebut sebagai Banner Iklan PPDB
-                $bannerIklanPpdbUrl =
-                    isset($fotoBanners[3]) && !str_starts_with($fotoBanners[3]->gambar, 'frontend/')
-                        ? $fotoBanners[3]->gambar_url
-                        : $dummyBannerPpdb;
-            @endphp
+            @if ($layananCepats->isNotEmpty())
+                <!-- 2. LAYANAN CEPAT (DINAMIS DARI DATABASE: 6 AKSES UTAMA + SISANYA EXPANDABLE) -->
+                <div class="layanan-cepat-card" id="layanan-cepat">
+                    <div class="layanan-cepat-bg-wave" aria-hidden="true"></div>
+                    <div class="layanan-cepat-header">
+                        <h2 class="layanan-cepat-title">Layanan Cepat</h2>
+                        <p class="layanan-cepat-subtitle">Akses halaman penting website madrasah dengan lebih cepat.</p>
+                    </div>
 
-            <!-- 1. BANNER IKLAN PPDB (FULL LANDSCAPE GAMBAR — SAMA DI LAPTOP & HP) -->
-            <div class="ppdb-landscape-banner-wrap" onclick="openPPDBModal()"
-                title="Klik untuk informasi pendaftaran PPDB MIN 1 Ciamis">
-                <img src="{{ $bannerIklanPpdbUrl }}" alt="Banner Iklan PPDB MIN 1 Ciamis"
-                    class="ppdb-landscape-banner-img" />
-            </div>
+                    <div class="layanan-cepat-grid-custom" id="gridLayananCepat">
+                        @foreach ($layananCepats as $idx => $layanan)
+                            @php
+                                $isExtra = $idx >= 6;
+                            @endphp
+                            <a href="{{ $layanan->link_url }}" target="{{ $layanan->target }}"
+                               @if ($layanan->target === '_blank') rel="noopener noreferrer" @endif
+                               class="layanan-cepat-item {{ $isExtra ? 'lc-extra-item' : '' }}"
+                               title="{{ $layanan->nama_layanan }}">
+                                <div class="lc-icon"><i class="{{ $layanan->icon }}"></i></div>
+                                <span class="lc-label">{{ $layanan->nama_layanan }}</span>
+                            </a>
+                        @endforeach
+                    </div>
 
-            <!-- 2. LAYANAN CEPAT (TAMPIL 6 AKSES UTAMA + TOMBOL LIHAT SELENGKAPNYA) -->
-            <div class="layanan-cepat-card" id="layanan-cepat">
-                <div class="layanan-cepat-bg-wave" aria-hidden="true"></div>
-                <div class="layanan-cepat-header">
-                    <h2 class="layanan-cepat-title">Layanan Cepat</h2>
-                    <p class="layanan-cepat-subtitle">Akses halaman penting website madrasah dengan lebih cepat.</p>
+                    <!-- Tombol Menuju Halaman Lengkap Layanan Cepat -->
+                    <div class="btn-layanan-more-wrap">
+                        <a href="{{ route('layanan-cepat.publik') }}" class="btn-layanan-more"
+                            title="Buka Seluruh Direktori Layanan Cepat MIN 1 Ciamis">
+                            <span>Lihat Selengkapnya ({{ $layananCepats->count() }} Layanan)</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-
-                <div class="layanan-cepat-grid-custom" id="gridLayananCepat">
-                    <!-- 6 AKSES UTAMA (TAMPIL LANGSUNG) -->
-                    <a href="{{ route('presensi.scanner') }}" class="layanan-cepat-item">
-                        <div class="lc-icon"><i class="fas fa-qrcode"></i></div>
-                        <span class="lc-label">Scanner QR Presensi</span>
-                    </a>
-                    <a href="https://emis.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item">
-                        <div class="lc-icon"><i class="fas fa-server"></i></div>
-                        <span class="lc-label">EMIS Madrasah</span>
-                    </a>
-                    <a href="https://rdm.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item">
-                        <div class="lc-icon"><i class="fas fa-file-signature"></i></div>
-                        <span class="lc-label">Rapor Digital (RDM)</span>
-                    </a>
-                    <a href="https://dapo.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item">
-                        <div class="lc-icon"><i class="fas fa-id-card"></i></div>
-                        <span class="lc-label">Dapodik</span>
-                    </a>
-                    <a href="https://vervalpd.data.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item">
-                        <div class="lc-icon"><i class="fas fa-user-check"></i></div>
-                        <span class="lc-label">Verval Peserta Didik</span>
-                    </a>
-                    <a href="https://bos.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item">
-                        <div class="lc-icon"><i class="fas fa-coins"></i></div>
-                        <span class="lc-label">Portal BOS</span>
-                    </a>
-
-                    <!-- AKSES TAMBAHAN (MUNCUL SAAT KLIK LIHAT SELENGKAPNYA) -->
-                    <a href="https://snpmb.bppp.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item lc-extra-item">
-                        <div class="lc-icon"><i class="fas fa-graduation-cap"></i></div>
-                        <span class="lc-label">Portal SNPMB</span>
-                    </a>
-                    <a href="https://pddikti.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item lc-extra-item">
-                        <div class="lc-icon"><i class="fas fa-university"></i></div>
-                        <span class="lc-label">PDDikti</span>
-                    </a>
-                    <a href="https://referensi.data.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item lc-extra-item">
-                        <div class="lc-icon"><i class="fas fa-database"></i></div>
-                        <span class="lc-label">Data Pokok Pendidikan</span>
-                    </a>
-                    <a href="https://simpatika.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item lc-extra-item">
-                        <div class="lc-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                        <span class="lc-label">SIMPATIKA Kemenag</span>
-                    </a>
-                    <a href="https://pusaka.kemenag.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item lc-extra-item">
-                        <div class="lc-icon"><i class="fas fa-mosque"></i></div>
-                        <span class="lc-label">PUSAKA Kemenag</span>
-                    </a>
-                    <a href="https://buku.kemdikbud.go.id/" target="_blank" rel="noopener noreferrer"
-                        class="layanan-cepat-item lc-extra-item">
-                        <div class="lc-icon"><i class="fas fa-book-reader"></i></div>
-                        <span class="lc-label">E-Perpustakaan SIBI</span>
-                    </a>
-                </div>
-
-                <!-- Tombol Lihat Selengkapnya -->
-                <div class="btn-layanan-more-wrap">
-                    <button type="button" class="btn-layanan-more" id="btnToggleLayanan"
-                        onclick="toggleLayananCepat()">
-                        <span id="teksToggleLayanan">Lihat Selengkapnya</span>
-                        <i class="fas fa-chevron-down" id="ikonToggleLayanan"></i>
-                    </button>
-                </div>
-            </div>
+            @endif
 
         </div>
     </section>
+    @endif
 
 
 
@@ -2020,10 +1948,10 @@
                     </div>
 
                     <div class="guru-header-right">
-                        <button type="button" class="guru-view-all-btn" onclick="bukaModalKatalogDuniaIlmu()">
+                        <a href="{{ route('dunia-ilmu.publik') }}" class="guru-view-all-btn">
                             <span>Katalog Lengkap</span>
                             <i class="fas fa-arrow-right"></i>
-                        </button>
+                        </a>
                         <div class="guru-nav-controls">
                             <button type="button" class="guru-nav-btn" id="duniaIlmuPrev" aria-label="Geser ke kiri">
                                 <i class="fas fa-chevron-left"></i>

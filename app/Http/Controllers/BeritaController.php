@@ -135,6 +135,8 @@ class BeritaController extends Controller
             'views' => 1,
         ]);
 
+        HomeController::bersihkanCache();
+
         return redirect()->route('berita.index')->with('success', 'Artikel berita berhasil diterbitkan!');
     }
 
@@ -193,6 +195,8 @@ class BeritaController extends Controller
 
         $berita->update($data);
 
+        HomeController::bersihkanCache();
+
         return redirect()->route('berita.index')->with('success', 'Perubahan artikel "'.$berita->judul.'" berhasil disimpan!');
     }
 
@@ -205,6 +209,8 @@ class BeritaController extends Controller
         }
 
         $berita->delete();
+
+        HomeController::bersihkanCache();
 
         return redirect()->back()->with('success', 'Artikel berita berhasil dihapus!');
     }
@@ -337,7 +343,7 @@ class BeritaController extends Controller
 
         // 3. Prioritas 1: Gunakan Laravel AI SDK Agent (BeritaWriterAgent)
         try {
-            $agent = new \App\Ai\Agents\BeritaWriterAgent();
+            $agent = new BeritaWriterAgent;
             $agentPrompt = "Topik / Poin Kegiatan: {$topik}\nKategori: {$kategori}\nGaya Bahasa: {$nada}";
             $aiOutput = $agent->prompt($agentPrompt);
 

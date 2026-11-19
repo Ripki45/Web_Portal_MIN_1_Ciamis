@@ -19,11 +19,11 @@
             <span>Login</span>
         </a>
     @endauth
-    <a href="{{ route('home') }}#dunia-ilmu" class="mobile-bottom-nav__item" data-section="dunia-ilmu">
+    <a href="{{ route('dunia-ilmu.publik') }}" class="mobile-bottom-nav__item {{ request()->routeIs('dunia-ilmu.publik') ? 'active' : '' }}">
         <i class="fas fa-play-circle"></i>
         <span>Media</span>
     </a>
-    <a href="{{ route('home') }}#layanan" class="mobile-bottom-nav__item" data-section="layanan">
+    <a href="{{ route('layanan-cepat.publik') }}" class="mobile-bottom-nav__item {{ request()->routeIs('layanan-cepat.publik') ? 'active' : '' }}">
         <i class="fas fa-concierge-bell"></i>
         <span>Layanan</span>
     </a>

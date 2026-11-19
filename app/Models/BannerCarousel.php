@@ -54,12 +54,6 @@ class BannerCarousel extends Model
      */
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
-
         if (! Schema::hasTable('banner_carousels')) {
             Schema::create('banner_carousels', function (Blueprint $table) {
                 $table->id();

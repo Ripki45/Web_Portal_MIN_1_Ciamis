@@ -73,11 +73,11 @@
                 <label class="text-sm fw-semibold text-primary-light text-nowrap">Filter Kelas:</label>
                 <select name="kelas_id" class="form-select form-select-sm radius-8 w-auto" onchange="this.form.submit()">
                     <option value="">-- Semua Kelas --</option>
-                    <?php foreach ($kelasList as $kls): ?>
+                    <?php foreach ($kelasList as $kls) { ?>
                         <option value="{{ $kls->id }}" {{ request('kelas_id') == $kls->id ? 'selected' : '' }}>
                             {{ $kls->nama_kelas }}
                         </option>
-                    <?php endforeach; ?>
+                    <?php } ?>
                 </select>
             </form>
 
@@ -108,7 +108,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($siswas as $index => $item): ?>
+                        <?php foreach ($siswas as $index => $item) { ?>
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
@@ -169,7 +169,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
@@ -177,7 +177,7 @@
     </div>
 
     <!-- KUMPULAN MODAL EDIT SISWA -->
-    <?php foreach ($siswas as $item): ?>
+    <?php foreach ($siswas as $item) { ?>
         <div class="modal fade" id="editSiswaModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content radius-16 bg-base">
@@ -201,9 +201,9 @@
                                 <div class="col-md-4">
                                     <label class="form-label fw-semibold text-primary-light text-sm mb-8">Kelas Saat Ini <span class="text-danger-600">*</span></label>
                                     <select name="kelas_id" class="form-select radius-8" required>
-                                        <?php foreach ($kelasList as $kls): ?>
+                                        <?php foreach ($kelasList as $kls) { ?>
                                             <option value="{{ $kls->id }}" {{ $item->kelas_id == $kls->id ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
-                                        <?php endforeach; ?>
+                                        <?php } ?>
                                     </select>
                                 </div>
                                 <div class="col-md-8">
@@ -252,7 +252,7 @@
                 </div>
             </div>
         </div>
-    <?php endforeach; ?>
+    <?php } ?>
 
     <!-- MODAL 1: TAMBAH SISWA MANUAL -->
     <div class="modal fade" id="addSiswaModal" tabindex="-1" aria-hidden="true">
@@ -278,9 +278,9 @@
                                 <label class="form-label fw-semibold text-primary-light text-sm mb-8">Pilih Kelas <span class="text-danger-600">*</span></label>
                                 <select name="kelas_id" class="form-select radius-8" required>
                                     <option value="" disabled selected>-- Pilih Kelas --</option>
-                                    <?php foreach ($kelasList as $kls): ?>
+                                    <?php foreach ($kelasList as $kls) { ?>
                                         <option value="{{ $kls->id }}" {{ request('kelas_id') == $kls->id ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
-                                    <?php endforeach; ?>
+                                    <?php } ?>
                                 </select>
                             </div>
                             <div class="col-md-8">
@@ -351,9 +351,9 @@
                             <label class="form-label fw-semibold text-primary-light text-sm mb-8">Masukkan ke Kelas Mana? <span class="text-danger-600">*</span></label>
                             <select name="kelas_id" class="form-select radius-8" required>
                                 <option value="" disabled selected>-- Pilih Kelas Tujuan --</option>
-                                <?php foreach ($kelasList as $kls): ?>
+                                <?php foreach ($kelasList as $kls) { ?>
                                     <option value="{{ $kls->id }}" {{ request('kelas_id') == $kls->id ? 'selected' : '' }}>{{ $kls->nama_kelas }}</option>
-                                <?php endforeach; ?>
+                                <?php } ?>
                             </select>
                         </div>
 

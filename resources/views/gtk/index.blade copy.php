@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Data Guru & Tendik')
 
@@ -48,7 +48,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($gtks as $index =>$item): ?>
+                        <?php foreach ($gtks as $index => $item) { ?>
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>
@@ -170,20 +170,20 @@
                                                         <label class="form-label fw-semibold text-primary-light text-sm mb-8">Jabatan <span class="text-danger-600">*</span></label>
                                                         <select name="jabatan_id" class="form-select radius-8 select-jabatan" data-target="#posisi_edit_{{ $item->id }}" required>
                                                             <option value="" disabled>-- Pilih Jabatan --</option>
-                                                            <?php foreach ($jabatans as$jab): ?>
+                                                            <?php foreach ($jabatans as $jab) { ?>
                                                                 <option value="{{ $jab->id }}" {{ $item->jabatan_id == $jab->id ? 'selected' : '' }}>{{ $jab->nama_jabatan }}</option>
-                                                            <?php endforeach; ?>
+                                                            <?php } ?>
                                                         </select>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label class="form-label fw-semibold text-primary-light text-sm mb-8">Posisi / Penugasan</label>
                                                         <select name="posisi_id" id="posisi_edit_{{ $item->id }}" class="form-select radius-8">
                                                             <option value="">-- Pilih Posisi --</option>
-                                                            <?php foreach ($posisis as$pos): ?>
+                                                            <?php foreach ($posisis as $pos) { ?>
                                                                 @if ($pos->jabatan_id ==$item->jabatan_id)
                                                                     <option value="{{ $pos->id }}" {{ $item->posisi_id == $pos->id ? 'selected' : '' }}>{{ $pos->nama_posisi }}</option>
                                                                 @endif
-                                                            <?php endforeach; ?>
+                                                            <?php } ?>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -197,7 +197,7 @@
                                 </div>
                             </div>
                             <!-- END MODAL EDIT -->
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
@@ -253,9 +253,9 @@
                                 <label class="form-label fw-semibold text-primary-light text-sm mb-8">Jabatan <span class="text-danger-600">*</span></label>
                                 <select name="jabatan_id" class="form-select radius-8 select-jabatan" data-target="#posisi_add" required>
                                     <option value="" disabled selected>-- Pilih Jabatan --</option>
-                                    <?php foreach ($jabatans as$jab): ?>
+                                    <?php foreach ($jabatans as $jab) { ?>
                                         <option value="{{ $jab->id }}">{{ $jab->nama_jabatan }}</option>
-                                    <?php endforeach; ?>
+                                    <?php } ?>
                                 </select>
                             </div>
                             <div class="col-md-6">

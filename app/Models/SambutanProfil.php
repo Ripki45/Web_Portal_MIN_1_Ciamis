@@ -122,12 +122,6 @@ class SambutanProfil extends Model
 
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
-
         if (! Schema::hasTable('sambutan_profils')) {
             Schema::create('sambutan_profils', function (Blueprint $table) {
                 $table->id();

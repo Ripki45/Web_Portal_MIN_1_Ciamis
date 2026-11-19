@@ -80,12 +80,6 @@ class ProfilMadrasah extends Model
 
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
-
         if (! Schema::hasTable('profil_madrasahs')) {
             Schema::create('profil_madrasahs', function (Blueprint $table) {
                 $table->id();

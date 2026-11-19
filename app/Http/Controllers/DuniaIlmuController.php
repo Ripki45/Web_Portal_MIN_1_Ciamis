@@ -6,9 +6,55 @@ use App\Models\DuniaIlmu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class DuniaIlmuController extends Controller
 {
+    /**
+     * Halaman Publik Direktori & Katalog Dunia Ilmu Interaktif
+     */
+    public function publik(Request $request): View
+    {
+        DuniaIlmu::pastikanTabelSiap();
+
+        $daftarKelas = DuniaIlmu::ambilDaftarKelas();
+        $daftarMapel = DuniaIlmu::ambilDaftarMapel();
+
+        $query = DuniaIlmu::where('is_active', true);
+
+        if ($request->filled('kelas') && $request->kelas !== 'semua') {
+            $query->where('kelas', $request->kelas);
+        }
+
+        if ($request->filled('mapel') && $request->mapel !== 'semua') {
+            $query->where('mapel', $request->mapel);
+        }
+
+        if ($request->filled('tipe') && $request->tipe !== 'semua') {
+            $query->where('tipe_sumber', $request->tipe);
+        }
+
+        if ($request->filled('q')) {
+            $q = trim($request->q);
+            $query->where(function ($sub) use ($q) {
+                $sub->where('judul', 'like', "%{$q}%")
+                    ->orWhere('deskripsi', 'like', "%{$q}%")
+                    ->orWhere('mapel', 'like', "%{$q}%")
+                    ->orWhere('kelas', 'like', "%{$q}%");
+            });
+        }
+
+        $medias = $query->orderBy('urutan', 'asc')->orderBy('id', 'desc')->get();
+        $totalSemua = DuniaIlmu::where('is_active', true)->count();
+
+        return view('frontend.dunia_ilmu', compact(
+            'medias',
+            'daftarKelas',
+            'daftarMapel',
+            'totalSemua'
+        ));
+    }
+
     public function index(Request $request)
     {
         DuniaIlmu::pastikanTabelSiap();

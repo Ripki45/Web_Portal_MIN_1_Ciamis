@@ -161,7 +161,7 @@
             <button type="button" class="btn-player" onclick="layarPenuhAplikasi()" title="Layar Penuh">
                 <i class="fas fa-expand"></i> <span class="d-none-sm">Layar Penuh</span>
             </button>
-            <a href="{{ route('home') }}#dunia-ilmu" class="btn-player"
+            <a href="{{ route('dunia-ilmu.publik') }}" class="btn-player"
                 style="background: #1b9c85; border-color: #1b9c85;">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>

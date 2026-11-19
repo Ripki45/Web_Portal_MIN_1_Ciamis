@@ -12,9 +12,9 @@
                 dikelompokkan berdasarkan <b>Kelas</b> dan <b>Mata Pelajaran</b>
             </span>
         </div>
-        <a href="{{ url('/') }}#dunia-ilmu" target="_blank"
+        <a href="{{ route('dunia-ilmu.publik') }}" target="_blank"
             class="btn btn-primary-600 radius-8 px-16 py-8 text-xs fw-bold d-inline-flex align-items-center gap-2">
-            <i class="ph-bold ph-arrow-square-out text-md"></i> Lihat di Halaman Depan
+            <i class="ph-bold ph-arrow-square-out text-md"></i> Lihat Halaman Publik Dunia Ilmu
         </a>
     </div>
 

@@ -48,12 +48,6 @@ class Halaman extends Model
      */
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
-
         NavMenu::pastikanTabelSiap();
 
         if (! Schema::hasTable('halamans')) {

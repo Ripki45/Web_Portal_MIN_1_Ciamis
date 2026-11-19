@@ -30,37 +30,33 @@ class KategoriBerita extends Model
      */
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
+        if (Schema::hasTable('kategori_beritas')) {
             return;
         }
-        $sudahDicek = true;
 
-        if (! Schema::hasTable('kategori_beritas')) {
-            Schema::create('kategori_beritas', function (Blueprint $table) {
-                $table->id();
-                $table->string('nama_kategori', 80)->unique();
-                $table->string('slug', 100)->unique();
-                $table->string('warna_badge', 20)->default('bg-1'); // bg-1, bg-2, bg-3, bg-5 (Sesuai CSS Magzin)
-                $table->timestamps();
-            });
+        Schema::create('kategori_beritas', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama_kategori', 80)->unique();
+            $table->string('slug', 100)->unique();
+            $table->string('warna_badge', 20)->default('bg-1'); // bg-1, bg-2, bg-3, bg-5 (Sesuai CSS Magzin)
+            $table->timestamps();
+        });
 
-            $kategoriAwal = [
-                ['nama' => 'Kegiatan Siswa',      'warna' => 'bg-3'],
-                ['nama' => 'Prestasi Madrasah',   'warna' => 'bg-2'],
-                ['nama' => 'Inovasi Pendidikan',  'warna' => 'bg-1'],
-                ['nama' => 'Ekstrakurikuler',     'warna' => 'bg-5'],
-                ['nama' => 'Pengumuman Akademik', 'warna' => 'bg-2'],
-                ['nama' => 'Keagamaan & Tahfidz', 'warna' => 'bg-3'],
-            ];
+        $kategoriAwal = [
+            ['nama' => 'Kegiatan Siswa',      'warna' => 'bg-3'],
+            ['nama' => 'Prestasi Madrasah',   'warna' => 'bg-2'],
+            ['nama' => 'Inovasi Pendidikan',  'warna' => 'bg-1'],
+            ['nama' => 'Ekstrakurikuler',     'warna' => 'bg-5'],
+            ['nama' => 'Pengumuman Akademik', 'warna' => 'bg-2'],
+            ['nama' => 'Keagamaan & Tahfidz', 'warna' => 'bg-3'],
+        ];
 
-            foreach ($kategoriAwal as $item) {
-                self::create([
-                    'nama_kategori' => $item['nama'],
-                    'slug' => Str::slug($item['nama']),
-                    'warna_badge' => $item['warna'],
-                ]);
-            }
+        foreach ($kategoriAwal as $item) {
+            self::create([
+                'nama_kategori' => $item['nama'],
+                'slug' => Str::slug($item['nama']),
+                'warna_badge' => $item['warna'],
+            ]);
         }
     }
 }

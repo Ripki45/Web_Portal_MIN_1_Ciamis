@@ -561,17 +561,73 @@
         }
     }
 
-    function openPPDBModal() {
+    @php
+        $footerPpdb = $bannerPpdb ?? \App\Models\BannerPpdb::ambilData();
+        $footerWaClean = !empty($footerPpdb->popup_wa_nomor) ? preg_replace('/[^0-9]/', '', $footerPpdb->popup_wa_nomor) : '';
+        if (str_starts_with($footerWaClean, '0')) {
+            $footerWaClean = '62' . substr($footerWaClean, 1);
+        }
+        $footerWaLink = !empty($footerWaClean) ? 'https://wa.me/' . $footerWaClean . '?text=' . urlencode($footerPpdb->popup_wa_teks ?: 'Halo Panitia PPDB MIN 1 Ciamis') : '';
+    @endphp
+
+    <!-- TEMPLATE KONTEN POPUP MODAL PPDB (DI-RENDER OLEH BLADE AGAR BEBAS DARI ERROR MULTILINE JAVASCRIPT) -->
+    <template id="ppdb-modal-content-template">
+        @if ($footerPpdb->popup_gambar_url)
+            <div style="margin-bottom: 16px; text-align: center;">
+                <img src="{{ $footerPpdb->popup_gambar_url }}" alt="Brosur PPDB"
+                     style="max-width: 100%; max-height: 400px; object-fit: contain; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.12);" />
+            </div>
+        @endif
+
+        <div style="margin-bottom: 14px;">
+            @if (!empty($footerPpdb->popup_badge))
+                <span style="display:inline-block; background: #E0F2FE; color: #0369A1; font-weight: 800; font-size: 0.75rem; padding: 4px 12px; border-radius: 9999px; letter-spacing: 0.5px; margin-bottom: 10px;">
+                    {{ $footerPpdb->popup_badge }}
+                </span>
+            @endif
+            <div style="line-height: 1.7; color: #334155; font-size: 0.94rem; white-space: pre-line;">{!! nl2br(e($footerPpdb->popup_konten)) !!}</div>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
+            @if (!empty($footerPpdb->popup_tombol_url) && $footerPpdb->popup_tombol_url !== '#')
+                <a href="{{ $footerPpdb->popup_tombol_url }}" target="_blank" rel="noopener noreferrer"
+                   style="display: inline-flex; align-items: center; gap: 8px; background: #1B9C85; color: #ffffff; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; text-decoration: none; box-shadow: 0 4px 12px rgba(27,156,133,0.3);">
+                    <i class="fas fa-edit"></i> {{ $footerPpdb->popup_tombol_teks ?: 'Daftar Online Sekarang' }}
+                </a>
+            @endif
+            @if (!empty($footerWaLink))
+                <a href="{{ $footerWaLink }}" target="_blank" rel="noopener noreferrer"
+                   style="display: inline-flex; align-items: center; gap: 8px; background: #25D366; color: #ffffff; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 0.88rem; text-decoration: none; box-shadow: 0 4px 12px rgba(37,211,102,0.3);">
+                    <i class="fab fa-whatsapp"></i> Chat WhatsApp Panitia
+                </a>
+            @endif
+        </div>
+    </template>
+
+    window.openPPDBModal = function() {
         var modal = document.getElementById("general-modal");
         var title = document.getElementById("modal-title");
         var content = document.getElementById("modal-content-area");
-        if (modal && title && content) {
-            title.innerHTML =
-                '<i class="fas fa-user-graduate" style="color:#1B9C85;margin-right:8px;"></i> Informasi & Pendaftaran PPDB MIN 1 Ciamis';
-            content.innerHTML =
-                '<p style="line-height:1.7;">Penerimaan Peserta Didik Baru (PPDB) MIN 1 Ciamis Tahun Ajaran 2026/2027 membuka Jalur Prestasi, Tahfidz, dan Reguler. Silakan hubungi panitia PPDB melalui WhatsApp resmi atau datang langsung ke kampus MIN 1 Ciamis di Jl. Maparah No. 65, Kec. Panjalu.</p>';
+        var tpl = document.getElementById("ppdb-modal-content-template");
+
+        if (modal && title && content && tpl) {
+            title.innerHTML = '<i class="fas fa-user-graduate" style="color:#1B9C85;margin-right:8px;"></i> {!! addslashes(e($footerPpdb->popup_judul)) !!}';
+            content.innerHTML = tpl.innerHTML;
             modal.classList.add("active");
             document.body.style.overflow = "hidden";
         }
-    }
+    };
+
+    @if ($footerPpdb->is_active_popup && $footerPpdb->auto_popup)
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!sessionStorage.getItem("min1_auto_popup_ppdb_seen")) {
+                setTimeout(function() {
+                    if (typeof window.openPPDBModal === 'function') {
+                        window.openPPDBModal();
+                        sessionStorage.setItem("min1_auto_popup_ppdb_seen", "1");
+                    }
+                }, 1000);
+            }
+        });
+    @endif
 </script>

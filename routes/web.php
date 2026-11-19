@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BannerCarouselController;
+use App\Http\Controllers\BannerPpdbController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DuniaIlmuController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\KenaikanKelasController;
 use App\Http\Controllers\KepalaStaffController;
+use App\Http\Controllers\LayananCepatController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\MutasiSiswaController;
 use App\Http\Controllers\NavMenuController;
@@ -41,6 +43,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
 Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])->name('presensi.prosesScan');
 Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])->name('presensi.storeManualDepan');
+
+// Route Halaman Publik Layanan Cepat
+Route::get('/layanan-cepat', [LayananCepatController::class, 'publik'])->name('layanan-cepat.publik');
+Route::get('/layanan', [LayananCepatController::class, 'publik']);
+
+// Route Halaman Publik Dunia Ilmu (Direktori Media Pembelajaran & Aplikasi Edukasi)
+Route::get('/dunia-ilmu', [DuniaIlmuController::class, 'publik'])->name('dunia-ilmu.publik');
+Route::get('/media-pembelajaran', [DuniaIlmuController::class, 'publik']);
 Route::post('/scan-presensi/verifikasi-pin', [PresensiController::class, 'verifikasiPinServer'])
     ->middleware('throttle:5,1')
     ->name('presensi.verifikasiPin');
@@ -145,7 +155,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/sambutan-profil/generate-ai', [SambutanProfilController::class, 'generateAi'])->name('sambutan-profil.generateAi');
 
     // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
-    Route::resource('dunia-ilmu', DuniaIlmuController::class)->except(['create', 'show', 'edit']);
+    Route::resource('dunia-ilmu-admin', DuniaIlmuController::class)->names('dunia-ilmu')->parameters(['dunia-ilmu-admin' => 'id'])->except(['create', 'show', 'edit']);
     // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
     Route::get('/profil-madrasah-admin', [ProfilMadrasahController::class, 'index'])->name('profil-madrasah.index');
     Route::put('/profil-madrasah-admin', [ProfilMadrasahController::class, 'update'])->name('profil-madrasah.update');
@@ -156,6 +166,14 @@ Route::middleware('auth')->group(function () {
     // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
     Route::get('/guru-staff-admin', [GuruStaffController::class, 'index'])->name('guru-staff.index');
     Route::put('/guru-staff-admin', [GuruStaffController::class, 'update'])->name('guru-staff.update');
+
+    // Manajemen Banner PPDB & Popup Modal
+    Route::get('/banner-ppdb', [BannerPpdbController::class, 'index'])->name('banner-ppdb.index');
+    Route::put('/banner-ppdb', [BannerPpdbController::class, 'update'])->name('banner-ppdb.update');
+
+    // Manajemen Layanan Cepat (Quick Access Portal)
+    Route::resource('layanan-cepat-admin', LayananCepatController::class)->names('layanan-cepat')->except(['create', 'show', 'edit']);
+    Route::patch('/layanan-cepat-admin/{id}/toggle-status', [LayananCepatController::class, 'toggleStatus'])->name('layanan-cepat.toggle-status');
 });
 
 require __DIR__.'/auth.php';

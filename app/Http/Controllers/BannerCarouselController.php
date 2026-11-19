@@ -62,6 +62,8 @@ class BannerCarouselController extends Controller
             'is_active' => $request->has('is_active'),
         ]);
 
+        HomeController::bersihkanCache();
+
         return redirect()->back()->with('success', 'Slide Hero "'.$aksaraBesar.'" berhasil ditambahkan!');
     }
 
@@ -109,6 +111,8 @@ class BannerCarouselController extends Controller
 
         $banner->update($data);
 
+        HomeController::bersihkanCache();
+
         return redirect()->back()->with('success', 'Slide #'.$banner->urutan.' ('.$aksaraBesar.') berhasil diperbarui!');
     }
 
@@ -121,6 +125,8 @@ class BannerCarouselController extends Controller
         }
 
         $banner->delete();
+
+        HomeController::bersihkanCache();
 
         return redirect()->back()->with('success', 'Slide Hero Carousel berhasil dihapus!');
     }

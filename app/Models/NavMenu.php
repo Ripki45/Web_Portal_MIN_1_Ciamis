@@ -60,12 +60,6 @@ class NavMenu extends Model
      */
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
-
         if (! Schema::hasTable('nav_menus')) {
             Schema::create('nav_menus', function (Blueprint $table) {
                 $table->id();

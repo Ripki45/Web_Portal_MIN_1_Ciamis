@@ -196,12 +196,6 @@ class DuniaIlmu extends Model
 
     public static function pastikanTabelSiap(): void
     {
-        static $sudahDicek = false;
-        if ($sudahDicek) {
-            return;
-        }
-        $sudahDicek = true;
-
         if (! Schema::hasTable('dunia_ilmus')) {
             Schema::create('dunia_ilmus', function (Blueprint $table) {
                 $table->id();

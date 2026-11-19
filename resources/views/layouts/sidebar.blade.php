@@ -315,6 +315,16 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('banner-ppdb.index') }}">
+                            <i class="ph ph-megaphone-simple"></i><span>Banner &amp; Popup PPDB</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('layanan-cepat.index') }}">
+                            <i class="ph ph-lightning"></i><span>Layanan Cepat</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#"><i class="ph ph-megaphone"></i><span>Pengumuman</span></a>
                     </li>
                     <li>
