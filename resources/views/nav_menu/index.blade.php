@@ -25,6 +25,18 @@
                 ->orderBy('parent_id', 'asc')
                 ->orderBy('urutan', 'asc')
                 ->get();
+
+        // Daftar Halaman Khusus Sistem untuk Dropdown Pintasan
+        $pintasanHalamanKhusus = [
+            '/profil-madrasah'           => ['label' => 'Profil Madrasah',           'info' => '🏛️ Sub-Menu 1: Profil Madrasah (/profil-madrasah)'],
+            '/kepala-madrasah-dan-staff' => ['label' => 'Kepala Madrasah dan Staff', 'info' => '👔 Sub-Menu 2: Kepala Madrasah dan Staff (/kepala-madrasah-dan-staff)'],
+            '/guru-dan-staff'            => ['label' => 'Guru dan Staff',            'info' => '👨‍🏫 Sub-Menu 3: Guru dan Staff (/guru-dan-staff)'],
+            '/#dunia-ilmu'               => ['label' => 'Dunia Ilmu',                'info' => '🧭 Seksi Dunia Ilmu MIN 1 Ciamis (/#dunia-ilmu)'],
+            '/#berita'                   => ['label' => 'Kabar Madrasah',            'info' => '📰 Seksi Berita & Artikel (/#berita)'],
+            '/#prestasi'                 => ['label' => 'Prestasi Siswa',            'info' => '🏆 Seksi Prestasi Siswa (/#prestasi)'],
+            '/#ppdb'                     => ['label' => 'Info PPDB',                 'info' => '🎓 Seksi Banner PPDB (/#ppdb)'],
+            '/presensi/scanner'          => ['label' => 'Scanner Presensi QR',       'info' => '📱 Layar Scanner Presensi QR (/presensi/scanner)'],
+        ];
     @endphp
 
     <!-- Header -->
@@ -37,6 +49,13 @@
             </span>
         </div>
         <div class="d-flex flex-wrap gap-2">
+            @if (Route::has('profil-madrasah.sinkronMenu'))
+                <button type="button"
+                    onclick="document.getElementById('formSinkronProfilNav').submit()"
+                    class="btn btn-success-600 radius-8 px-14 py-8 text-xs fw-bold d-inline-flex align-items-center gap-1">
+                    <i class="ph-bold ph-magic-wand text-md"></i> Susun Otomatis Sub-Menu Profil
+                </button>
+            @endif
             @if (Route::has('halaman.index'))
                 <a href="{{ route('halaman.index') }}"
                     class="btn btn-outline-primary-600 radius-8 px-14 py-8 text-xs fw-bold d-inline-flex align-items-center gap-1">
@@ -49,6 +68,12 @@
             </a>
         </div>
     </div>
+
+    @if (Route::has('profil-madrasah.sinkronMenu'))
+        <form id="formSinkronProfilNav" action="{{ route('profil-madrasah.sinkronMenu') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
+    @endif
 
     <div class="row gy-4">
 
@@ -115,13 +140,32 @@
                             </select>
                         </div>
 
+                        <!-- PINTASAN HALAMAN KHUSUS SISTEM -->
+                        <div class="mb-14 p-12 radius-8 bg-primary-50 border border-primary-200">
+                            <label class="form-label fw-bold text-xs text-primary-600 mb-4 d-block">
+                                ⚡ Pintasan Halaman Khusus Sistem (Opsional):
+                            </label>
+                            <select class="form-select form-select-sm radius-8 fw-semibold"
+                                onchange="terapkanPintasanHalaman(this)">
+                                <option value="">-- Ketik Manual / Pilih Halaman Khusus --</option>
+                                @foreach ($pintasanHalamanKhusus as $urlKhusus => $itemKhusus)
+                                    <option value="{{ $urlKhusus }}" data-label="{{ $itemKhusus['label'] }}">
+                                        {{ $itemKhusus['info'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="text-xs text-secondary-light d-block mt-4">
+                                Jika dipilih, Nama Menu dan Link URL di bawah akan terisi otomatis.
+                            </small>
+                        </div>
+
                         <!-- 2. NAMA MENU -->
                         <div class="mb-14">
                             <label class="form-label fw-bold text-sm mb-6">
                                 2. Nama / Label Menu <span class="text-danger-600">*</span>
                             </label>
                             <input type="text" name="nama_menu" id="inputNamaMenuTambah"
-                                class="form-control radius-8 fw-semibold" placeholder="Contoh: Visi & Misi" required>
+                                class="form-control radius-8 fw-semibold" placeholder="Contoh: Profil Madrasah" required>
                         </div>
 
                         <!-- 3. LINK / URL -->
@@ -131,8 +175,7 @@
                                 class="form-control radius-8 font-monospace text-xs" value="#"
                                 placeholder="Biarkan # jika ingin dibuatkan halaman otomatis">
                             <small class="text-xs text-secondary-light">
-                                Biarkan <code>#</code> lalu klik tombol <b>📄 Isi Halaman</b> di tabel kanan untuk membuat
-                                halaman otomatis.
+                                Biarkan <code>#</code> untuk halaman biasa, atau pilih dari <b>Pintasan Halaman Khusus</b> di atas.
                             </small>
                         </div>
 
@@ -190,8 +233,7 @@
                     <div>
                         <h6 class="text-md fw-bold mb-0">Struktur Hierarki Navbar Saat Ini</h6>
                         <span class="text-xs text-secondary-light">
-                            Klik <b>+ Anak / + Cucu</b> untuk menambah sub-menu, atau klik <b>📄 Isi Halaman</b> untuk
-                            mengisi konten halaman
+                            Klik <b>+ Anak / + Cucu</b> untuk menambah sub-menu, atau klik <b>📄 Isi Halaman / ⚙️ Edit Konten</b> untuk mengelola isinya
                         </span>
                     </div>
                 </div>
@@ -253,11 +295,19 @@
                                                 </button>
 
                                                 @if (!$punyaAnak)
-                                                    <a href="{{ url('/nav-menu/' . $induk->id . '/halaman') }}"
-                                                        class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
-                                                        title="Buat / Edit Isi Halaman untuk Menu {{ $induk->nama_menu }}">
-                                                        📄 Isi Halaman
-                                                    </a>
+                                                    @if ($induk->url === '/profil-madrasah' && Route::has('profil-madrasah.index'))
+                                                        <a href="{{ route('profil-madrasah.index') }}"
+                                                            class="bg-success-focus text-success-main border border-success px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                            title="Kelola Halaman Khusus Profil Madrasah">
+                                                            ⚙️ Edit Profil
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ url('/nav-menu/' . $induk->id . '/halaman') }}"
+                                                            class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                            title="Buat / Edit Isi Halaman untuk Menu {{ $induk->nama_menu }}">
+                                                            📄 Isi Halaman
+                                                        </a>
+                                                    @endif
                                                 @endif
 
                                                 <button type="button"
@@ -312,11 +362,19 @@
                                                     </button>
 
                                                     @if (!$punyaCucu)
-                                                        <a href="{{ url('/nav-menu/' . $anak->id . '/halaman') }}"
-                                                            class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
-                                                            title="Buat / Edit Isi Halaman untuk {{ $anak->nama_menu }}">
-                                                            📄 Isi Halaman
-                                                        </a>
+                                                        @if ($anak->url === '/profil-madrasah' && Route::has('profil-madrasah.index'))
+                                                            <a href="{{ route('profil-madrasah.index') }}"
+                                                                class="bg-success-focus text-success-main border border-success px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                                title="Kelola Halaman Khusus Profil Madrasah">
+                                                                ⚙️ Edit Profil
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ url('/nav-menu/' . $anak->id . '/halaman') }}"
+                                                                class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                                title="Buat / Edit Isi Halaman untuk {{ $anak->nama_menu }}">
+                                                                📄 Isi Halaman
+                                                            </a>
+                                                        @endif
                                                     @endif
 
                                                     <button type="button"
@@ -362,11 +420,19 @@
                                                 <td class="text-center">
                                                     <div
                                                         class="d-flex align-items-center justify-content-center gap-1 flex-nowrap">
-                                                        <a href="{{ url('/nav-menu/' . $cucu->id . '/halaman') }}"
-                                                            class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
-                                                            title="Buat / Edit Isi Halaman untuk {{ $cucu->nama_menu }}">
-                                                            📄 Isi Halaman
-                                                        </a>
+                                                        @if ($cucu->url === '/profil-madrasah' && Route::has('profil-madrasah.index'))
+                                                            <a href="{{ route('profil-madrasah.index') }}"
+                                                                class="bg-success-focus text-success-main border border-success px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                                title="Kelola Halaman Khusus Profil Madrasah">
+                                                                ⚙️ Edit Profil
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ url('/nav-menu/' . $cucu->id . '/halaman') }}"
+                                                                class="bg-info-focus text-info-main border border-info px-8 py-4 rounded-pill text-xs fw-bold text-nowrap"
+                                                                title="Buat / Edit Isi Halaman untuk {{ $cucu->nama_menu }}">
+                                                                📄 Isi Halaman
+                                                            </a>
+                                                        @endif
                                                         <button type="button"
                                                             class="bg-success-focus text-success-600 w-30-px h-30-px rounded-circle d-flex align-items-center justify-content-center border-0 flex-shrink-0"
                                                             data-bs-toggle="modal"
@@ -471,6 +537,23 @@
                                 </select>
                             </div>
 
+                            <!-- PINTASAN HALAMAN KHUSUS DI MODAL EDIT -->
+                            <div class="mb-14 p-12 radius-8 bg-primary-50 border border-primary-200">
+                                <label class="form-label fw-bold text-xs text-primary-600 mb-4 d-block">
+                                    ⚡ Arahkan ke Halaman Khusus Sistem (Opsional):
+                                </label>
+                                <select class="form-select form-select-sm radius-8 fw-semibold"
+                                    onchange="terapkanPintasanHalaman(this)">
+                                    <option value="">-- Biarkan Link Saat Ini / Pilih Halaman Khusus --</option>
+                                    @foreach ($pintasanHalamanKhusus as $urlKhusus => $itemKhusus)
+                                        <option value="{{ $urlKhusus }}" data-label="{{ $itemKhusus['label'] }}"
+                                            {{ $item->url === $urlKhusus ? 'selected' : '' }}>
+                                            {{ $itemKhusus['info'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             <div class="mb-14">
                                 <label class="form-label fw-bold text-sm mb-6">Nama Menu <span
                                         class="text-danger-600">*</span></label>
@@ -536,6 +619,24 @@
 
 @push('scripts')
     <script>
+        function terapkanPintasanHalaman(selectEl) {
+            if (!selectEl.value) return;
+            const form = selectEl.closest('form');
+            if (!form) return;
+
+            const urlInput = form.querySelector('[name="url"]');
+            const namaInput = form.querySelector('[name="nama_menu"]');
+            const selectedOption = selectEl.options[selectEl.selectedIndex];
+            const labelOtomatis = selectedOption ? selectedOption.getAttribute('data-label') : '';
+
+            if (urlInput) {
+                urlInput.value = selectEl.value;
+            }
+            if (namaInput && (!namaInput.value.trim() || form.id === 'formTambahMenu')) {
+                namaInput.value = labelOtomatis;
+            }
+        }
+
         function aturTampilanIndukTambah() {
             const level = document.getElementById('selectLevelTambah').value;
             const boxInduk = document.getElementById('boxPilihIndukTambah');

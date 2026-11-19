@@ -20,6 +20,7 @@ class Mapel extends Model
         if (Schema::hasTable('mata_pelajarans')) {
             return 'mata_pelajarans';
         }
+
         return parent::getTable();
     }
 

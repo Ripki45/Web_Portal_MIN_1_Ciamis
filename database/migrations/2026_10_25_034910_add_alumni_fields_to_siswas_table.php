@@ -12,10 +12,10 @@ return new class extends Migration
             // Ubah kelas_id agar boleh kosong (NULL) saat siswa sudah Lulus menjadi Alumni
             $table->foreignId('kelas_id')->nullable()->change();
 
-            if (!Schema::hasColumn('siswas', 'kelas_terakhir')) {
+            if (! Schema::hasColumn('siswas', 'kelas_terakhir')) {
                 $table->string('kelas_terakhir', 50)->nullable()->after('status');
             }
-            if (!Schema::hasColumn('siswas', 'tahun_lulus')) {
+            if (! Schema::hasColumn('siswas', 'tahun_lulus')) {
                 $table->string('tahun_lulus', 30)->nullable()->after('kelas_terakhir');
             }
         });

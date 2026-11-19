@@ -40,16 +40,16 @@ class DuniaIlmu extends Model
     public static function daftarGradasi(): array
     {
         return [
-            'dunia-grad-quran'     => '🟢 Hijau Zamrud & Emas (Al-Qur\'an / PAI)',
-            'dunia-grad-phet'      => '🔵 Biru Langit Sains (Matematika / IPAS)',
-            'dunia-grad-perpus'    => '🟠 Oranye Hangat (Bahasa / Literasi)',
-            'dunia-grad-wordwall'  => '🔴 Merah Muda Ceria (PJOK / Game)',
-            'dunia-grad-kamus'     => '🟣 Ungu Royal (Bahasa Arab / Inggris)',
+            'dunia-grad-quran' => '🟢 Hijau Zamrud & Emas (Al-Qur\'an / PAI)',
+            'dunia-grad-phet' => '🔵 Biru Langit Sains (Matematika / IPAS)',
+            'dunia-grad-perpus' => '🟠 Oranye Hangat (Bahasa / Literasi)',
+            'dunia-grad-wordwall' => '🔴 Merah Muda Ceria (PJOK / Game)',
+            'dunia-grad-kamus' => '🟣 Ungu Royal (Bahasa Arab / Inggris)',
             'dunia-grad-elearning' => '🔷 Biru Indigo (TIK / Informatika)',
-            'dunia-grad-video'     => '📕 Merah Maroon (Video / Seni Budaya)',
-            'dunia-grad-quizizz'   => '🔮 Ungu Muda (Kuis Interaktif)',
-            'dunia-grad-hadits'    => '🌿 Hijau Daun (Akidah / Fikih)',
-            'dunia-grad-belajar'   => '🟡 Kuning Amber (Tematik / Umum)',
+            'dunia-grad-video' => '📕 Merah Maroon (Video / Seni Budaya)',
+            'dunia-grad-quizizz' => '🔮 Ungu Muda (Kuis Interaktif)',
+            'dunia-grad-hadits' => '🌿 Hijau Daun (Akidah / Fikih)',
+            'dunia-grad-belajar' => '🟡 Kuning Amber (Tematik / Umum)',
         ];
     }
 
@@ -70,7 +70,7 @@ class DuniaIlmu extends Model
                     ?? $row->kode_kelas
                     ?? null;
 
-                if (!empty($nama)) {
+                if (! empty($nama)) {
                     $daftar[] = trim((string) $nama);
                 }
             }
@@ -79,7 +79,7 @@ class DuniaIlmu extends Model
         // Jika tabel kelas masih kosong, sediakan tingkat kelas default MI
         if (count($daftar) <= 1) {
             $daftar = array_merge($daftar, [
-                'Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6'
+                'Kelas 1', 'Kelas 2', 'Kelas 3', 'Kelas 4', 'Kelas 5', 'Kelas 6',
             ]);
         }
 
@@ -130,7 +130,7 @@ class DuniaIlmu extends Model
                 DB::table('mapels')->insert([
                     'kode_mapel' => $m['kode'],
                     'nama_mapel' => $m['nama'],
-                    'kelompok'   => $m['kelompok'],
+                    'kelompok' => $m['kelompok'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -140,7 +140,7 @@ class DuniaIlmu extends Model
         }
 
         $daftar = [];
-        $rows   = DB::table($namaTabel)->orderBy('id', 'asc')->get();
+        $rows = DB::table($namaTabel)->orderBy('id', 'asc')->get();
         foreach ($rows as $row) {
             $nama = $row->nama_mapel
                 ?? $row->nama
@@ -148,7 +148,7 @@ class DuniaIlmu extends Model
                 ?? $row->mapel
                 ?? null;
 
-            if (!empty($nama)) {
+            if (! empty($nama)) {
                 $daftar[] = trim((string) $nama);
             }
         }
@@ -157,7 +157,7 @@ class DuniaIlmu extends Model
             $daftar = [
                 'PJOK (Olahraga)', 'Matematika', 'IPAS (Sains & Sosial)',
                 'Bahasa Indonesia', 'Al-Qur\'an Hadits', 'Akidah Akhlak',
-                'Fikih', 'Bahasa Arab', 'Bahasa Inggris', 'TIK / Informatika'
+                'Fikih', 'Bahasa Arab', 'Bahasa Inggris', 'TIK / Informatika',
             ];
         }
 
@@ -174,6 +174,7 @@ class DuniaIlmu extends Model
         if ($this->tipe_sumber === 'kode_interaktif') {
             return route('dunia-ilmu.play', $this->slug);
         }
+
         return $this->link_eksternal ?: '#';
     }
 
@@ -182,12 +183,14 @@ class DuniaIlmu extends Model
      */
     public function getGambarUrlAttribute(): string
     {
-        if (!empty($this->gambar)) {
+        if (! empty($this->gambar)) {
             if (str_starts_with($this->gambar, 'frontend/') or str_starts_with($this->gambar, 'backend/') or str_starts_with($this->gambar, 'http')) {
                 return asset($this->gambar);
             }
-            return asset('storage/' . $this->gambar);
+
+            return asset('storage/'.$this->gambar);
         }
+
         return asset('backend/assets/images/icon_min.png');
     }
 
@@ -199,7 +202,7 @@ class DuniaIlmu extends Model
         }
         $sudahDicek = true;
 
-        if (!Schema::hasTable('dunia_ilmus')) {
+        if (! Schema::hasTable('dunia_ilmus')) {
             Schema::create('dunia_ilmus', function (Blueprint $table) {
                 $table->id();
                 $table->string('judul', 160);
@@ -222,12 +225,12 @@ class DuniaIlmu extends Model
             });
         } else {
             // Jika tabel sudah ada dari langkah sebelumnya, tambahkan kolom kelas & mapel tanpa menghapus data!
-            if (!Schema::hasColumn('dunia_ilmus', 'kelas')) {
+            if (! Schema::hasColumn('dunia_ilmus', 'kelas')) {
                 Schema::table('dunia_ilmus', function (Blueprint $table) {
                     $table->string('kelas', 80)->default('Semua Kelas')->after('slug');
                 });
             }
-            if (!Schema::hasColumn('dunia_ilmus', 'mapel')) {
+            if (! Schema::hasColumn('dunia_ilmus', 'mapel')) {
                 Schema::table('dunia_ilmus', function (Blueprint $table) {
                     $table->string('mapel', 120)->default('PJOK (Olahraga)')->after('kelas');
                 });

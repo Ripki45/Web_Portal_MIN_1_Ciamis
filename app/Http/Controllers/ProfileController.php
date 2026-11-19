@@ -20,7 +20,7 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         $user = $request->user()->load(['gtk.jabatan', 'gtk.posisi']);
-        $gtk  = $user->gtk;
+        $gtk = $user->gtk;
 
         return view('profile.edit', compact('user', 'gtk'));
     }
@@ -31,30 +31,30 @@ class ProfileController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
-        $gtk  = $user->gtk;
+        $gtk = $user->gtk;
 
         // Validasi langsung menunjuk ke tabel 'users' agar tidak error
         $request->validate([
-            'nama_lengkap'  => ['required', 'string', 'max:150'],
-            'email'         => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'nomor_induk'   => ['nullable', 'string', 'max:50'],
+            'nama_lengkap' => ['required', 'string', 'max:150'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'nomor_induk' => ['nullable', 'string', 'max:50'],
             'jenis_kelamin' => ['nullable', 'in:L,P'],
-            'no_hp'         => ['nullable', 'string', 'max:20'],
-            'foto'          => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'no_hp' => ['nullable', 'string', 'max:20'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         // 1. Update Nama & Email di tabel users
         $user->update([
-            'name'  => $request->nama_lengkap,
+            'name' => $request->nama_lengkap,
             'email' => $request->email,
         ]);
 
         // 2. Siapkan data untuk disimpan ke tabel gtks
         $dataGtk = [
-            'nama_lengkap'       => $request->nama_lengkap,
-            'nomor_induk'        => $request->nomor_induk,
-            'jenis_kelamin'      => $request->jenis_kelamin ?? ($gtk->jenis_kelamin ?? 'L'),
-            'no_hp'              => $request->no_hp,
+            'nama_lengkap' => $request->nama_lengkap,
+            'nomor_induk' => $request->nomor_induk,
+            'jenis_kelamin' => $request->jenis_kelamin ?? ($gtk->jenis_kelamin ?? 'L'),
+            'no_hp' => $request->no_hp,
             'status_kepegawaian' => $gtk->status_kepegawaian ?? 'PNS',
         ];
 

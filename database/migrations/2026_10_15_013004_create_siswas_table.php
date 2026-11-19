@@ -15,23 +15,23 @@ return new class extends Migration
             $table->id();
             // Relasi ke tabel kelas (rombel aktif saat ini)
             $table->foreignId('kelas_id')->nullable()->constrained('kelas')->onDelete('set null');
-            
+
             // Identitas Nomor & Nama
             $table->string('nomor_induk', 30)->nullable();
             $table->string('nisn', 20)->nullable();
             $table->string('nama_siswa', 150);
             $table->enum('jenis_kelamin', ['L', 'P']);
-            
+
             // Kelahiran
             $table->string('tempat_lahir', 100)->nullable();
             $table->date('tanggal_lahir')->nullable();
-            
+
             // Data Orang Tua
             $table->string('nama_ayah', 150)->nullable();
             $table->string('nama_ibu', 150)->nullable();
             $table->text('alamat_ortu')->nullable();
             $table->string('pekerjaan_ortu', 100)->nullable();
-            
+
             // Status Akademik Siswa
             $table->enum('status', ['Aktif', 'Mutasi Keluar', 'Lulus'])->default('Aktif');
             $table->timestamps();

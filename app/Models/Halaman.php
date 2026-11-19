@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
 
 class Halaman extends Model
 {
@@ -40,7 +39,8 @@ class Halaman extends Model
     {
         $jumlahKata = str_word_count(strip_tags((string) $this->isi_konten));
         $menit = max(1, (int) ceil($jumlahKata / 180));
-        return $menit . ' menit baca';
+
+        return $menit.' menit baca';
     }
 
     /**
@@ -56,7 +56,7 @@ class Halaman extends Model
 
         NavMenu::pastikanTabelSiap();
 
-        if (!Schema::hasTable('halamans')) {
+        if (! Schema::hasTable('halamans')) {
             Schema::create('halamans', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('nav_menu_id')->nullable();
@@ -78,21 +78,21 @@ class Halaman extends Model
             $menuVisiMisi = NavMenu::firstOrCreate(
                 ['nama_menu' => 'Visi & Misi', 'parent_id' => $indukProfil->id ?? null],
                 [
-                    'url'       => '/halaman/visi-misi',
-                    'level'     => $indukProfil ? 2 : 1,
-                    'urutan'    => 1,
-                    'target'    => '_self',
+                    'url' => '/halaman/visi-misi',
+                    'level' => $indukProfil ? 2 : 1,
+                    'urutan' => 1,
+                    'target' => '_self',
                     'is_active' => true,
                 ]
             );
 
             self::create([
                 'nav_menu_id' => $menuVisiMisi->id,
-                'judul'       => 'Visi, Misi, dan Tujuan MIN 1 Ciamis',
-                'slug'        => 'visi-misi',
-                'kategori'    => 'Profil Madrasah',
-                'kutipan'     => 'Terwujudnya Peserta Didik yang Beriman, Berakhlak Mulia, Unggul dalam Prestasi Akademik maupun Non-Akademik, serta Berwawasan Lingkungan dan Digital.',
-                'isi_konten'  => '
+                'judul' => 'Visi, Misi, dan Tujuan MIN 1 Ciamis',
+                'slug' => 'visi-misi',
+                'kategori' => 'Profil Madrasah',
+                'kutipan' => 'Terwujudnya Peserta Didik yang Beriman, Berakhlak Mulia, Unggul dalam Prestasi Akademik maupun Non-Akademik, serta Berwawasan Lingkungan dan Digital.',
+                'isi_konten' => '
                     <h4>Misi MIN 1 Ciamis</h4>
                     <p>Untuk mewujudkan visi madrasah tersebut, MIN 1 Ciamis menyelenggarakan misi pendidikan sebagai berikut:</p>
                     <ul>
@@ -104,9 +104,9 @@ class Halaman extends Model
                     <h4>Tujuan Pendidikan Madrasah</h4>
                     <p>Menghasilkan lulusan madrasah ibtidaiyah yang hafal juz amma, terampil berbahasa dan berhitung, menguasai dasar teknologi digital, serta siap melanjutkan pendidikan ke jenjang yang lebih tinggi dengan karakter yang tangguh.</p>
                 ',
-                'penulis'     => 'Tim Kurikulum & Humas',
-                'views'       => 48,
-                'is_active'   => true,
+                'penulis' => 'Tim Kurikulum & Humas',
+                'views' => 48,
+                'is_active' => true,
             ]);
         }
     }

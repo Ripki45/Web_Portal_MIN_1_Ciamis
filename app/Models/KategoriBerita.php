@@ -36,7 +36,7 @@ class KategoriBerita extends Model
         }
         $sudahDicek = true;
 
-        if (!Schema::hasTable('kategori_beritas')) {
+        if (! Schema::hasTable('kategori_beritas')) {
             Schema::create('kategori_beritas', function (Blueprint $table) {
                 $table->id();
                 $table->string('nama_kategori', 80)->unique();
@@ -57,8 +57,8 @@ class KategoriBerita extends Model
             foreach ($kategoriAwal as $item) {
                 self::create([
                     'nama_kategori' => $item['nama'],
-                    'slug'          => Str::slug($item['nama']),
-                    'warna_badge'   => $item['warna'],
+                    'slug' => Str::slug($item['nama']),
+                    'warna_badge' => $item['warna'],
                 ]);
             }
         }

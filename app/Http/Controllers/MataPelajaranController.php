@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MataPelajaran;
-use App\Models\Kelas;
 use App\Models\Gtk;
+use App\Models\Kelas;
 use App\Models\KelasMapel;
+use App\Models\MataPelajaran;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 
 class MataPelajaranController extends Controller
 {
@@ -17,17 +17,17 @@ class MataPelajaranController extends Controller
      */
     private function pastikanKolomMapelLengkap()
     {
-        if (!Schema::hasColumn('mata_pelajarans', 'kelompok')) {
+        if (! Schema::hasColumn('mata_pelajarans', 'kelompok')) {
             Schema::table('mata_pelajarans', function (Blueprint $table) {
                 $table->string('kelompok', 100)->default('Wajib / Umum')->nullable();
             });
         }
-        if (!Schema::hasColumn('mata_pelajarans', 'tingkat')) {
+        if (! Schema::hasColumn('mata_pelajarans', 'tingkat')) {
             Schema::table('mata_pelajarans', function (Blueprint $table) {
                 $table->string('tingkat', 50)->default('Semua Tingkat (1-6)')->nullable();
             });
         }
-        if (!Schema::hasColumn('mata_pelajarans', 'kkm')) {
+        if (! Schema::hasColumn('mata_pelajarans', 'kkm')) {
             Schema::table('mata_pelajarans', function (Blueprint $table) {
                 $table->integer('kkm')->default(75)->nullable();
             });
@@ -62,21 +62,21 @@ class MataPelajaranController extends Controller
         $request->validate([
             'kode_mapel' => 'required|string|max:30|unique:mata_pelajarans,kode_mapel',
             'nama_mapel' => 'required|string|max:150',
-            'kelompok'   => 'nullable|string|max:100',
-            'tingkat'    => 'nullable|string|max:50',
-            'gtk_id'     => 'nullable|exists:gtks,id',
-            'kelas_ids'  => 'nullable|array',
+            'kelompok' => 'nullable|string|max:100',
+            'tingkat' => 'nullable|string|max:50',
+            'gtk_id' => 'nullable|exists:gtks,id',
+            'kelas_ids' => 'nullable|array',
         ], [
             'kode_mapel.unique' => 'Kode Mata Pelajaran ini sudah digunakan, gunakan kode lain!',
         ]);
 
         // 1. Simpan Mata Pelajaran Baru ke Tabel Master
-        $mapel = new MataPelajaran();
+        $mapel = new MataPelajaran;
         $mapel->kode_mapel = strtoupper(trim($request->kode_mapel));
         $mapel->nama_mapel = trim($request->nama_mapel);
-        $mapel->kelompok   = $request->kelompok ?: 'Wajib / Umum';
-        $mapel->tingkat    = $request->tingkat ?: 'Semua Tingkat (1-6)';
-        $mapel->kkm        = $request->kkm ?: 75;
+        $mapel->kelompok = $request->kelompok ?: 'Wajib / Umum';
+        $mapel->tingkat = $request->tingkat ?: 'Semua Tingkat (1-6)';
+        $mapel->kkm = $request->kkm ?: 75;
         $mapel->save();
 
         // 2. Jika sekaligus memilih Kelas (dan Guru), langsung hubungkan otomatis!
@@ -89,7 +89,7 @@ class MataPelajaranController extends Controller
 
                 KelasMapel::updateOrCreate(
                     ['kelas_id' => $klsId, 'mapel_id' => $mapel->id],
-                    ['gtk_id'   => $guruId]
+                    ['gtk_id' => $guruId]
                 );
                 $jmlKelas++;
             }
@@ -110,16 +110,16 @@ class MataPelajaranController extends Controller
         $mapel = MataPelajaran::findOrFail($id);
 
         $request->validate([
-            'kode_mapel' => 'required|string|max:30|unique:mata_pelajarans,kode_mapel,' . $mapel->id,
+            'kode_mapel' => 'required|string|max:30|unique:mata_pelajarans,kode_mapel,'.$mapel->id,
             'nama_mapel' => 'required|string|max:150',
-            'kelompok'   => 'nullable|string|max:100',
-            'tingkat'    => 'nullable|string|max:50',
+            'kelompok' => 'nullable|string|max:100',
+            'tingkat' => 'nullable|string|max:50',
         ]);
 
         $mapel->kode_mapel = strtoupper(trim($request->kode_mapel));
         $mapel->nama_mapel = trim($request->nama_mapel);
-        $mapel->kelompok   = $request->kelompok ?: 'Wajib / Umum';
-        $mapel->tingkat    = $request->tingkat ?: 'Semua Tingkat (1-6)';
+        $mapel->kelompok = $request->kelompok ?: 'Wajib / Umum';
+        $mapel->tingkat = $request->tingkat ?: 'Semua Tingkat (1-6)';
         $mapel->save();
 
         return redirect()->back()->with('success', 'Data Mata Pelajaran berhasil diperbarui!');
@@ -142,6 +142,6 @@ class MataPelajaranController extends Controller
 
         MataPelajaran::whereIn('id', $ids)->delete();
 
-        return redirect()->back()->with('success', count($ids) . ' Mata Pelajaran terpilih berhasil dihapus!');
+        return redirect()->back()->with('success', count($ids).' Mata Pelajaran terpilih berhasil dihapus!');
     }
 }

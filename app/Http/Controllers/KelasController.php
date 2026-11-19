@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kelas;
 use App\Models\Gtk;
-use App\Models\MataPelajaran;
+use App\Models\Kelas;
 use App\Models\KelasMapel;
+use App\Models\MataPelajaran;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 
@@ -16,8 +16,8 @@ class KelasController extends Controller
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
 
         $kelasList = Kelas::with(['waliKelas', 'siswas' => function ($q) {
-                $q->where('status', 'Aktif');
-            }, 'kelasMapels.mapel', 'kelasMapels.guru'])
+            $q->where('status', 'Aktif');
+        }, 'kelasMapels.mapel', 'kelasMapels.guru'])
             ->orderBy('tingkat', 'asc')
             ->orderBy('nama_kelas', 'asc')
             ->get();
@@ -37,11 +37,11 @@ class KelasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tingkat'       => 'required|integer|min:1|max:6',
-            'nama_kelas'    => 'required|string|max:50',
+            'tingkat' => 'required|integer|min:1|max:6',
+            'nama_kelas' => 'required|string|max:50',
             'wali_kelas_id' => 'nullable|exists:gtks,id',
-            'ruangan'       => 'nullable|string|max:100',
-            'kapasitas'     => 'required|integer|min:1|max:100',
+            'ruangan' => 'nullable|string|max:100',
+            'kapasitas' => 'required|integer|min:1|max:100',
         ]);
 
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
@@ -49,16 +49,16 @@ class KelasController extends Controller
         // Cegah nama kelas ganda
         $cekGanda = Kelas::where('nama_kelas', trim($request->nama_kelas))->first();
         if ($cekGanda) {
-            return redirect()->back()->with('error', 'Rombel ' . $request->nama_kelas . ' sudah terdaftar!');
+            return redirect()->back()->with('error', 'Rombel '.$request->nama_kelas.' sudah terdaftar!');
         }
 
         Kelas::create([
             'tahun_ajaran_id' => $tahunAktif->id ?? null,
-            'tingkat'         => $request->tingkat,
-            'nama_kelas'      => trim($request->nama_kelas),
-            'wali_kelas_id'   => $request->wali_kelas_id,
-            'ruangan'         => $request->ruangan,
-            'kapasitas'       => $request->kapasitas,
+            'tingkat' => $request->tingkat,
+            'nama_kelas' => trim($request->nama_kelas),
+            'wali_kelas_id' => $request->wali_kelas_id,
+            'ruangan' => $request->ruangan,
+            'kapasitas' => $request->kapasitas,
         ]);
 
         return redirect()->back()->with('success', 'Rombel / Kelas baru berhasil ditambahkan!');
@@ -69,22 +69,22 @@ class KelasController extends Controller
         $kelas = Kelas::findOrFail($id);
 
         $request->validate([
-            'tingkat'       => 'required|integer|min:1|max:6',
-            'nama_kelas'    => 'required|string|max:50',
+            'tingkat' => 'required|integer|min:1|max:6',
+            'nama_kelas' => 'required|string|max:50',
             'wali_kelas_id' => 'nullable|exists:gtks,id',
-            'ruangan'       => 'nullable|string|max:100',
-            'kapasitas'     => 'required|integer|min:1|max:100',
+            'ruangan' => 'nullable|string|max:100',
+            'kapasitas' => 'required|integer|min:1|max:100',
         ]);
 
         $kelas->update([
-            'tingkat'       => $request->tingkat,
-            'nama_kelas'    => trim($request->nama_kelas),
+            'tingkat' => $request->tingkat,
+            'nama_kelas' => trim($request->nama_kelas),
             'wali_kelas_id' => $request->wali_kelas_id,
-            'ruangan'       => $request->ruangan,
-            'kapasitas'     => $request->kapasitas,
+            'ruangan' => $request->ruangan,
+            'kapasitas' => $request->kapasitas,
         ]);
 
-        return redirect()->back()->with('success', 'Data Kelas ' . $kelas->nama_kelas . ' berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Data Kelas '.$kelas->nama_kelas.' berhasil diperbarui!');
     }
 
     public function destroy($id)
@@ -95,16 +95,16 @@ class KelasController extends Controller
         return redirect()->back()->with('success', 'Data Kelas berhasil dihapus!');
     }
 
-   /**
+    /**
      * PLOTTING BANYAK MATA PELAJARAN & BANYAK KELAS SEKALIGUS (1 KALI KLIK SIMPAN)
      */
     public function storePlottingMapel(Request $request)
     {
         $request->validate([
-            'gtk_id'      => 'required|exists:gtks,id',
-            'mapel_ids'   => 'required|array|min:1',
+            'gtk_id' => 'required|exists:gtks,id',
+            'mapel_ids' => 'required|array|min:1',
             'mapel_ids.*' => 'exists:mata_pelajarans,id',
-            'kelas_ids'   => 'required|array|min:1',
+            'kelas_ids' => 'required|array|min:1',
             'kelas_ids.*' => 'exists:kelas,id',
         ], [
             'mapel_ids.required' => 'Pilih (ceklis) minimal 1 Mata Pelajaran pada tabel!',
@@ -122,7 +122,7 @@ class KelasController extends Controller
                         'mapel_id' => $mpId,
                     ],
                     [
-                        'gtk_id'   => $request->gtk_id,
+                        'gtk_id' => $request->gtk_id,
                     ]
                 );
                 $totalTersimpan++;
@@ -151,11 +151,11 @@ class KelasController extends Controller
                 $q->where('status', 'Aktif')->orderBy('nama_siswa', 'asc');
             },
             'kelasMapels.mapel',
-            'kelasMapels.guru'
+            'kelasMapels.guru',
         ])->findOrFail($id);
 
-        $gtks      = Gtk::with(['jabatan', 'posisi'])->orderBy('nama_lengkap', 'asc')->get();
-        $mapels    = MataPelajaran::orderBy('id', 'asc')->get();
+        $gtks = Gtk::with(['jabatan', 'posisi'])->orderBy('nama_lengkap', 'asc')->get();
+        $mapels = MataPelajaran::orderBy('id', 'asc')->get();
         $kelasList = Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
 
         $totalL = $kelas->siswas->where('jenis_kelamin', 'L')->count();
@@ -181,6 +181,6 @@ class KelasController extends Controller
 
         KelasMapel::whereIn('id', $ids)->delete();
 
-        return redirect()->back()->with('success', count($ids) . ' Mata pelajaran terpilih berhasil dihapus dari kelas!');
+        return redirect()->back()->with('success', count($ids).' Mata pelajaran terpilih berhasil dihapus dari kelas!');
     }
 }

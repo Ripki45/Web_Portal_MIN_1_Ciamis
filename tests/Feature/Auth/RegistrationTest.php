@@ -1,12 +1,12 @@
 <?php
 
-test('registration screen can be rendered', function () {
+test('registration screen cannot be accessed because public registration is disabled', function () {
     $response = $this->get('/register');
 
-    $response->assertStatus(200);
+    $response->assertStatus(404);
 });
 
-test('new users can register', function () {
+test('new users cannot register via public endpoint', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -14,6 +14,6 @@ test('new users can register', function () {
         'password_confirmation' => 'password',
     ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertStatus(404);
+    $this->assertGuest();
 });

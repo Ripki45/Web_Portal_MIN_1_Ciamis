@@ -13,8 +13,8 @@ class DuniaIlmuController extends Controller
     {
         DuniaIlmu::pastikanTabelSiap();
 
-        $daftarKelas   = DuniaIlmu::ambilDaftarKelas();
-        $daftarMapel   = DuniaIlmu::ambilDaftarMapel();
+        $daftarKelas = DuniaIlmu::ambilDaftarKelas();
+        $daftarMapel = DuniaIlmu::ambilDaftarMapel();
         $daftarGradasi = DuniaIlmu::daftarGradasi();
 
         $query = DuniaIlmu::query();
@@ -36,34 +36,42 @@ class DuniaIlmuController extends Controller
         DuniaIlmu::pastikanTabelSiap();
 
         $request->validate([
-            'judul'          => ['required', 'string', 'max:160'],
-            'kelas'          => ['required', 'string', 'max:80'],
-            'mapel'          => ['required', 'string', 'max:120'],
-            'warna_gradasi'  => ['required', 'string', 'max:50'],
-            'tipe_sumber'    => ['required', 'in:link,kode_interaktif'],
+            'judul' => ['required', 'string', 'max:160'],
+            'kelas' => ['required', 'string', 'max:80'],
+            'mapel' => ['required', 'string', 'max:120'],
+            'warna_gradasi' => ['required', 'string', 'max:50'],
+            'tipe_sumber' => ['required', 'in:link,kode_interaktif'],
             'link_eksternal' => ['nullable', 'string', 'max:255'],
-            'isi_kode'       => ['nullable', 'string'],
-            'deskripsi'      => ['nullable', 'string', 'max:600'],
-            'urutan'         => ['required', 'integer', 'min:1'],
-            'gambar'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'isi_kode' => ['nullable', 'string'],
+            'deskripsi' => ['nullable', 'string', 'max:600'],
+            'urutan' => ['required', 'integer', 'min:1'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'file_kode' => ['nullable', 'file', 'extensions:txt,tsx,jsx,js,html,htm', 'max:5120'],
+        ], [
+            'file_kode.extensions' => 'Berkas aplikasi hanya boleh berekstensi .tsx, .jsx, .js, .html, atau .txt!',
+            'file_kode.max' => 'Ukuran berkas kode aplikasi maksimal 5 MB!',
         ]);
 
-        $baseSlug = Str::slug($request->judul) ?: 'media-' . time();
-        $slug     = $baseSlug;
-        $counter  = 1;
+        $baseSlug = Str::slug($request->judul) ?: 'media-'.time();
+        $slug = $baseSlug;
+        $counter = 1;
         while (DuniaIlmu::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter++;
+            $slug = $baseSlug.'-'.$counter++;
         }
 
-        $isiKode      = $request->input('isi_kode');
+        $isiKode = $request->input('isi_kode');
         $namaFileKode = null;
 
         if ($request->hasFile('file_kode')) {
-            $file         = $request->file('file_kode');
+            $file = $request->file('file_kode');
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (in_array($ext, ['php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phps', 'cgi', 'pl', 'py', 'sh', 'exe', 'bat', 'cmd'], true)) {
+                return redirect()->back()->withInput()->with('error', 'Ekstensi berkas berbahaya ditolak demi keamanan server!');
+            }
             $namaFileKode = $file->getClientOriginalName();
-            $isiKode      = file_get_contents($file->getRealPath());
-        } elseif (!empty($isiKode)) {
-            $namaFileKode = $slug . '.tsx';
+            $isiKode = file_get_contents($file->getRealPath());
+        } elseif (! empty($isiKode)) {
+            $namaFileKode = $slug.'.tsx';
         }
 
         if ($request->tipe_sumber === 'kode_interaktif' && empty(trim((string) $isiKode))) {
@@ -77,28 +85,28 @@ class DuniaIlmuController extends Controller
 
         $kelasBersih = strip_tags(trim($request->kelas));
         $mapelBersih = strip_tags(trim($request->mapel));
-        $labelKartu  = $mapelBersih . ' • ' . $kelasBersih;
+        $labelKartu = $mapelBersih.' • '.$kelasBersih;
 
         DuniaIlmu::create([
-            'judul'           => strip_tags(trim($request->judul)),
-            'slug'            => $slug,
-            'kelas'           => $kelasBersih,
-            'mapel'           => $mapelBersih,
-            'kategori_label'  => $labelKartu,
+            'judul' => strip_tags(trim($request->judul)),
+            'slug' => $slug,
+            'kelas' => $kelasBersih,
+            'mapel' => $mapelBersih,
+            'kategori_label' => $labelKartu,
             'kategori_filter' => Str::slug($mapelBersih),
-            'warna_gradasi'   => $request->warna_gradasi,
-            'gambar'          => $gambarPath,
-            'tipe_sumber'     => $request->tipe_sumber,
-            'link_eksternal'  => trim((string) $request->link_eksternal),
-            'nama_file_kode'  => $namaFileKode,
-            'isi_kode'        => $isiKode,
-            'deskripsi'       => strip_tags(trim((string) $request->deskripsi)),
-            'urutan'          => (int) $request->urutan,
-            'views'           => 1,
-            'is_active'       => $request->has('is_active'),
+            'warna_gradasi' => $request->warna_gradasi,
+            'gambar' => $gambarPath,
+            'tipe_sumber' => $request->tipe_sumber,
+            'link_eksternal' => trim((string) $request->link_eksternal),
+            'nama_file_kode' => $namaFileKode,
+            'isi_kode' => $isiKode,
+            'deskripsi' => strip_tags(trim((string) $request->deskripsi)),
+            'urutan' => (int) $request->urutan,
+            'views' => 1,
+            'is_active' => $request->has('is_active'),
         ]);
 
-        return redirect()->back()->with('success', 'Media "' . $request->judul . '" (' . $labelKartu . ') berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Media "'.$request->judul.'" ('.$labelKartu.') berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -108,49 +116,57 @@ class DuniaIlmuController extends Controller
         $media = DuniaIlmu::findOrFail($id);
 
         $request->validate([
-            'judul'          => ['required', 'string', 'max:160'],
-            'kelas'          => ['required', 'string', 'max:80'],
-            'mapel'          => ['required', 'string', 'max:120'],
-            'warna_gradasi'  => ['required', 'string', 'max:50'],
-            'tipe_sumber'    => ['required', 'in:link,kode_interaktif'],
+            'judul' => ['required', 'string', 'max:160'],
+            'kelas' => ['required', 'string', 'max:80'],
+            'mapel' => ['required', 'string', 'max:120'],
+            'warna_gradasi' => ['required', 'string', 'max:50'],
+            'tipe_sumber' => ['required', 'in:link,kode_interaktif'],
             'link_eksternal' => ['nullable', 'string', 'max:255'],
-            'isi_kode'       => ['nullable', 'string'],
-            'deskripsi'      => ['nullable', 'string', 'max:600'],
-            'urutan'         => ['required', 'integer', 'min:1'],
-            'gambar'         => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'isi_kode' => ['nullable', 'string'],
+            'deskripsi' => ['nullable', 'string', 'max:600'],
+            'urutan' => ['required', 'integer', 'min:1'],
+            'gambar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'file_kode' => ['nullable', 'file', 'extensions:txt,tsx,jsx,js,html,htm', 'max:5120'],
+        ], [
+            'file_kode.extensions' => 'Berkas aplikasi hanya boleh berekstensi .tsx, .jsx, .js, .html, atau .txt!',
+            'file_kode.max' => 'Ukuran berkas kode aplikasi maksimal 5 MB!',
         ]);
 
         $kelasBersih = strip_tags(trim($request->kelas));
         $mapelBersih = strip_tags(trim($request->mapel));
-        $labelKartu  = $mapelBersih . ' • ' . $kelasBersih;
+        $labelKartu = $mapelBersih.' • '.$kelasBersih;
 
         $data = [
-            'judul'           => strip_tags(trim($request->judul)),
-            'kelas'           => $kelasBersih,
-            'mapel'           => $mapelBersih,
-            'kategori_label'  => $labelKartu,
+            'judul' => strip_tags(trim($request->judul)),
+            'kelas' => $kelasBersih,
+            'mapel' => $mapelBersih,
+            'kategori_label' => $labelKartu,
             'kategori_filter' => Str::slug($mapelBersih),
-            'warna_gradasi'   => $request->warna_gradasi,
-            'tipe_sumber'     => $request->tipe_sumber,
-            'link_eksternal'  => trim((string) $request->link_eksternal),
-            'deskripsi'       => strip_tags(trim((string) $request->deskripsi)),
-            'urutan'          => (int) $request->urutan,
-            'is_active'       => $request->has('is_active'),
+            'warna_gradasi' => $request->warna_gradasi,
+            'tipe_sumber' => $request->tipe_sumber,
+            'link_eksternal' => trim((string) $request->link_eksternal),
+            'deskripsi' => strip_tags(trim((string) $request->deskripsi)),
+            'urutan' => (int) $request->urutan,
+            'is_active' => $request->has('is_active'),
         ];
 
         if ($request->hasFile('file_kode')) {
-            $file                   = $request->file('file_kode');
+            $file = $request->file('file_kode');
+            $ext = strtolower($file->getClientOriginalExtension());
+            if (in_array($ext, ['php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'phps', 'cgi', 'pl', 'py', 'sh', 'exe', 'bat', 'cmd'], true)) {
+                return redirect()->back()->withInput()->with('error', 'Ekstensi berkas berbahaya ditolak demi keamanan server!');
+            }
             $data['nama_file_kode'] = $file->getClientOriginalName();
-            $data['isi_kode']       = file_get_contents($file->getRealPath());
+            $data['isi_kode'] = file_get_contents($file->getRealPath());
         } elseif ($request->filled('isi_kode')) {
             $data['isi_kode'] = $request->input('isi_kode');
             if (empty($media->nama_file_kode)) {
-                $data['nama_file_kode'] = $media->slug . '.tsx';
+                $data['nama_file_kode'] = $media->slug.'.tsx';
             }
         }
 
         if ($request->hasFile('gambar')) {
-            if ($media->gambar && !str_starts_with($media->gambar, 'frontend/') && Storage::disk('public')->exists($media->gambar)) {
+            if ($media->gambar && ! str_starts_with($media->gambar, 'frontend/') && Storage::disk('public')->exists($media->gambar)) {
                 Storage::disk('public')->delete($media->gambar);
             }
             $data['gambar'] = $request->file('gambar')->store('dunia_ilmu', 'public');
@@ -158,14 +174,14 @@ class DuniaIlmuController extends Controller
 
         $media->update($data);
 
-        return redirect()->back()->with('success', 'Media "' . $media->judul . '" berhasil diperbarui!');
+        return redirect()->back()->with('success', 'Media "'.$media->judul.'" berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         $media = DuniaIlmu::findOrFail($id);
 
-        if ($media->gambar && !str_starts_with($media->gambar, 'frontend/') && Storage::disk('public')->exists($media->gambar)) {
+        if ($media->gambar && ! str_starts_with($media->gambar, 'frontend/') && Storage::disk('public')->exists($media->gambar)) {
             Storage::disk('public')->delete($media->gambar);
         }
 
@@ -181,7 +197,7 @@ class DuniaIlmuController extends Controller
         $media = DuniaIlmu::where('slug', $slug)->firstOrFail();
         $media->increment('views');
 
-        if ($media->tipe_sumber === 'link' && !empty($media->link_eksternal)) {
+        if ($media->tipe_sumber === 'link' && ! empty($media->link_eksternal)) {
             return redirect()->away($media->link_eksternal);
         }
 

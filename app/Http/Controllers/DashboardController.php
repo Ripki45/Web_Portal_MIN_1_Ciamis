@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Siswa;
+use App\Models\Ekskul;
+use App\Models\EkskulAnggota;
 use App\Models\Gtk;
 use App\Models\Kelas;
 use App\Models\KelasMapel;
-use App\Models\Ekskul;
-use App\Models\EkskulAnggota;
-use App\Models\Presensi;
-use App\Models\TahunAjaran;
 use App\Models\PengaturanPresensi;
-use Illuminate\Http\Request;
+use App\Models\Presensi;
+use App\Models\Siswa;
+use App\Models\TahunAjaran;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -43,20 +43,20 @@ class DashboardController extends Controller
      */
     private function dashboardGuru(Request $request, $user, $previewRole)
     {
-        $now          = Carbon::now('Asia/Jakarta');
-        $hariIni      = $now->format('Y-m-d');
-        $setting      = PengaturanPresensi::first();
+        $now = Carbon::now('Asia/Jakarta');
+        $hariIni = $now->format('Y-m-d');
+        $setting = PengaturanPresensi::first();
         $tahunAjarans = TahunAjaran::orderBy('id', 'desc')->get();
-        $tahunAktif   = TahunAjaran::where('is_active', true)->first() ?? $tahunAjarans->first();
+        $tahunAktif = TahunAjaran::where('is_active', true)->first() ?? $tahunAjarans->first();
 
         // Filter Tahun Ajaran (Default: Tahun Ajaran Aktif)
         $selectedTaId = $request->get('tahun_ajaran_id', $tahunAktif->id ?? null);
-        $taTerpilih   = TahunAjaran::find($selectedTaId) ?? $tahunAktif;
+        $taTerpilih = TahunAjaran::find($selectedTaId) ?? $tahunAktif;
 
         // Deteksi Kelas yang Diampu oleh Guru (Wali Kelas + Guru Mapel)
         $kelasAmpuanIds = [];
         if ($user->gtk_id) {
-            $waliIds  = Kelas::where('wali_kelas_id', $user->gtk_id)->pluck('id')->toArray();
+            $waliIds = Kelas::where('wali_kelas_id', $user->gtk_id)->pluck('id')->toArray();
             $mapelIds = KelasMapel::where('guru_id', $user->gtk_id)->pluck('kelas_id')->toArray();
             $kelasAmpuanIds = array_unique(array_merge($waliIds, $mapelIds));
         }
@@ -69,10 +69,10 @@ class DashboardController extends Controller
         }
 
         $selectedKelasId = $request->get('kelas_id', $daftarKelas->first()->id ?? null);
-        $kelasTerpilih   = $daftarKelas->where('id', $selectedKelasId)->first() ?? $daftarKelas->first();
+        $kelasTerpilih = $daftarKelas->where('id', $selectedKelasId)->first() ?? $daftarKelas->first();
 
         // Ambil Siswa Aktif di Kelas Terpilih
-        $siswas   = collect();
+        $siswas = collect();
         $siswaIds = [];
         if ($kelasTerpilih) {
             $siswas = Siswa::where('kelas_id', $kelasTerpilih->id)
@@ -84,8 +84,8 @@ class DashboardController extends Controller
 
         // --- A. 4 KARTU STATISTIK ATAS KHUSUS KELAS DIAMPU ---
         $totalSiswaKelas = $siswas->count();
-        $totalSiswaL     = $siswas->where('jenis_kelamin', 'L')->count();
-        $totalSiswaP     = $siswas->where('jenis_kelamin', 'P')->count();
+        $totalSiswaL = $siswas->where('jenis_kelamin', 'L')->count();
+        $totalSiswaP = $siswas->where('jenis_kelamin', 'P')->count();
 
         $presensiHariIni = Presensi::whereIn('siswa_id', $siswaIds)
             ->where('tanggal', $hariIni)
@@ -97,7 +97,7 @@ class DashboardController extends Controller
 
         $hadirKbmHariIni = $presensiKbmHariIni->where('status', 'Hadir')->count();
         $absenKbmHariIni = $presensiKbmHariIni->whereIn('status', ['Sakit', 'Izin', 'Alfa'])->count();
-        $persenHadirKbm  = $totalSiswaKelas > 0 ? round(($hadirKbmHariIni / $totalSiswaKelas) * 100, 1) : 0;
+        $persenHadirKbm = $totalSiswaKelas > 0 ? round(($hadirKbmHariIni / $totalSiswaKelas) * 100, 1) : 0;
 
         $hadirShalatHariIni = $presensiHariIni->where('kategori', 'shalat')->where('status', 'Hadir')->count();
 
@@ -113,16 +113,16 @@ class DashboardController extends Controller
             $senin = $now->copy()->startOfWeek(Carbon::MONDAY)->addWeeks($w);
             $sabtu = $senin->copy()->addDays(5); // Senin s/d Sabtu (6 Hari Kerja)
             $keyMinggu = $senin->format('Y-m-d');
-            $labelMinggu = $senin->translatedFormat('d') . ' - ' . $sabtu->translatedFormat('d F Y');
+            $labelMinggu = $senin->translatedFormat('d').' - '.$sabtu->translatedFormat('d F Y');
             if ($w === 0) {
                 $labelMinggu .= ' (Minggu Ini)';
             }
             $daftarMinggu[$keyMinggu] = $labelMinggu;
         }
 
-        $defaultSenin  = $now->copy()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
+        $defaultSenin = $now->copy()->startOfWeek(Carbon::MONDAY)->format('Y-m-d');
         $selectedSenin = $request->get('minggu_awal', $defaultSenin);
-        if (!array_key_exists($selectedSenin, $daftarMinggu)) {
+        if (! array_key_exists($selectedSenin, $daftarMinggu)) {
             $selectedSenin = $defaultSenin;
         }
 
@@ -150,7 +150,7 @@ class DashboardController extends Controller
                 ->get();
 
             // 1. KBM Harian
-            $kbmTgl = $dataTgl->filter(fn($item) => empty($item->kategori) || $item->kategori === 'harian');
+            $kbmTgl = $dataTgl->filter(fn ($item) => empty($item->kategori) || $item->kategori === 'harian');
             $grafikData['harian']['hadir'][] = $kbmTgl->where('status', 'Hadir')->count();
             $grafikData['harian']['absen'][] = $kbmTgl->whereIn('status', ['Sakit', 'Izin', 'Alfa'])->count();
 
@@ -184,11 +184,11 @@ class DashboardController extends Controller
         foreach ($siswas as $s) {
             $riwayatS = $semuaPresensiKelas[$s->id] ?? collect();
             $rekapSiswaKelas[$s->id] = [
-                'hadir'     => $riwayatS->where('status', 'Hadir')->count(),
-                'sakit'     => $riwayatS->where('status', 'Sakit')->count(),
-                'izin'      => $riwayatS->where('status', 'Izin')->count(),
-                'alfa'      => $riwayatS->where('status', 'Alfa')->count(),
-                'hari_ini'  => $statusHariIniMap[$s->id] ?? null,
+                'hadir' => $riwayatS->where('status', 'Hadir')->count(),
+                'sakit' => $riwayatS->where('status', 'Sakit')->count(),
+                'izin' => $riwayatS->where('status', 'Izin')->count(),
+                'alfa' => $riwayatS->where('status', 'Alfa')->count(),
+                'hari_ini' => $statusHariIniMap[$s->id] ?? null,
             ];
         }
 
@@ -214,24 +214,28 @@ class DashboardController extends Controller
      */
     private function dashboardAdmin(Request $request, $user, $previewRole)
     {
-        $now        = Carbon::now('Asia/Jakarta');
-        $hariIni    = $now->format('Y-m-d');
+        $now = Carbon::now('Asia/Jakarta');
+        $hariIni = $now->format('Y-m-d');
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
-        $setting    = PengaturanPresensi::first();
+        $setting = PengaturanPresensi::first();
 
         $totalSiswaAktif = Siswa::where('status', 'Aktif')->count();
-        $totalSiswaL     = Siswa::where('status', 'Aktif')->where('jenis_kelamin', 'L')->count();
-        $totalSiswaP     = Siswa::where('status', 'Aktif')->where('jenis_kelamin', 'P')->count();
-        $totalGtk        = Gtk::count();
-        $totalKelas      = Kelas::count();
-        $totalEkskul     = Ekskul::where('status', 'Aktif')->count();
+        $totalSiswaL = Siswa::where('status', 'Aktif')->where('jenis_kelamin', 'L')->count();
+        $totalSiswaP = Siswa::where('status', 'Aktif')->where('jenis_kelamin', 'P')->count();
+        $totalGtk = Gtk::count();
+        $totalKelas = Kelas::count();
+        $totalEkskul = Ekskul::where('status', 'Aktif')->count();
 
         $hadirKbmHariIni = Presensi::where('tanggal', $hariIni)
-            ->where(function ($q) { $q->where('kategori', 'harian')->orWhereNull('kategori'); })
+            ->where(function ($q) {
+                $q->where('kategori', 'harian')->orWhereNull('kategori');
+            })
             ->where('status', 'Hadir')->count();
 
         $absenKbmHariIni = Presensi::where('tanggal', $hariIni)
-            ->where(function ($q) { $q->where('kategori', 'harian')->orWhereNull('kategori'); })
+            ->where(function ($q) {
+                $q->where('kategori', 'harian')->orWhereNull('kategori');
+            })
             ->whereIn('status', ['Sakit', 'Izin', 'Alfa'])->count();
 
         $hadirShalatHariIni = Presensi::where('tanggal', $hariIni)
@@ -249,10 +253,14 @@ class DashboardController extends Controller
             $tglLoop = $now->copy()->subDays($i)->format('Y-m-d');
             $label7Hari[] = Carbon::parse($tglLoop)->translatedFormat('d M');
             $data7Hadir[] = Presensi::where('tanggal', $tglLoop)
-                ->where(function ($q) { $q->where('kategori', 'harian')->orWhereNull('kategori'); })
+                ->where(function ($q) {
+                    $q->where('kategori', 'harian')->orWhereNull('kategori');
+                })
                 ->where('status', 'Hadir')->count();
             $data7Absen[] = Presensi::where('tanggal', $tglLoop)
-                ->where(function ($q) { $q->where('kategori', 'harian')->orWhereNull('kategori'); })
+                ->where(function ($q) {
+                    $q->where('kategori', 'harian')->orWhereNull('kategori');
+                })
                 ->whereIn('status', ['Sakit', 'Izin', 'Alfa'])->count();
         }
 
@@ -263,13 +271,17 @@ class DashboardController extends Controller
             ->get();
 
         $daftarKelasMonitor = Kelas::with('waliKelas')
-            ->withCount(['siswas' => function ($q) { $q->where('status', 'Aktif'); }])
+            ->withCount(['siswas' => function ($q) {
+                $q->where('status', 'Aktif');
+            }])
             ->orderBy('tingkat', 'asc')
             ->orderBy('nama_kelas', 'asc')
             ->get();
 
         $presensiHariIniPerKelas = Presensi::where('tanggal', $hariIni)
-            ->where(function ($q) { $q->where('kategori', 'harian')->orWhereNull('kategori'); })
+            ->where(function ($q) {
+                $q->where('kategori', 'harian')->orWhereNull('kategori');
+            })
             ->get()
             ->groupBy('kelas_id');
 
@@ -286,8 +298,8 @@ class DashboardController extends Controller
      */
     private function dashboardPembina(Request $request, $user, $previewRole)
     {
-        $now        = Carbon::now('Asia/Jakarta');
-        $hariIni    = $now->format('Y-m-d');
+        $now = Carbon::now('Asia/Jakarta');
+        $hariIni = $now->format('Y-m-d');
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
 
         if ($user->gtk_id && $user->role !== 'superadmin') {
@@ -301,7 +313,7 @@ class DashboardController extends Controller
         }
 
         $selectedEkskulId = $request->get('ekskul_id', $daftarEkskul->first()->id ?? null);
-        $ekskulTerpilih   = $daftarEkskul->where('id', $selectedEkskulId)->first() ?? $daftarEkskul->first();
+        $ekskulTerpilih = $daftarEkskul->where('id', $selectedEkskulId)->first() ?? $daftarEkskul->first();
 
         $anggotaIds = $ekskulTerpilih
             ? EkskulAnggota::where('ekskul_id', $ekskulTerpilih->id)->pluck('siswa_id')->toArray()
@@ -309,8 +321,8 @@ class DashboardController extends Controller
 
         $siswas = Siswa::with('kelas')->whereIn('id', $anggotaIds)->where('status', 'Aktif')->orderBy('nama_siswa', 'asc')->get();
         $totalAnggota = $siswas->count();
-        $totalL       = $siswas->where('jenis_kelamin', 'L')->count();
-        $totalP       = $siswas->where('jenis_kelamin', 'P')->count();
+        $totalL = $siswas->where('jenis_kelamin', 'L')->count();
+        $totalP = $siswas->where('jenis_kelamin', 'P')->count();
 
         $presensiHariIni = $ekskulTerpilih
             ? Presensi::where('kategori', 'ekskul')->where('ekskul_id', $ekskulTerpilih->id)->where('tanggal', $hariIni)->get()
@@ -329,8 +341,8 @@ class DashboardController extends Controller
             $rekapAnggota[$s->id] = [
                 'hadir' => $rw->where('status', 'Hadir')->count(),
                 'sakit' => $rw->where('status', 'Sakit')->count(),
-                'izin'  => $rw->where('status', 'Izin')->count(),
-                'alfa'  => $rw->where('status', 'Alfa')->count(),
+                'izin' => $rw->where('status', 'Izin')->count(),
+                'alfa' => $rw->where('status', 'Alfa')->count(),
             ];
         }
 

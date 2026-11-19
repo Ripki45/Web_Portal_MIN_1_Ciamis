@@ -8,8 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class PengaturanPresensi extends Model
 {
     use HasFactory;
+
     protected $guarded = ['id'];
-    
+
     protected $fillable = [
         'jam_buka',
         'jam_tutup',
@@ -17,6 +18,4 @@ class PengaturanPresensi extends Model
         'pin_akses',
         'libur_minggu',
     ];
-
-    
 }

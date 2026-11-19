@@ -11,6 +11,7 @@ class TahunAjaranController extends Controller
     {
         // Urutkan dari atas ke bawah sesuai urutan input
         $tahunAjarans = TahunAjaran::orderBy('id', 'asc')->get();
+
         return view('tahun_ajaran.index', compact('tahunAjarans'));
     }
 
@@ -18,14 +19,14 @@ class TahunAjaranController extends Controller
     {
         $request->validate([
             'tahun_ajaran' => 'required|string|max:20',
-            'semester'     => 'required|in:Ganjil,Genap',
-            'keterangan'   => 'nullable|string|max:255',
+            'semester' => 'required|in:Ganjil,Genap',
+            'keterangan' => 'nullable|string|max:255',
         ]);
 
         // Cek apakah kombinasi Tahun Ajaran dan Semester sudah ada
         $exists = TahunAjaran::where('tahun_ajaran', $request->tahun_ajaran)
-                             ->where('semester', $request->semester)
-                             ->exists();
+            ->where('semester', $request->semester)
+            ->exists();
 
         if ($exists) {
             return redirect()->back()->with('error', 'Tahun Ajaran dan Semester tersebut sudah ada!');
@@ -45,9 +46,9 @@ class TahunAjaranController extends Controller
 
         TahunAjaran::create([
             'tahun_ajaran' => $request->tahun_ajaran,
-            'semester'     => $request->semester,
-            'is_active'    => $isActive,
-            'keterangan'   => $request->keterangan,
+            'semester' => $request->semester,
+            'is_active' => $isActive,
+            'keterangan' => $request->keterangan,
         ]);
 
         return redirect()->back()->with('success', 'Tahun Ajaran berhasil ditambahkan!');
@@ -57,14 +58,14 @@ class TahunAjaranController extends Controller
     {
         $request->validate([
             'tahun_ajaran' => 'required|string|max:20',
-            'semester'     => 'required|in:Ganjil,Genap',
-            'keterangan'   => 'nullable|string|max:255',
+            'semester' => 'required|in:Ganjil,Genap',
+            'keterangan' => 'nullable|string|max:255',
         ]);
 
         $tahun_ajaran->update([
             'tahun_ajaran' => $request->tahun_ajaran,
-            'semester'     => $request->semester,
-            'keterangan'   => $request->keterangan,
+            'semester' => $request->semester,
+            'keterangan' => $request->keterangan,
         ]);
 
         return redirect()->back()->with('success', 'Tahun Ajaran berhasil diperbarui!');
@@ -80,7 +81,7 @@ class TahunAjaranController extends Controller
         $ta = TahunAjaran::findOrFail($id);
         $ta->update(['is_active' => true]);
 
-        return redirect()->back()->with('success', 'Tahun Ajaran ' . $ta->tahun_ajaran . ' (' . $ta->semester . ') berhasil diaktifkan!');
+        return redirect()->back()->with('success', 'Tahun Ajaran '.$ta->tahun_ajaran.' ('.$ta->semester.') berhasil diaktifkan!');
     }
 
     public function destroy(TahunAjaran $tahun_ajaran)
@@ -91,6 +92,7 @@ class TahunAjaranController extends Controller
         }
 
         $tahun_ajaran->delete();
+
         return redirect()->back()->with('success', 'Tahun Ajaran berhasil dihapus!');
     }
 }

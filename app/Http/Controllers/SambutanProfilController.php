@@ -11,7 +11,7 @@ class SambutanProfilController extends Controller
 {
     public function index()
     {
-        $data       = SambutanProfil::ambilData();
+        $data = SambutanProfil::ambilData();
         $daftarIkon = SambutanProfil::daftarIkon();
 
         return view('sambutan_profil.index', compact('data', 'daftarIkon'));
@@ -22,66 +22,66 @@ class SambutanProfilController extends Controller
         $data = SambutanProfil::ambilData();
 
         $request->validate([
-            'nama_kepsek'      => ['required', 'string', 'max:150'],
-            'jabatan_kepsek'   => ['required', 'string', 'max:120'],
-            'nip_kepsek'       => ['nullable', 'string', 'max:60'],
-            'foto_kepsek'      => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:4096'],
+            'nama_kepsek' => ['required', 'string', 'max:150'],
+            'jabatan_kepsek' => ['required', 'string', 'max:120'],
+            'nip_kepsek' => ['nullable', 'string', 'max:60'],
+            'foto_kepsek' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:4096'],
             'sambutan_kutipan' => ['required', 'string', 'max:350'],
-            'sambutan_isi'     => ['required', 'string'],
-            'profil_kutipan'   => ['required', 'string', 'max:350'],
-            'profil_isi'       => ['required', 'string'],
-            'visi_kutipan'     => ['required', 'string', 'max:500'],
-            'visi_isi'         => ['required', 'string'],
-            'misi_kutipan'     => ['required', 'string', 'max:350'],
-            'misi_isi'         => ['required', 'string'],
-            'motto_kutipan'    => ['required', 'string', 'max:350'],
-            'motto_isi'        => ['required', 'string'],
-            'total_prestasi'   => ['nullable', 'integer', 'min:0'],
+            'sambutan_isi' => ['required', 'string'],
+            'profil_kutipan' => ['required', 'string', 'max:350'],
+            'profil_isi' => ['required', 'string'],
+            'visi_kutipan' => ['required', 'string', 'max:500'],
+            'visi_isi' => ['required', 'string'],
+            'misi_kutipan' => ['required', 'string', 'max:350'],
+            'misi_isi' => ['required', 'string'],
+            'motto_kutipan' => ['required', 'string', 'max:350'],
+            'motto_isi' => ['required', 'string'],
+            'total_prestasi' => ['nullable', 'integer', 'min:0'],
         ]);
 
         // Susun 4 Poin Profil beserta Ikonnya
         $profilPoin = [];
-        $pIcons     = $request->input('profil_icon', []);
-        $pTexts     = $request->input('profil_text', []);
+        $pIcons = $request->input('profil_icon', []);
+        $pTexts = $request->input('profil_text', []);
         for ($i = 0; $i < 4; $i++) {
             $profilPoin[] = [
                 'icon' => $pIcons[$i] ?? 'fas fa-check-circle',
-                'text' => strip_tags(trim($pTexts[$i] ?? 'Keunggulan Madrasah ' . ($i + 1))),
+                'text' => strip_tags(trim($pTexts[$i] ?? 'Keunggulan Madrasah '.($i + 1))),
             ];
         }
 
         // Susun 4 Poin Misi beserta Ikonnya
         $misiPoin = [];
-        $mIcons   = $request->input('misi_icon', []);
-        $mTexts   = $request->input('misi_text', []);
+        $mIcons = $request->input('misi_icon', []);
+        $mTexts = $request->input('misi_text', []);
         for ($i = 0; $i < 4; $i++) {
             $misiPoin[] = [
                 'icon' => $mIcons[$i] ?? 'fas fa-star',
-                'text' => strip_tags(trim($mTexts[$i] ?? 'Misi Utama ' . ($i + 1))),
+                'text' => strip_tags(trim($mTexts[$i] ?? 'Misi Utama '.($i + 1))),
             ];
         }
 
         $updateData = [
-            'nama_kepsek'      => strip_tags(trim($request->nama_kepsek)),
-            'jabatan_kepsek'   => strip_tags(trim($request->jabatan_kepsek)),
-            'nip_kepsek'       => strip_tags(trim((string) $request->nip_kepsek)),
+            'nama_kepsek' => strip_tags(trim($request->nama_kepsek)),
+            'jabatan_kepsek' => strip_tags(trim($request->jabatan_kepsek)),
+            'nip_kepsek' => strip_tags(trim((string) $request->nip_kepsek)),
             'sambutan_kutipan' => strip_tags(trim($request->sambutan_kutipan)),
-            'sambutan_isi'     => trim($request->sambutan_isi),
-            'profil_kutipan'   => strip_tags(trim($request->profil_kutipan)),
-            'profil_isi'       => trim($request->profil_isi),
-            'profil_poin'      => $profilPoin,
-            'visi_kutipan'     => strip_tags(trim($request->visi_kutipan)),
-            'visi_isi'         => trim($request->visi_isi),
-            'misi_kutipan'     => strip_tags(trim($request->misi_kutipan)),
-            'misi_isi'         => trim($request->misi_isi),
-            'misi_poin'        => $misiPoin,
-            'motto_kutipan'    => strip_tags(trim($request->motto_kutipan)),
-            'motto_isi'        => trim($request->motto_isi),
-            'total_prestasi'   => (int) ($request->total_prestasi ?? 237),
+            'sambutan_isi' => trim($request->sambutan_isi),
+            'profil_kutipan' => strip_tags(trim($request->profil_kutipan)),
+            'profil_isi' => trim($request->profil_isi),
+            'profil_poin' => $profilPoin,
+            'visi_kutipan' => strip_tags(trim($request->visi_kutipan)),
+            'visi_isi' => trim($request->visi_isi),
+            'misi_kutipan' => strip_tags(trim($request->misi_kutipan)),
+            'misi_isi' => trim($request->misi_isi),
+            'misi_poin' => $misiPoin,
+            'motto_kutipan' => strip_tags(trim($request->motto_kutipan)),
+            'motto_isi' => trim($request->motto_isi),
+            'total_prestasi' => (int) ($request->total_prestasi ?? 237),
         ];
 
         if ($request->hasFile('foto_kepsek')) {
-            if ($data->foto_kepsek && !str_starts_with($data->foto_kepsek, 'frontend/') && Storage::disk('public')->exists($data->foto_kepsek)) {
+            if ($data->foto_kepsek && ! str_starts_with($data->foto_kepsek, 'frontend/') && Storage::disk('public')->exists($data->foto_kepsek)) {
                 Storage::disk('public')->delete($data->foto_kepsek);
             }
             $updateData['foto_kepsek'] = $request->file('foto_kepsek')->store('kepsek', 'public');
@@ -103,15 +103,15 @@ class SambutanProfilController extends Controller
         // A. Jika diminta menyusun Draf Sambutan Kepala Madrasah
         if ($tipe === 'sambutan') {
             $namaKepsek = trim((string) $request->input('nama_kepsek', 'Kepala MIN 1 Ciamis'));
-            $fokus      = !empty($teks) ? $teks : 'Pendidikan karakter Qur\'ani, keunggulan akademik, dan madrasah ramah anak';
+            $fokus = ! empty($teks) ? $teks : 'Pendidikan karakter Qur\'ani, keunggulan akademik, dan madrasah ramah anak';
 
             return response()->json([
-                'status'  => 'success',
+                'status' => 'success',
                 'kutipan' => 'Mewujudkan Generasi Madrasah yang Berakhlak Mulia, Cerdas, dan Unggul dalam Prestasi.',
-                'isi'     => "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n"
-                    . "Alhamdulillahi rabbil 'alamin, puji dan syukur senantiasa kita panjatkan ke hadirat Allah SWT. Selamat datang di portal informasi resmi Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis.\n\n"
-                    . "Sebagai lembaga pendidikan dasar berciri khas Islam, kami berkomitmen penuh dalam menguatkan {$fokus}. Melalui sinergi antara pendidik profesional, fasilitas belajar modern, serta dukungan orang tua wali murid, mari bersama-sama kita antarkan putra-putri kita menjadi generasi kebanggaan umat dan bangsa.\n\n"
-                    . "Wassalamu'alaikum Warahmatullahi Wabarakatuh.\n— {$namaKepsek}",
+                'isi' => "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n"
+                    ."Alhamdulillahi rabbil 'alamin, puji dan syukur senantiasa kita panjatkan ke hadirat Allah SWT. Selamat datang di portal informasi resmi Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis.\n\n"
+                    ."Sebagai lembaga pendidikan dasar berciri khas Islam, kami berkomitmen penuh dalam menguatkan {$fokus}. Melalui sinergi antara pendidik profesional, fasilitas belajar modern, serta dukungan orang tua wali murid, mari bersama-sama kita antarkan putra-putri kita menjadi generasi kebanggaan umat dan bangsa.\n\n"
+                    ."Wassalamu'alaikum Warahmatullahi Wabarakatuh.\n— {$namaKepsek}",
             ]);
         }
 
@@ -120,7 +120,7 @@ class SambutanProfilController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'poin'   => $poinHasil,
+            'poin' => $poinHasil,
         ]);
     }
 
@@ -161,7 +161,7 @@ class SambutanProfilController extends Controller
         $hasil = [];
         for ($i = 0; $i < 4; $i++) {
             $teksPoin = $kandidat[$i] ?? $cadangan[$i];
-            $hasil[]  = [
+            $hasil[] = [
                 'icon' => $this->tebakIkonTerbaik($teksPoin),
                 'text' => $teksPoin,
             ];
@@ -210,11 +210,11 @@ class SambutanProfilController extends Controller
 
         // Jika kalimat bebas, buang kata depan umum lalu ambil maksimal 4 kata inti
         $kataBuang = ['menyelenggarakan', 'melaksanakan', 'mewujudkan', 'membina', 'meningkatkan', 'mengembangkan', 'adalah', 'merupakan', 'dengan', 'untuk', 'dalam', 'pada', 'yang', 'secara'];
-        $kataKata  = explode(' ', preg_replace('/[^a-zA-Z0-9\s\-]/', '', $kalimat));
-        $kataInti  = [];
+        $kataKata = explode(' ', preg_replace('/[^a-zA-Z0-9\s\-]/', '', $kalimat));
+        $kataInti = [];
 
         foreach ($kataKata as $k) {
-            if (strlen($k) > 2 && !in_array(strtolower($k), $kataBuang)) {
+            if (strlen($k) > 2 && ! in_array(strtolower($k), $kataBuang)) {
                 $kataInti[] = ucfirst($k);
             }
             if (count($kataInti) >= 4) {
@@ -222,7 +222,7 @@ class SambutanProfilController extends Controller
             }
         }
 
-        return !empty($kataInti) ? implode(' ', $kataInti) : Str::limit(ucwords($kalimat), 28, '');
+        return ! empty($kataInti) ? implode(' ', $kataInti) : Str::limit(ucwords($kalimat), 28, '');
     }
 
     /**

@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Keamanan: Blokir akses langsung ke berkas tersembunyi (misal .env, .git)
+    RewriteRule "(^|/)\.(?!well-known)" - [F]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
@@ -22,4 +25,23 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# Keamanan: Blokir berkas sensitif & cadangan
+<FilesMatch "(?i)\.(bak|config|sql|fla|psd|ini|log|sh|inc|swp|dist|yml|yaml|env)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Keamanan: Security Headers Anti-Clickjacking & MIME-Sniffing
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>

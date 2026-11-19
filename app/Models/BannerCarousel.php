@@ -29,7 +29,7 @@ class BannerCarousel extends Model
     ];
 
     protected $casts = [
-        'is_active'        => 'boolean',
+        'is_active' => 'boolean',
         'tampilkan_stiker' => 'boolean',
     ];
 
@@ -38,12 +38,14 @@ class BannerCarousel extends Model
      */
     public function getGambarUrlAttribute(): string
     {
-        if (!empty($this->gambar)) {
+        if (! empty($this->gambar)) {
             if (str_starts_with($this->gambar, 'frontend/') or str_starts_with($this->gambar, 'backend/') or str_starts_with($this->gambar, 'http')) {
                 return asset($this->gambar);
             }
-            return asset('storage/' . $this->gambar);
+
+            return asset('storage/'.$this->gambar);
         }
+
         return asset('frontend/landing/hero-collage-students.png');
     }
 
@@ -58,7 +60,7 @@ class BannerCarousel extends Model
         }
         $sudahDicek = true;
 
-        if (!Schema::hasTable('banner_carousels')) {
+        if (! Schema::hasTable('banner_carousels')) {
             Schema::create('banner_carousels', function (Blueprint $table) {
                 $table->id();
                 $table->string('tipe_layout', 30)->default('tanpa_foto'); // 'tanpa_foto' atau 'dengan_foto'
@@ -80,18 +82,34 @@ class BannerCarousel extends Model
             });
         } else {
             $kolomTambahan = [
-                'tipe_layout'      => function (Blueprint $table) { $table->string('tipe_layout', 30)->default('dengan_foto'); },
-                'aksara_kecil'     => function (Blueprint $table) { $table->string('aksara_kecil', 120)->nullable(); },
-                'aksara_besar'     => function (Blueprint $table) { $table->string('aksara_besar', 150)->nullable(); },
-                'teks_domain'      => function (Blueprint $table) { $table->string('teks_domain', 180)->nullable(); },
-                'teks_badge'       => function (Blueprint $table) { $table->string('teks_badge', 40)->nullable(); },
-                'keterangan_1'     => function (Blueprint $table) { $table->string('keterangan_1', 220)->nullable(); },
-                'keterangan_2'     => function (Blueprint $table) { $table->string('keterangan_2', 220)->nullable(); },
-                'tampilkan_stiker' => function (Blueprint $table) { $table->boolean('tampilkan_stiker')->default(true); },
+                'tipe_layout' => function (Blueprint $table) {
+                    $table->string('tipe_layout', 30)->default('dengan_foto');
+                },
+                'aksara_kecil' => function (Blueprint $table) {
+                    $table->string('aksara_kecil', 120)->nullable();
+                },
+                'aksara_besar' => function (Blueprint $table) {
+                    $table->string('aksara_besar', 150)->nullable();
+                },
+                'teks_domain' => function (Blueprint $table) {
+                    $table->string('teks_domain', 180)->nullable();
+                },
+                'teks_badge' => function (Blueprint $table) {
+                    $table->string('teks_badge', 40)->nullable();
+                },
+                'keterangan_1' => function (Blueprint $table) {
+                    $table->string('keterangan_1', 220)->nullable();
+                },
+                'keterangan_2' => function (Blueprint $table) {
+                    $table->string('keterangan_2', 220)->nullable();
+                },
+                'tampilkan_stiker' => function (Blueprint $table) {
+                    $table->boolean('tampilkan_stiker')->default(true);
+                },
             ];
 
             foreach ($kolomTambahan as $namaKolom => $callback) {
-                if (!Schema::hasColumn('banner_carousels', $namaKolom)) {
+                if (! Schema::hasColumn('banner_carousels', $namaKolom)) {
                     Schema::table('banner_carousels', $callback);
                 }
             }

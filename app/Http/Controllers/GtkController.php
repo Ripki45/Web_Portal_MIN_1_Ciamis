@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Gtk;
 use App\Models\Jabatan;
 use App\Models\Posisi;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class GtkController extends Controller
 {
@@ -18,27 +18,27 @@ class GtkController extends Controller
      */
     private function pastikanKolomGtkLengkap()
     {
-        if (!Schema::hasColumn('gtks', 'posisi_id')) {
+        if (! Schema::hasColumn('gtks', 'posisi_id')) {
             Schema::table('gtks', function (Blueprint $table) {
                 $table->unsignedBigInteger('posisi_id')->nullable();
             });
         }
-        if (!Schema::hasColumn('gtks', 'no_hp')) {
+        if (! Schema::hasColumn('gtks', 'no_hp')) {
             Schema::table('gtks', function (Blueprint $table) {
                 $table->string('no_hp', 25)->nullable();
             });
         }
-        if (!Schema::hasColumn('gtks', 'alamat')) {
+        if (! Schema::hasColumn('gtks', 'alamat')) {
             Schema::table('gtks', function (Blueprint $table) {
                 $table->text('alamat')->nullable();
             });
         }
-        if (!Schema::hasColumn('gtks', 'foto')) {
+        if (! Schema::hasColumn('gtks', 'foto')) {
             Schema::table('gtks', function (Blueprint $table) {
                 $table->string('foto')->nullable();
             });
         }
-        if (!Schema::hasColumn('gtks', 'ttd')) {
+        if (! Schema::hasColumn('gtks', 'ttd')) {
             Schema::table('gtks', function (Blueprint $table) {
                 $table->string('ttd')->nullable();
             });
@@ -50,9 +50,9 @@ class GtkController extends Controller
         $this->pastikanKolomGtkLengkap();
 
         // Urutkan data terbaru di paling atas (latest)
-        $gtks     = Gtk::with(['jabatan', 'posisi', 'kelasWali'])->latest()->get();
+        $gtks = Gtk::with(['jabatan', 'posisi', 'kelasWali'])->latest()->get();
         $jabatans = Jabatan::orderBy('id', 'asc')->get();
-        $posisis  = Posisi::with('jabatan')->orderBy('nama_posisi', 'asc')->get();
+        $posisis = Posisi::with('jabatan')->orderBy('nama_posisi', 'asc')->get();
 
         return view('gtk.index', compact('gtks', 'jabatans', 'posisis'));
     }
@@ -62,22 +62,22 @@ class GtkController extends Controller
         $this->pastikanKolomGtkLengkap();
 
         $request->validate([
-            'nomor_induk'        => 'nullable|string|max:50|unique:gtks,nomor_induk',
-            'nama_lengkap'       => 'required|string|max:150',
-            'jenis_kelamin'      => 'required|in:L,P',
-            'jabatan_id'         => 'required|exists:jabatans,id',
-            'posisi_id'          => 'nullable|exists:posisis,id',
+            'nomor_induk' => 'nullable|string|max:50|unique:gtks,nomor_induk',
+            'nama_lengkap' => 'required|string|max:150',
+            'jenis_kelamin' => 'required|in:L,P',
+            'jabatan_id' => 'required|exists:jabatans,id',
+            'posisi_id' => 'nullable|exists:posisis,id',
             'status_kepegawaian' => 'required|in:PNS,PPPK,Honorer,Magang,Kontrak,Lainnya',
-            'no_hp'              => 'nullable|string|max:25',
-            'alamat'             => 'nullable|string',
-            'foto'               => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'ttd'                => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'no_hp' => 'nullable|string|max:25',
+            'alamat' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ttd' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ], [
             'nomor_induk.unique' => 'NIP / NUPTK / Nomor Induk ini sudah terdaftar!',
         ]);
 
         // Jika jabatannya Kepala Madrasah, kosongkan posisi_id karena jabatan tertinggi tunggal
-        $jabatan  = Jabatan::find($request->jabatan_id);
+        $jabatan = Jabatan::find($request->jabatan_id);
         $isKepala = $jabatan && (stripos($jabatan->nama_jabatan, 'Kepala Madrasah') !== false || stripos($jabatan->nama_jabatan, 'Kepala Sekolah') !== false);
         $posisiId = $isKepala ? null : $request->posisi_id;
 
@@ -92,16 +92,16 @@ class GtkController extends Controller
         }
 
         Gtk::create([
-            'nomor_induk'        => $request->nomor_induk,
-            'nama_lengkap'       => $request->nama_lengkap,
-            'jenis_kelamin'      => $request->jenis_kelamin,
-            'jabatan_id'         => $request->jabatan_id,
-            'posisi_id'          => $posisiId,
+            'nomor_induk' => $request->nomor_induk,
+            'nama_lengkap' => $request->nama_lengkap,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'jabatan_id' => $request->jabatan_id,
+            'posisi_id' => $posisiId,
             'status_kepegawaian' => $request->status_kepegawaian,
-            'no_hp'              => $request->no_hp,
-            'alamat'             => $request->alamat,
-            'foto'               => $fotoPath,
-            'ttd'                => $ttdPath,
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
+            'foto' => $fotoPath,
+            'ttd' => $ttdPath,
         ]);
 
         return redirect()->back()->with('success', 'Data GTK baru berhasil ditambahkan di urutan teratas!');
@@ -114,31 +114,31 @@ class GtkController extends Controller
         $gtk = Gtk::findOrFail($id);
 
         $request->validate([
-            'nomor_induk'        => 'nullable|string|max:50|unique:gtks,nomor_induk,' . $gtk->id,
-            'nama_lengkap'       => 'required|string|max:150',
-            'jenis_kelamin'      => 'required|in:L,P',
-            'jabatan_id'         => 'required|exists:jabatans,id',
-            'posisi_id'          => 'nullable|exists:posisis,id',
+            'nomor_induk' => 'nullable|string|max:50|unique:gtks,nomor_induk,'.$gtk->id,
+            'nama_lengkap' => 'required|string|max:150',
+            'jenis_kelamin' => 'required|in:L,P',
+            'jabatan_id' => 'required|exists:jabatans,id',
+            'posisi_id' => 'nullable|exists:posisis,id',
             'status_kepegawaian' => 'required|in:PNS,PPPK,Honorer,Magang,Kontrak,Lainnya',
-            'no_hp'              => 'nullable|string|max:25',
-            'alamat'             => 'nullable|string',
-            'foto'               => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'ttd'                => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
+            'no_hp' => 'nullable|string|max:25',
+            'alamat' => 'nullable|string',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ttd' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ]);
 
-        $jabatan  = Jabatan::find($request->jabatan_id);
+        $jabatan = Jabatan::find($request->jabatan_id);
         $isKepala = $jabatan && (stripos($jabatan->nama_jabatan, 'Kepala Madrasah') !== false || stripos($jabatan->nama_jabatan, 'Kepala Sekolah') !== false);
         $posisiId = $isKepala ? null : $request->posisi_id;
 
         $data = [
-            'nomor_induk'        => $request->nomor_induk,
-            'nama_lengkap'       => $request->nama_lengkap,
-            'jenis_kelamin'      => $request->jenis_kelamin,
-            'jabatan_id'         => $request->jabatan_id,
-            'posisi_id'          => $posisiId,
+            'nomor_induk' => $request->nomor_induk,
+            'nama_lengkap' => $request->nama_lengkap,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'jabatan_id' => $request->jabatan_id,
+            'posisi_id' => $posisiId,
             'status_kepegawaian' => $request->status_kepegawaian,
-            'no_hp'              => $request->no_hp,
-            'alamat'             => $request->alamat,
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
         ];
 
         if ($request->hasFile('foto')) {
@@ -194,6 +194,6 @@ class GtkController extends Controller
             $gtk->delete();
         }
 
-        return redirect()->back()->with('success', count($gtks) . ' Data GTK terpilih berhasil dihapus!');
+        return redirect()->back()->with('success', count($gtks).' Data GTK terpilih berhasil dihapus!');
     }
 }

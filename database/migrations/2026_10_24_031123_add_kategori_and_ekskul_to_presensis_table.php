@@ -9,11 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('presensis', function (Blueprint $table) {
-            if (!Schema::hasColumn('presensis', 'kategori')) {
+            if (! Schema::hasColumn('presensis', 'kategori')) {
                 // Nilai: 'harian', 'shalat', atau 'ekskul'
                 $table->string('kategori', 25)->default('harian')->after('tanggal');
             }
-            if (!Schema::hasColumn('presensis', 'ekskul_id')) {
+            if (! Schema::hasColumn('presensis', 'ekskul_id')) {
                 $table->foreignId('ekskul_id')->nullable()->after('kategori');
             }
         });

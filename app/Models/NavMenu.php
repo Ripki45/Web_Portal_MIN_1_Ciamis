@@ -66,7 +66,7 @@ class NavMenu extends Model
         }
         $sudahDicek = true;
 
-        if (!Schema::hasTable('nav_menus')) {
+        if (! Schema::hasTable('nav_menus')) {
             Schema::create('nav_menus', function (Blueprint $table) {
                 $table->id();
                 $table->string('nama_menu', 100);
@@ -83,84 +83,84 @@ class NavMenu extends Model
             // Seed menu awal MIN 1 Ciamis (Contoh Induk -> Anak -> Cucu)
             $beranda = self::create([
                 'nama_menu' => 'Beranda',
-                'url'       => '/',
+                'url' => '/',
                 'parent_id' => null,
-                'level'     => 1,
-                'urutan'    => 1,
+                'level' => 1,
+                'urutan' => 1,
                 'badge_new' => true,
                 'is_active' => true,
             ]);
 
             $profil = self::create([
                 'nama_menu' => 'Profil Madrasah',
-                'url'       => '#',
+                'url' => '#',
                 'parent_id' => null,
-                'level'     => 1,
-                'urutan'    => 2,
+                'level' => 1,
+                'urutan' => 2,
                 'is_active' => true,
             ]);
 
             self::create([
                 'nama_menu' => 'Sambutan Kepala Madrasah',
-                'url'       => '#sambutan',
+                'url' => '#sambutan',
                 'parent_id' => $profil->id,
-                'level'     => 2,
-                'urutan'    => 1,
+                'level' => 2,
+                'urutan' => 1,
                 'is_active' => true,
             ]);
 
             $struktur = self::create([
                 'nama_menu' => 'Struktur & Direktori',
-                'url'       => '#',
+                'url' => '#',
                 'parent_id' => $profil->id,
-                'level'     => 2,
-                'urutan'    => 2,
+                'level' => 2,
+                'urutan' => 2,
                 'is_active' => true,
             ]);
 
             // Contoh Level 3 (Cucu Menu) di bawah Struktur & Direktori
             self::create([
                 'nama_menu' => 'Direktori Guru & Staf',
-                'url'       => '#direktori-guru',
+                'url' => '#direktori-guru',
                 'parent_id' => $struktur->id,
-                'level'     => 3,
-                'urutan'    => 1,
+                'level' => 3,
+                'urutan' => 1,
                 'is_active' => true,
             ]);
 
             self::create([
                 'nama_menu' => 'Program Unggulan',
-                'url'       => '#program-unggulan',
+                'url' => '#program-unggulan',
                 'parent_id' => $struktur->id,
-                'level'     => 3,
-                'urutan'    => 2,
+                'level' => 3,
+                'urutan' => 2,
                 'is_active' => true,
             ]);
 
             self::create([
                 'nama_menu' => 'Berita & Artikel',
-                'url'       => '#berita-terbaru',
+                'url' => '#berita-terbaru',
                 'parent_id' => null,
-                'level'     => 1,
-                'urutan'    => 3,
+                'level' => 1,
+                'urutan' => 3,
                 'is_active' => true,
             ]);
 
             self::create([
                 'nama_menu' => 'Ekstrakurikuler',
-                'url'       => '#ekstrakurikuler',
+                'url' => '#ekstrakurikuler',
                 'parent_id' => null,
-                'level'     => 1,
-                'urutan'    => 4,
+                'level' => 1,
+                'urutan' => 4,
                 'is_active' => true,
             ]);
 
             self::create([
                 'nama_menu' => 'Galeri & Prestasi',
-                'url'       => '#galeri',
+                'url' => '#galeri',
                 'parent_id' => null,
-                'level'     => 1,
-                'urutan'    => 5,
+                'level' => 1,
+                'urutan' => 5,
                 'is_active' => true,
             ]);
         }

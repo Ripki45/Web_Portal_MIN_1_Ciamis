@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\MutasiSiswa;
+use App\Models\Siswa;
+use App\Models\TahunAjaran;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
 
 class SiswaController extends Controller
 {
     public function index(Request $request)
     {
-        $user       = auth()->user();
-        $isGuru     = $user && $user->role === 'guru';
-        $tahunAktif = \App\Models\TahunAjaran::where('is_active', true)->first();
+        $user = auth()->user();
+        $isGuru = $user && $user->role === 'guru';
+        $tahunAktif = TahunAjaran::where('is_active', true)->first();
 
         $kelasList = ($isGuru && method_exists($user, 'getDaftarKelasAmpuan'))
             ? $user->getDaftarKelasAmpuan()
@@ -25,12 +27,12 @@ class SiswaController extends Controller
 
         if ($isGuru) {
             $allowedIds = $kelasList->pluck('id')->toArray();
-            if (empty($selectedKelasId) || !in_array((int) $selectedKelasId, $allowedIds)) {
+            if (empty($selectedKelasId) || ! in_array((int) $selectedKelasId, $allowedIds)) {
                 $selectedKelasId = $kelasList->first()->id ?? 0;
             }
             $query->where('kelas_id', $selectedKelasId);
         } else {
-            if (!empty($selectedKelasId)) {
+            if (! empty($selectedKelasId)) {
                 $query->where('kelas_id', $selectedKelasId);
             }
         }
@@ -40,17 +42,17 @@ class SiswaController extends Controller
         $totalL = $siswas->where('jenis_kelamin', 'L')->count();
         $totalP = $siswas->where('jenis_kelamin', 'P')->count();
 
-        $mutasiMasuk     = collect();
-        $mutasiKeluar    = collect();
+        $mutasiMasuk = collect();
+        $mutasiKeluar = collect();
         $siswaAktifSemua = collect();
 
-        if (!$isGuru) {
-            $mutasiMasuk = \App\Models\MutasiSiswa::with(['siswa', 'kelasTujuan'])
+        if (! $isGuru) {
+            $mutasiMasuk = MutasiSiswa::with(['siswa', 'kelasTujuan'])
                 ->where('jenis_mutasi', 'Masuk')
                 ->latest('id')
                 ->get();
 
-            $mutasiKeluar = \App\Models\MutasiSiswa::with(['siswa'])
+            $mutasiKeluar = MutasiSiswa::with(['siswa'])
                 ->where('jenis_mutasi', 'Keluar')
                 ->latest('id')
                 ->get();
@@ -71,18 +73,18 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kelas_id'       => 'required|exists:kelas,id',
-            'nomor_induk'    => 'nullable|string|max:30',
-            'nisn'           => 'nullable|string|max:20',
-            'nama_siswa'     => 'required|string|max:150',
-            'jenis_kelamin'  => 'required|in:L,P',
-            'tempat_lahir'   => 'nullable|string|max:100',
-            'tanggal_lahir'  => 'nullable|date',
-            'nama_ayah'      => 'nullable|string|max:150',
-            'nama_ibu'       => 'nullable|string|max:150',
-            'alamat_ortu'    => 'nullable|string',
+            'kelas_id' => 'required|exists:kelas,id',
+            'nomor_induk' => 'nullable|string|max:30',
+            'nisn' => 'nullable|string|max:20',
+            'nama_siswa' => 'required|string|max:150',
+            'jenis_kelamin' => 'required|in:L,P',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'nama_ayah' => 'nullable|string|max:150',
+            'nama_ibu' => 'nullable|string|max:150',
+            'alamat_ortu' => 'nullable|string',
             'pekerjaan_ortu' => 'nullable|string|max:100',
-            'foto'           => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $fotoPath = null;
@@ -91,19 +93,19 @@ class SiswaController extends Controller
         }
 
         Siswa::create([
-            'kelas_id'       => $request->kelas_id,
-            'nomor_induk'    => $request->nomor_induk,
-            'nisn'           => $request->nisn,
-            'nama_siswa'     => strtoupper(trim($request->nama_siswa)),
-            'jenis_kelamin'  => $request->jenis_kelamin,
-            'tempat_lahir'   => $request->tempat_lahir,
-            'tanggal_lahir'  => $request->tanggal_lahir,
-            'nama_ayah'      => $request->nama_ayah,
-            'nama_ibu'       => $request->nama_ibu,
-            'alamat_ortu'    => $request->alamat_ortu,
+            'kelas_id' => $request->kelas_id,
+            'nomor_induk' => $request->nomor_induk,
+            'nisn' => $request->nisn,
+            'nama_siswa' => strtoupper(trim($request->nama_siswa)),
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'nama_ayah' => $request->nama_ayah,
+            'nama_ibu' => $request->nama_ibu,
+            'alamat_ortu' => $request->alamat_ortu,
             'pekerjaan_ortu' => $request->pekerjaan_ortu,
-            'foto'           => $fotoPath,
-            'status'         => 'Aktif',
+            'foto' => $fotoPath,
+            'status' => 'Aktif',
         ]);
 
         return redirect()->back()->with('success', 'Data siswa berhasil ditambahkan!');
@@ -111,38 +113,38 @@ class SiswaController extends Controller
 
     public function update(Request $request, Siswa $siswa)
     {
-        $user   = auth()->user();
+        $user = auth()->user();
         $isGuru = $user && $user->role === 'guru';
 
         $request->validate([
-            'kelas_id'       => 'nullable|exists:kelas,id',
-            'nomor_induk'    => 'nullable|string|max:30',
-            'nisn'           => 'nullable|string|max:20',
-            'nama_siswa'     => 'required|string|max:150',
-            'jenis_kelamin'  => 'required|in:L,P',
-            'tempat_lahir'   => 'nullable|string|max:100',
-            'tanggal_lahir'  => 'nullable|date',
-            'nama_ayah'      => 'nullable|string|max:150',
-            'nama_ibu'       => 'nullable|string|max:150',
-            'alamat_ortu'    => 'nullable|string',
+            'kelas_id' => 'nullable|exists:kelas,id',
+            'nomor_induk' => 'nullable|string|max:30',
+            'nisn' => 'nullable|string|max:20',
+            'nama_siswa' => 'required|string|max:150',
+            'jenis_kelamin' => 'required|in:L,P',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'nama_ayah' => 'nullable|string|max:150',
+            'nama_ibu' => 'nullable|string|max:150',
+            'alamat_ortu' => 'nullable|string',
             'pekerjaan_ortu' => 'nullable|string|max:100',
-            'foto'           => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'status'         => 'nullable|in:Aktif,Mutasi Keluar,Lulus',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'status' => 'nullable|in:Aktif,Mutasi Keluar,Lulus',
         ]);
 
         $data = [
-            'kelas_id'       => ($isGuru || !$request->filled('kelas_id')) ? $siswa->kelas_id : $request->kelas_id,
-            'nomor_induk'    => $request->nomor_induk,
-            'nisn'           => $request->nisn,
-            'nama_siswa'     => strtoupper(trim($request->nama_siswa)),
-            'jenis_kelamin'  => $request->jenis_kelamin,
-            'tempat_lahir'   => $request->tempat_lahir,
-            'tanggal_lahir'  => $request->tanggal_lahir,
-            'nama_ayah'      => $request->nama_ayah,
-            'nama_ibu'       => $request->nama_ibu,
-            'alamat_ortu'    => $request->alamat_ortu,
+            'kelas_id' => ($isGuru || ! $request->filled('kelas_id')) ? $siswa->kelas_id : $request->kelas_id,
+            'nomor_induk' => $request->nomor_induk,
+            'nisn' => $request->nisn,
+            'nama_siswa' => strtoupper(trim($request->nama_siswa)),
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'nama_ayah' => $request->nama_ayah,
+            'nama_ibu' => $request->nama_ibu,
+            'alamat_ortu' => $request->alamat_ortu,
             'pekerjaan_ortu' => $request->pekerjaan_ortu,
-            'status'         => ($isGuru || !$request->filled('status')) ? $siswa->status : $request->status,
+            'status' => ($isGuru || ! $request->filled('status')) ? $siswa->status : $request->status,
         ];
 
         if ($request->hasFile('foto')) {
@@ -164,6 +166,7 @@ class SiswaController extends Controller
         }
 
         $siswa->delete();
+
         return redirect()->back()->with('success', 'Data siswa berhasil dihapus!');
     }
 
@@ -182,7 +185,7 @@ class SiswaController extends Controller
             $s->delete();
         }
 
-        return redirect()->back()->with('success', count($siswas) . ' Data siswa terpilih berhasil dihapus!');
+        return redirect()->back()->with('success', count($siswas).' Data siswa terpilih berhasil dihapus!');
     }
 
     public function importPaste(Request $request)
@@ -196,56 +199,62 @@ class SiswaController extends Controller
         $berhasil = 0;
 
         foreach ($lines as $line) {
-            if (empty(trim($line))) continue;
+            if (empty(trim($line))) {
+                continue;
+            }
 
             $cols = explode("\t", $line);
             $firstCol = trim($cols[0] ?? '');
             $offset = (is_numeric($firstCol) && strlen($firstCol) <= 4) ? 1 : 0;
 
             $nomorInduk = trim($cols[$offset] ?? '');
-            $nisn       = trim($cols[$offset + 1] ?? '');
-            $namaSiswa  = trim($cols[$offset + 2] ?? '');
-            $jk         = strtoupper(trim($cols[$offset + 3] ?? 'L'));
-            $tmpLahir   = trim($cols[$offset + 4] ?? '');
-            $tglRaw     = trim($cols[$offset + 5] ?? '');
-            $ayah       = trim($cols[$offset + 6] ?? '');
-            $ibu        = trim($cols[$offset + 7] ?? '');
-            $alamat     = trim($cols[$offset + 8] ?? '');
-            $pekerjaan  = trim($cols[$offset + 9] ?? '');
+            $nisn = trim($cols[$offset + 1] ?? '');
+            $namaSiswa = trim($cols[$offset + 2] ?? '');
+            $jk = strtoupper(trim($cols[$offset + 3] ?? 'L'));
+            $tmpLahir = trim($cols[$offset + 4] ?? '');
+            $tglRaw = trim($cols[$offset + 5] ?? '');
+            $ayah = trim($cols[$offset + 6] ?? '');
+            $ibu = trim($cols[$offset + 7] ?? '');
+            $alamat = trim($cols[$offset + 8] ?? '');
+            $pekerjaan = trim($cols[$offset + 9] ?? '');
 
-            if (empty($namaSiswa)) continue;
+            if (empty($namaSiswa)) {
+                continue;
+            }
 
             $tglLahir = $this->parseTanggalIndo($tglRaw);
 
             Siswa::create([
-                'kelas_id'       => $request->kelas_id,
-                'nomor_induk'    => $nomorInduk ?: null,
-                'nisn'           => $nisn ?: null,
-                'nama_siswa'     => strtoupper($namaSiswa),
-                'jenis_kelamin'  => in_array($jk, ['L', 'P']) ? $jk : 'L',
-                'tempat_lahir'   => $tmpLahir ?: null,
-                'tanggal_lahir'  => $tglLahir,
-                'nama_ayah'      => $ayah ?: null,
-                'nama_ibu'       => $ibu ?: null,
-                'alamat_ortu'    => $alamat ?: null,
+                'kelas_id' => $request->kelas_id,
+                'nomor_induk' => $nomorInduk ?: null,
+                'nisn' => $nisn ?: null,
+                'nama_siswa' => strtoupper($namaSiswa),
+                'jenis_kelamin' => in_array($jk, ['L', 'P']) ? $jk : 'L',
+                'tempat_lahir' => $tmpLahir ?: null,
+                'tanggal_lahir' => $tglLahir,
+                'nama_ayah' => $ayah ?: null,
+                'nama_ibu' => $ibu ?: null,
+                'alamat_ortu' => $alamat ?: null,
                 'pekerjaan_ortu' => $pekerjaan ?: null,
-                'status'         => 'Aktif',
+                'status' => 'Aktif',
             ]);
 
             $berhasil++;
         }
 
         return redirect()->route('siswa.index', ['kelas_id' => $request->kelas_id])
-                         ->with('success', $berhasil . ' Data Siswa berhasil diimport sekaligus!');
+            ->with('success', $berhasil.' Data Siswa berhasil diimport sekaligus!');
     }
 
     private function parseTanggalIndo($tglRaw)
     {
-        if (empty($tglRaw)) return null;
+        if (empty($tglRaw)) {
+            return null;
+        }
 
         $indo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        $eng  = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        
+        $eng = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
         $translated = str_ireplace($indo, $eng, $tglRaw);
 
         try {

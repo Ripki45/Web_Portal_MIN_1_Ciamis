@@ -285,6 +285,21 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('profil-madrasah.index') }}">
+                            <i class="ph ph-buildings"></i><span>Profil Madrasah</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('kepala-staff.index') }}">
+                            <i class="ph ph-users-three"></i><span>Kepala &amp; Staff Manajemen</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('guru-staff.index') }}">
+                            <i class="ph ph-chalkboard-teacher"></i><span>Halaman Guru &amp; Staff</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('sambutan-profil.index') }}">
                             <i class="ph ph-user-focus"></i><span>Sambutan &amp; Profil</span>
                         </a>

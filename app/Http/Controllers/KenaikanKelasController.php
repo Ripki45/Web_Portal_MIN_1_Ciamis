@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kelas;
-use App\Models\Siswa;
-use App\Models\Presensi;
-use App\Models\HariLibur;
-use App\Models\PengaturanPresensi;
-use App\Models\TahunAjaran;
-use App\Models\KelasMapel;
 use App\Models\Ekskul;
 use App\Models\EkskulAnggota;
+use App\Models\HariLibur;
+use App\Models\Kelas;
+use App\Models\KelasMapel;
+use App\Models\PengaturanPresensi;
+use App\Models\Presensi;
+use App\Models\Siswa;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
@@ -25,21 +25,21 @@ class KenaikanKelasController extends Controller
 
         // Urutkan kelas dari Tingkat 6 turun ke Tingkat 1 (Sesuai urutan wajib kenaikan kelas)
         $kelasListDesc = Kelas::withCount(['siswas' => function ($q) {
-                $q->where('status', 'Aktif');
-            }])
+            $q->where('status', 'Aktif');
+        }])
             ->orderBy('tingkat', 'desc')
             ->orderBy('nama_kelas', 'asc')
             ->get();
 
         $kelasListAsc = Kelas::withCount(['siswas' => function ($q) {
-                $q->where('status', 'Aktif');
-            }])
+            $q->where('status', 'Aktif');
+        }])
             ->orderBy('tingkat', 'asc')
             ->orderBy('nama_kelas', 'asc')
             ->get();
 
         $selectedKelasAsalId = $request->get('kelas_asal_id', $kelasListDesc->first()->id ?? null);
-        $kelasAsal           = Kelas::find($selectedKelasAsalId);
+        $kelasAsal = Kelas::find($selectedKelasAsalId);
 
         $siswaAsal = collect();
         $kelasTujuanList = collect();
@@ -53,8 +53,8 @@ class KenaikanKelasController extends Controller
             // Jika bukan kelas 6, cari daftar kelas di tingkat atasnya (Tingkat + 1)
             if ($kelasAsal->tingkat < 6) {
                 $kelasTujuanList = Kelas::withCount(['siswas' => function ($q) {
-                        $q->where('status', 'Aktif');
-                    }])
+                    $q->where('status', 'Aktif');
+                }])
                     ->where('tingkat', $kelasAsal->tingkat + 1)
                     ->orderBy('nama_kelas', 'asc')
                     ->get();
@@ -69,10 +69,10 @@ class KenaikanKelasController extends Controller
 
         // Statistik Ringkas untuk Panel Tombol Ajaib
         $statSistem = [
-            'total_alumni'     => $alumnis->count(),
+            'total_alumni' => $alumnis->count(),
             'total_hari_libur' => HariLibur::count(),
-            'total_presensi'   => Presensi::count(),
-            'total_siswa_aktif'=> Siswa::where('status', 'Aktif')->count(),
+            'total_presensi' => Presensi::count(),
+            'total_siswa_aktif' => Siswa::where('status', 'Aktif')->count(),
         ];
 
         return view('kenaikan.index', compact(
@@ -89,15 +89,15 @@ class KenaikanKelasController extends Controller
     {
         $request->validate([
             'kelas_asal_id' => 'required|exists:kelas,id',
-            'siswa_ids'     => 'required|array|min:1',
-            'siswa_ids.*'   => 'exists:siswas,id',
+            'siswa_ids' => 'required|array|min:1',
+            'siswa_ids.*' => 'exists:siswas,id',
         ], [
             'siswa_ids.required' => 'Ceklis minimal 1 siswa yang akan dinaikkan / diluluskan!',
         ]);
 
-        $kelasAsal  = Kelas::findOrFail($request->kelas_asal_id);
+        $kelasAsal = Kelas::findOrFail($request->kelas_asal_id);
         $tahunAktif = TahunAjaran::where('is_active', true)->first();
-        $labelTahun = $tahunAktif->tahun_ajaran ?? date('Y') . '/' . (date('Y') + 1);
+        $labelTahun = $tahunAktif->tahun_ajaran ?? date('Y').'/'.(date('Y') + 1);
 
         // =====================================================================
         // KASUS A: KELAS 6 -> DILULUSKAN MENJADI ALUMNI (RUANG KELAS 6 JADI KOSONG)
@@ -106,10 +106,10 @@ class KenaikanKelasController extends Controller
             $jumlahLulus = Siswa::whereIn('id', $request->siswa_ids)
                 ->where('kelas_id', $kelasAsal->id)
                 ->update([
-                    'status'         => 'Lulus',
+                    'status' => 'Lulus',
                     'kelas_terakhir' => $kelasAsal->nama_kelas,
-                    'tahun_lulus'    => $labelTahun,
-                    'kelas_id'       => null, // Kosongkan agar Kelas 6 siap ditempati adik Kelas 5
+                    'tahun_lulus' => $labelTahun,
+                    'kelas_id' => null, // Kosongkan agar Kelas 6 siap ditempati adik Kelas 5
                 ]);
 
             return redirect()->route('kenaikan.index', ['kelas_asal_id' => $kelasAsal->id])
@@ -136,7 +136,7 @@ class KenaikanKelasController extends Controller
             ->where('status', 'Aktif')
             ->count();
 
-        if ($jumlahPenghuniTujuan > 0 && !$request->has('paksa_gabung')) {
+        if ($jumlahPenghuniTujuan > 0 && ! $request->has('paksa_gabung')) {
             return redirect()->back()->with(
                 'error',
                 "DITOLAK OTOMATIS (ANTI DATA MENUMPANG): Kelas tujuan ({$kelasTujuan->nama_kelas}) saat ini masih berisi {$jumlahPenghuniTujuan} siswa aktif yang BELUM dinaikkan ke tingkat berikutnya! Silakan naikkan/luluskan siswa di {$kelasTujuan->nama_kelas} terlebih dahulu agar data siswa tidak bercampur."
@@ -173,7 +173,7 @@ class KenaikanKelasController extends Controller
         }
 
         return redirect()->route('kenaikan.index', ['tab' => 'alumni'])
-            ->with('success', count($alumnis) . ' Data alumni terpilih berhasil dihapus permanen!');
+            ->with('success', count($alumnis).' Data alumni terpilih berhasil dihapus permanen!');
     }
 
     /**
@@ -186,6 +186,7 @@ class KenaikanKelasController extends Controller
         // 1. Hapus Cache Aplikasi
         if ($aksi === 'clear_cache') {
             Artisan::call('optimize:clear');
+
             return redirect()->route('kenaikan.index', ['tab' => 'magic'])
                 ->with('success', '✨ Cache sistem, view, dan route berhasil dibersihkan!');
         }
@@ -193,6 +194,7 @@ class KenaikanKelasController extends Controller
         // 2. Reset Kalender Hari Libur
         if ($aksi === 'reset_hari_libur') {
             HariLibur::query()->delete();
+
             return redirect()->route('kenaikan.index', ['tab' => 'magic'])
                 ->with('success', '🗓️ Seluruh data Hari Libur tahun lama berhasil direset hingga bersih!');
         }
@@ -202,13 +204,14 @@ class KenaikanKelasController extends Controller
             $setting = PengaturanPresensi::first();
             if ($setting) {
                 $setting->update([
-                    'jam_buka'         => '07:15:00',
-                    'jam_tutup'        => '09:00:00',
+                    'jam_buka' => '07:15:00',
+                    'jam_tutup' => '09:00:00',
                     'jam_tutup_manual' => '14:00:00',
-                    'pin_akses'        => '1234',
-                    'libur_minggu'     => true,
+                    'pin_akses' => '1234',
+                    'libur_minggu' => true,
                 ]);
             }
+
             return redirect()->route('kenaikan.index', ['tab' => 'magic'])
                 ->with('success', '⏰ Jam Scan Barcode berhasil dikembalikan ke setelan Default (07:15 - 09:00 WIB, Batas Wali Kelas 14:00 WIB, PIN: 1234)!');
         }
@@ -223,6 +226,7 @@ class KenaikanKelasController extends Controller
                 }
                 $al->delete();
             }
+
             return redirect()->route('kenaikan.index', ['tab' => 'magic'])
                 ->with('success', "🎓 {$jml} Data siswa yang sudah lulus (Alumni) beserta file fotonya berhasil dihapus permanen!");
         }
@@ -231,14 +235,14 @@ class KenaikanKelasController extends Controller
         if ($aksi === 'reset_tahun_ajaran') {
             $request->validate([
                 'tahun_ajaran_baru' => 'required|string|max:30',
-                'semester_baru'     => 'required|in:Ganjil,Genap',
+                'semester_baru' => 'required|in:Ganjil,Genap',
             ]);
 
             TahunAjaran::query()->update(['is_active' => false]);
             TahunAjaran::updateOrCreate(
                 [
                     'tahun_ajaran' => trim($request->tahun_ajaran_baru),
-                    'semester'     => $request->semester_baru,
+                    'semester' => $request->semester_baru,
                 ],
                 [
                     'is_active' => true,

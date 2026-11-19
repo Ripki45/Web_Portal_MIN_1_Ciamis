@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Gtk;
-use App\Models\Siswa;
-use App\Models\Kelas;
-use App\Models\Ekskul;
-use App\Models\Berita;
-use App\Models\KategoriBerita;
 use App\Models\BannerCarousel;
+use App\Models\Berita;
+use App\Models\Ekskul;
+use App\Models\Gtk;
+use App\Models\KategoriBerita;
+use App\Models\Kelas;
+use App\Models\Siswa;
 
 class HomeController extends Controller
 {
@@ -25,15 +25,15 @@ class HomeController extends Controller
             ->take(4)
             ->get();
 
-        $gtks        = Gtk::with(['jabatan', 'posisi'])->orderBy('id', 'asc')->get();
-        $ekskuls     = Ekskul::with(['pembina', 'anggotas'])->where('status', 'Aktif')->get();
-        $totalSiswa  = Siswa::where('status', 'Aktif')->count();
-        $totalGuru   = $gtks->count();
-        $totalKelas  = Kelas::count();
+        $gtks = Gtk::with(['jabatan', 'posisi'])->orderBy('id', 'asc')->get();
+        $ekskuls = Ekskul::with(['pembina', 'anggotas'])->where('status', 'Aktif')->get();
+        $totalSiswa = Siswa::where('status', 'Aktif')->count();
+        $totalGuru = $gtks->count();
+        $totalKelas = Kelas::count();
         $totalEkskul = $ekskuls->count();
 
-        $semuaBerita   = Berita::where('status', 'Tayang')->orderBy('is_featured', 'desc')->orderBy('id', 'desc')->take(3)->get();
-        $beritaUtama   = $semuaBerita->first();
+        $semuaBerita = Berita::where('status', 'Tayang')->orderBy('is_featured', 'desc')->orderBy('id', 'desc')->take(3)->get();
+        $beritaUtama = $semuaBerita->first();
         $beritaSamping = $semuaBerita->slice(1, 2);
 
         $warnaKategori = KategoriBerita::pluck('warna_badge', 'nama_kategori')->toArray();

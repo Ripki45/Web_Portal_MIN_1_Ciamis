@@ -3,11 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class User extends Authenticatable
 {
@@ -30,7 +30,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
+            'password' => 'hashed',
         ];
     }
 
@@ -40,20 +40,20 @@ class User extends Authenticatable
     public static function daftarModulSistem(): array
     {
         return [
-            'kepegawaian'         => ['label' => 'Kepegawaian (Master Jabatan, Posisi & Data GTK)', 'kategori' => 'Manajemen GTK'],
-            'tahun_ajaran'        => ['label' => 'Manajemen Tahun Ajaran', 'kategori' => 'Akademik & Kelas'],
-            'kelas'               => ['label' => 'Manajemen Kelas & Plotting Mapel', 'kategori' => 'Akademik & Kelas'],
-            'siswa'               => ['label' => 'Data Siswa, Buku Mutasi & Cetak Kartu QR', 'kategori' => 'Akademik & Kelas'],
-            'mapel'               => ['label' => 'Master Mata Pelajaran', 'kategori' => 'Akademik & Kelas'],
-            'jadwal'              => ['label' => 'Jadwal Pelajaran', 'kategori' => 'Akademik & Kelas'],
-            'ekskul'              => ['label' => 'Manajemen & Anggota Ekstrakurikuler', 'kategori' => 'Akademik & Kelas'],
-            'kenaikan_reset'      => ['label' => 'Kenaikan Kelas, Alumni & Reset Sistem', 'kategori' => 'Akademik & Kelas'],
-            'presensi_scanner'    => ['label' => 'Layar Scan Barcode QR (Harian/Shalat/Ekskul)', 'kategori' => 'Presensi Harian'],
+            'kepegawaian' => ['label' => 'Kepegawaian (Master Jabatan, Posisi & Data GTK)', 'kategori' => 'Manajemen GTK'],
+            'tahun_ajaran' => ['label' => 'Manajemen Tahun Ajaran', 'kategori' => 'Akademik & Kelas'],
+            'kelas' => ['label' => 'Manajemen Kelas & Plotting Mapel', 'kategori' => 'Akademik & Kelas'],
+            'siswa' => ['label' => 'Data Siswa, Buku Mutasi & Cetak Kartu QR', 'kategori' => 'Akademik & Kelas'],
+            'mapel' => ['label' => 'Master Mata Pelajaran', 'kategori' => 'Akademik & Kelas'],
+            'jadwal' => ['label' => 'Jadwal Pelajaran', 'kategori' => 'Akademik & Kelas'],
+            'ekskul' => ['label' => 'Manajemen & Anggota Ekstrakurikuler', 'kategori' => 'Akademik & Kelas'],
+            'kenaikan_reset' => ['label' => 'Kenaikan Kelas, Alumni & Reset Sistem', 'kategori' => 'Akademik & Kelas'],
+            'presensi_scanner' => ['label' => 'Layar Scan Barcode QR (Harian/Shalat/Ekskul)', 'kategori' => 'Presensi Harian'],
             'presensi_monitoring' => ['label' => 'Presensi Kelas Harian & Pengaturan Jam', 'kategori' => 'Presensi Harian'],
-            'presensi_rekap'      => ['label' => 'Rekap & Laporan Bulanan (PDF & Excel)', 'kategori' => 'Presensi Harian'],
-            'cms'                 => ['label' => 'Konten Website Publik (Menu, Berita, Galeri)', 'kategori' => 'Konten Website'],
-            'pengaturan'          => ['label' => 'Pengaturan Identitas Madrasah', 'kategori' => 'Pengaturan'],
-            'nav_menu'            => ['kategori' => 'Konten Website','label'    => 'Manajemen Menu Navbar (Induk / Anak / Cucu)',],
+            'presensi_rekap' => ['label' => 'Rekap & Laporan Bulanan (PDF & Excel)', 'kategori' => 'Presensi Harian'],
+            'cms' => ['label' => 'Konten Website Publik (Menu, Berita, Galeri)', 'kategori' => 'Konten Website'],
+            'pengaturan' => ['label' => 'Pengaturan Identitas Madrasah', 'kategori' => 'Pengaturan'],
+            'nav_menu' => ['kategori' => 'Konten Website', 'label' => 'Manajemen Menu Navbar (Induk / Anak / Cucu)'],
         ];
     }
 
@@ -69,21 +69,21 @@ class User extends Authenticatable
         }
         $sudahDicek = true;
         // 1. Cek kolom role secara mandiri
-        if (!Schema::hasColumn('users', 'role')) {
+        if (! Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->string('role', 30)->default('guru')->nullable();
             });
         }
 
         // 2. Cek kolom gtk_id secara mandiri (Agar tetap dibuat meskipun kolom role sudah ada duluan)
-        if (!Schema::hasColumn('users', 'gtk_id')) {
+        if (! Schema::hasColumn('users', 'gtk_id')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->unsignedBigInteger('gtk_id')->nullable();
             });
         }
 
         // 3. Cek tabel role_permissions untuk matriks Toggle Switch
-        if (!Schema::hasTable('role_permissions')) {
+        if (! Schema::hasTable('role_permissions')) {
             Schema::create('role_permissions', function (Blueprint $table) {
                 $table->id();
                 $table->string('role', 30);
@@ -111,8 +111,8 @@ class User extends Authenticatable
             foreach (['admin', 'guru', 'pembina_ekskul'] as $r) {
                 foreach (array_keys(self::daftarModulSistem()) as $key) {
                     DB::table('role_permissions')->insert([
-                        'role'       => $r,
-                        'menu_key'   => $key,
+                        'role' => $r,
+                        'menu_key' => $key,
                         'is_allowed' => $defaults[$r][$key] ?? false,
                         'created_at' => now(),
                         'updated_at' => now(),
@@ -120,7 +120,7 @@ class User extends Authenticatable
                 }
             }
         }
-        if (!self::where('role', 'superadmin')->exists()) {
+        if (! self::where('role', 'superadmin')->exists()) {
             $firstUser = self::orderBy('id', 'asc')->first();
             if ($firstUser) {
                 $firstUser->update(['role' => 'superadmin']);
@@ -148,6 +148,7 @@ class User extends Authenticatable
         }
 
         $rolesArray = is_array($roles) ? $roles : explode(',', $roles);
+
         return in_array($userRole, array_map('trim', $rolesArray));
     }
 
@@ -176,11 +177,11 @@ class User extends Authenticatable
     public function getLabelRoleAttribute(): string
     {
         return match ($this->role) {
-            'superadmin'     => 'Super Admin',
-            'admin'          => 'Admin / Operator TU',
-            'guru'           => 'Guru (Wali Kelas / Mapel)',
+            'superadmin' => 'Super Admin',
+            'admin' => 'Admin / Operator TU',
+            'guru' => 'Guru (Wali Kelas / Mapel)',
             'pembina_ekskul' => 'Pembina Ekstrakurikuler',
-            default          => 'Guru / Pengguna',
+            default => 'Guru / Pengguna',
         };
     }
 
@@ -192,16 +193,16 @@ class User extends Authenticatable
         $gtkId = $this->gtk_id;
 
         // Fallback otomatis: jika gtk_id belum dipilih di menu Role, cari berdasarkan kecocokan nama
-        if (!$gtkId && !empty($this->name)) {
-            $gtkId = \App\Models\Gtk::where('nama_lengkap', 'like', '%' . trim($this->name) . '%')->value('id');
+        if (! $gtkId && ! empty($this->name)) {
+            $gtkId = Gtk::where('nama_lengkap', 'like', '%'.trim($this->name).'%')->value('id');
         }
 
-        if (!$gtkId) {
+        if (! $gtkId) {
             return [];
         }
 
-        $waliIds  = \App\Models\Kelas::where('wali_kelas_id', $gtkId)->pluck('id')->toArray();
-        $mapelIds = \App\Models\KelasMapel::where('guru_id', $gtkId)->pluck('kelas_id')->toArray();
+        $waliIds = Kelas::where('wali_kelas_id', $gtkId)->pluck('id')->toArray();
+        $mapelIds = KelasMapel::where('guru_id', $gtkId)->pluck('kelas_id')->toArray();
 
         return array_values(array_unique(array_merge($waliIds, $mapelIds)));
     }
@@ -212,11 +213,12 @@ class User extends Authenticatable
     public function getDaftarKelasAmpuan()
     {
         if (in_array($this->role, ['superadmin', 'admin']) || empty($this->role)) {
-            return \App\Models\Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
+            return Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
         }
 
         $ids = $this->getKelasAmpuanIds();
-        return \App\Models\Kelas::with('waliKelas')
+
+        return Kelas::with('waliKelas')
             ->whereIn('id', $ids)
             ->orderBy('tingkat', 'asc')
             ->orderBy('nama_kelas', 'asc')
@@ -231,15 +233,15 @@ class User extends Authenticatable
         $gtkId = $this->gtk_id;
 
         // Fallback otomatis: jika gtk_id belum dipilih, cari berdasarkan kecocokan nama di tabel GTK
-        if (!$gtkId && !empty($this->name)) {
-            $gtkId = \App\Models\Gtk::where('nama_lengkap', 'like', '%' . trim($this->name) . '%')->value('id');
+        if (! $gtkId && ! empty($this->name)) {
+            $gtkId = Gtk::where('nama_lengkap', 'like', '%'.trim($this->name).'%')->value('id');
         }
 
-        if (!$gtkId) {
+        if (! $gtkId) {
             return [];
         }
 
-        return \App\Models\Ekskul::where('pembina_id', $gtkId)->pluck('id')->toArray();
+        return Ekskul::where('pembina_id', $gtkId)->pluck('id')->toArray();
     }
 
     /**
@@ -248,14 +250,15 @@ class User extends Authenticatable
     public function getDaftarEkskulBinaan()
     {
         if (in_array($this->role, ['superadmin', 'admin']) || empty($this->role)) {
-            return \App\Models\Ekskul::with('pembina')
+            return Ekskul::with('pembina')
                 ->where('status', 'Aktif')
                 ->orderBy('nama_ekskul', 'asc')
                 ->get();
         }
 
         $ids = $this->getEkskulBinaanIds();
-        return \App\Models\Ekskul::with('pembina')
+
+        return Ekskul::with('pembina')
             ->whereIn('id', $ids)
             ->orderBy('nama_ekskul', 'asc')
             ->get();
@@ -271,7 +274,7 @@ class User extends Authenticatable
             return;
         }
         $jadwalDicek = true;
-        if (Schema::hasTable('kelas_mapels') && !Schema::hasColumn('kelas_mapels', 'hari')) {
+        if (Schema::hasTable('kelas_mapels') && ! Schema::hasColumn('kelas_mapels', 'hari')) {
             Schema::table('kelas_mapels', function (Blueprint $table) {
                 $table->string('hari', 30)->default('Setiap Hari')->nullable();
                 $table->string('jam_pelajaran', 50)->default('07:30 - 09:00')->nullable();
@@ -288,10 +291,10 @@ class User extends Authenticatable
         self::pastikanKolomJadwalAda();
 
         $gtkId = $this->gtk_id;
-        if (!$gtkId && !empty($this->name)) {
-            $gtkId = \App\Models\Gtk::where('nama_lengkap', 'like', '%' . trim($this->name) . '%')->value('id');
+        if (! $gtkId && ! empty($this->name)) {
+            $gtkId = Gtk::where('nama_lengkap', 'like', '%'.trim($this->name).'%')->value('id');
         }
-        if (!$gtkId) {
+        if (! $gtkId) {
             return [];
         }
 
@@ -306,25 +309,26 @@ class User extends Authenticatable
         };
 
         // 1. Wali Kelas selalu aktif setiap hari kerja untuk kelasnya sendiri
-        $waliIds = \App\Models\Kelas::where('wali_kelas_id', $gtkId)->pluck('id')->toArray();
+        $waliIds = Kelas::where('wali_kelas_id', $gtkId)->pluck('id')->toArray();
 
         // 2. Guru Mapel hanya aktif pada kelas yang dijadwalkan hari ini (atau jika diset 'Setiap Hari')
-        $mapelHariIniIds = \App\Models\KelasMapel::where('guru_id', $gtkId)
+        $mapelHariIniIds = KelasMapel::where('guru_id', $gtkId)
             ->where(function ($q) use ($hariIndo) {
                 $q->whereNull('hari')
-                  ->orWhere('hari', '')
-                  ->orWhere('hari', 'Setiap Hari')
-                  ->orWhere('hari', 'like', '%' . $hariIndo . '%');
+                    ->orWhere('hari', '')
+                    ->orWhere('hari', 'Setiap Hari')
+                    ->orWhere('hari', 'like', '%'.$hariIndo.'%');
             })
             ->pluck('kelas_id')
             ->toArray();
 
         return array_values(array_unique(array_merge($waliIds, $mapelHariIniIds)));
     }
+
     public function isSuperOrAdmin(): bool
     {
         $r = strtolower(trim((string) $this->role));
+
         return in_array($r, ['superadmin', 'admin', 'super admin']) || session()->has('impersonate_original_id');
     }
-    
 }
