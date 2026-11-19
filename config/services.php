@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Google Gemini AI (Asisten Penulis & Smart Studio MIN 1 Ciamis)
+    |--------------------------------------------------------------------------
+    */
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'model_fallback' => env('GEMINI_MODEL_FALLBACK', 'gemini-2.5-flash-lite'),
+        'endpoint' => env('GEMINI_ENDPOINT', 'https://generativelanguage.googleapis.com/v1beta'),
+    ],
+
 ];

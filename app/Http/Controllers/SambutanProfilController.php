@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Ai\Agents\SambutanKepsekAgent;
 use App\Models\SambutanProfil;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -94,19 +96,36 @@ class SambutanProfilController extends Controller
 
     /**
      * ⚡ SMART AI: EKSTRAK DESKRIPSI MENJADI 4 POIN + PILIHKAN IKON OTOMATIS
+     *
+     * Mendukung 2 mode:
+     *   - Smart AI Lokal (default): regex + keyword matching, instan tanpa kuota.
+     *   - Gemini API (opsional): jika field 'engine' berisi model Gemini dan API Key tersedia.
      */
     public function generateAi(Request $request)
     {
         $tipe = $request->input('tipe', 'profil');
         $teks = trim((string) $request->input('teks', ''));
+        $engine = $request->input('engine', 'auto');
 
         // A. Jika diminta menyusun Draf Sambutan Kepala Madrasah
         if ($tipe === 'sambutan') {
             $namaKepsek = trim((string) $request->input('nama_kepsek', 'Kepala MIN 1 Ciamis'));
             $fokus = ! empty($teks) ? $teks : 'Pendidikan karakter Qur\'ani, keunggulan akademik, dan madrasah ramah anak';
 
+            // Coba Gemini API jika API Key tersedia dan user tidak memaksa 'smart_local'
+            if ($engine !== 'smart_local') {
+                $apiKey = trim((string) config('services.gemini.key', ''));
+                if (! empty($apiKey)) {
+                    $geminiResult = $this->generateSambutanGemini($namaKepsek, $fokus, $apiKey, $engine);
+                    if ($geminiResult) {
+                        return response()->json($geminiResult);
+                    }
+                }
+            }
+
             return response()->json([
                 'status' => 'success',
+                'source' => 'Smart AI Studio Lokal',
                 'kutipan' => 'Mewujudkan Generasi Madrasah yang Berakhlak Mulia, Cerdas, dan Unggul dalam Prestasi.',
                 'isi' => "Assalamu'alaikum Warahmatullahi Wabarakatuh.\n\n"
                     ."Alhamdulillahi rabbil 'alamin, puji dan syukur senantiasa kita panjatkan ke hadirat Allah SWT. Selamat datang di portal informasi resmi Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis.\n\n"
@@ -120,8 +139,97 @@ class SambutanProfilController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'source' => 'Smart AI Studio Lokal',
             'poin' => $poinHasil,
         ]);
+    }
+
+    /**
+     * Memanggil Gemini API / Laravel AI Agent untuk menyusun draf sambutan Kepala Madrasah.
+     *
+     * @return array|null Hasil JSON jika berhasil, null jika gagal.
+     */
+    private function generateSambutanGemini(string $namaKepsek, string $fokus, string $apiKey, string $engine): ?array
+    {
+        // 1. Prioritas 1: Gunakan Laravel AI SDK Agent (SambutanKepsekAgent)
+        try {
+            $agent = new SambutanKepsekAgent;
+            $agentPrompt = "Nama Kepala Madrasah: {$namaKepsek}\nFokus Tema / Pesan Inti: {$fokus}\nBuatkan naskah sambutan resmi website madrasah.";
+            $aiOutput = $agent->prompt($agentPrompt);
+
+            if (! empty($aiOutput['kutipan']) && ! empty($aiOutput['isi'])) {
+                return [
+                    'status' => 'success',
+                    'source' => 'Laravel AI SDK (SambutanKepsekAgent)',
+                    'kutipan' => $aiOutput['kutipan'],
+                    'isi' => $aiOutput['isi'],
+                ];
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke Direct HTTP API jika SDK Agent mengalami kendala
+        }
+
+        $baseUrl = config('services.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
+        $model = ($engine !== 'smart_local') ? $engine : config('services.gemini.model', 'gemini-2.5-flash');
+
+        $prompt = "Kamu adalah penulis sambutan resmi Kepala Madrasah Ibtidaiyah Negeri 1 Ciamis (MIN 1 Ciamis) bernama {$namaKepsek}.\n"
+            ."Buatkan sambutan kepala madrasah untuk website resmi MIN 1 Ciamis yang:\n"
+            ."- Formal, hangat, dan islami\n"
+            ."- Fokus tema: {$fokus}\n"
+            ."- Minimal 3 paragraf, diawali salam pembuka dan diakhiri salam penutup\n\n"
+            ."Kembalikan dalam format JSON murni:\n"
+            ."{\n"
+            .'  "kutipan": "1 kalimat kutipan inspiratif untuk banner",'."\n"
+            .'  "isi": "Teks sambutan lengkap dengan salam pembuka dan penutup"'."\n"
+            .'}';
+
+        try {
+            $response = Http::withHeaders([
+                'x-goog-api-key' => $apiKey,
+                'Content-Type' => 'application/json',
+            ])->withOptions([
+                'force_ip_resolve' => 'v4',
+                'verify' => false,
+            ])->connectTimeout(15)->timeout(40)->post("{$baseUrl}/models/{$model}:generateContent", [
+                'contents' => [['role' => 'user', 'parts' => [['text' => $prompt]]]],
+                'generationConfig' => ['temperature' => 0.5, 'responseMimeType' => 'application/json'],
+            ]);
+
+            if ($response->successful()) {
+                $parts = $response->json('candidates.0.content.parts') ?? [];
+                $rawText = '';
+
+                foreach ($parts as $part) {
+                    if (! empty($part['thought'])) {
+                        continue;
+                    }
+                    $rawText .= (string) ($part['text'] ?? '');
+                }
+
+                $cleaned = trim(str_replace(['```json', '```'], '', $rawText));
+                $firstBrace = strpos($cleaned, '{');
+                $lastBrace = strrpos($cleaned, '}');
+
+                if ($firstBrace !== false && $lastBrace !== false && $lastBrace > $firstBrace) {
+                    $cleaned = substr($cleaned, $firstBrace, ($lastBrace - $firstBrace) + 1);
+                }
+
+                $parsed = json_decode($cleaned, true);
+
+                if (is_array($parsed) && ! empty($parsed['kutipan']) && ! empty($parsed['isi'])) {
+                    return [
+                        'status' => 'success',
+                        'source' => 'Google '.strtoupper($model),
+                        'kutipan' => $parsed['kutipan'],
+                        'isi' => $parsed['isi'],
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            // Gagal, akan fallback ke Smart AI Lokal
+        }
+
+        return null;
     }
 
     /**

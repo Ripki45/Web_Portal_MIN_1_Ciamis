@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Ai\Agents\BeritaWriterAgent;
 use App\Models\Berita;
 use App\Models\Ekskul;
 use App\Models\Gtk;
@@ -46,14 +47,11 @@ class BeritaController extends Controller
     /**
      * SATU PINTU KONTROL DAFTAR MODEL AI
      */
-    /**
-     * SATU PINTU KONTROL DAFTAR MODEL AI (Bebas Error 404 NotFound)
-     */
     public static function daftarModelAi(): array
     {
         return [
-            'gemini-3.1-pro' => '✦ Gemini 3.1 Pro (Utama — Penulisan Mendalam)',
-            'gemini-3.8-flash' => '✦ Gemini 3.8 Flash (Cepat & Ringan)',
+            'gemini-2.5-flash' => '✦ Gemini 2.5 Flash (Utama — Cepat & Andal)',
+            'gemini-2.5-pro' => '✦ Gemini 2.5 Pro (Penulisan Mendalam)',
             'smart_local' => '⚡ Smart AI Studio Lokal (Instan Tanpa Kuota)',
         ];
     }
@@ -288,7 +286,7 @@ class BeritaController extends Controller
         $topik = trim($request->topik);
         $kategori = $request->kategori ?: 'Kegiatan Madrasah';
         $nada = $request->nada ?: 'Formal, Inspiratif, dan Edukatif';
-        $engine = $request->engine ?: 'gemini-3.1-pro';
+        $engine = $request->engine ?: 'gemini-2.5-flash';
 
         // 1. Jika user memilih Smart AI Studio Lokal
         if ($engine === 'smart_local') {
@@ -299,16 +297,10 @@ class BeritaController extends Controller
             ]);
         }
 
-        // 2. Ambil API Key dari input form atau .env
+        // 2. Ambil API Key dari input form atau config (standar Laravel)
         $apiKey = trim((string) $request->api_key);
         if (empty($apiKey)) {
-            $apiKey = trim((string) config('services.gemini.key', env('GEMINI_API_KEY', '')));
-        }
-        if (empty($apiKey) && file_exists(base_path('.env'))) {
-            $envContent = file_get_contents(base_path('.env'));
-            if (preg_match('/^GEMINI_API_KEY\s*=\s*([^\r\n#]+)/m', $envContent, $matches)) {
-                $apiKey = trim($matches[1], " \t\n\r\0\x0B\"'");
-            }
+            $apiKey = trim((string) config('services.gemini.key', ''));
         }
 
         if (empty($apiKey)) {
@@ -317,6 +309,54 @@ class BeritaController extends Controller
                 'source' => 'Smart AI Studio Lokal (API Key Belum Diisi)',
                 'data' => $this->susunBeritaSmartLokal($topik, $kategori),
             ]);
+        }
+
+        // 3. Prioritas 1: Gunakan Laravel AI SDK Agent (BeritaWriterAgent)
+        try {
+            $agent = new BeritaWriterAgent;
+            $agentPrompt = "Topik / Poin Kegiatan: {$topik}\nKategori: {$kategori}\nGaya Bahasa: {$nada}";
+            $aiOutput = $agent->prompt($agentPrompt);
+
+            if (! empty($aiOutput['judul']) && ! empty($aiOutput['isi_konten'])) {
+                return response()->json([
+                    'status' => 'success',
+                    'source' => 'Laravel AI SDK (BeritaWriterAgent)',
+                    'data' => [
+                        'judul' => $aiOutput['judul'],
+                        'slug' => Str::slug($aiOutput['judul']),
+                        'ringkasan' => $aiOutput['ringkasan'] ?? '',
+                        'kutipan' => $aiOutput['kutipan'] ?? '',
+                        'tags' => $aiOutput['tags'] ?? "{$kategori}, MIN 1 Ciamis",
+                        'isi_konten' => $aiOutput['isi_konten'],
+                    ],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke Direct HTTP API atau Smart Local jika SDK Agent mengalami kendala jaringan
+        }
+
+        // 3. Prioritas 1: Gunakan Laravel AI SDK Agent (BeritaWriterAgent)
+        try {
+            $agent = new \App\Ai\Agents\BeritaWriterAgent();
+            $agentPrompt = "Topik / Poin Kegiatan: {$topik}\nKategori: {$kategori}\nGaya Bahasa: {$nada}";
+            $aiOutput = $agent->prompt($agentPrompt);
+
+            if (! empty($aiOutput['judul']) && ! empty($aiOutput['isi_konten'])) {
+                return response()->json([
+                    'status' => 'success',
+                    'source' => 'Laravel AI SDK (BeritaWriterAgent)',
+                    'data' => [
+                        'judul' => $aiOutput['judul'],
+                        'slug' => Str::slug($aiOutput['judul']),
+                        'ringkasan' => $aiOutput['ringkasan'] ?? '',
+                        'kutipan' => $aiOutput['kutipan'] ?? '',
+                        'tags' => $aiOutput['tags'] ?? "{$kategori}, MIN 1 Ciamis",
+                        'isi_konten' => $aiOutput['isi_konten'],
+                    ],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke Direct HTTP API atau Smart Local jika SDK Agent mengalami kendala jaringan
         }
 
         $prompt = 'Kamu adalah Jurnalis & Humas Resmi Madrasah Ibtidaiyah Negeri 1 Ciamis (MIN 1 Ciamis). '
@@ -333,20 +373,21 @@ class BeritaController extends Controller
             .'  "isi_konten": "Isi artikel lengkap minimal 3 paragraf dan daftar poin menggunakan tag HTML <h4>, <p>, <ul>, <li>, dan <strong>"'."\n"
             .'}';
 
-        // Murni hanya memanggil keluarga Gemini 3 (Tidak ada lagi seri 2.x)
-        $kandidatModel = array_values(array_unique([
+        $baseUrl = config('services.gemini.endpoint', 'https://generativelanguage.googleapis.com/v1beta');
+
+        // Urutan model yang dicoba: pilihan user → utama → fallback
+        $kandidatModel = array_values(array_unique(array_filter([
             $engine,
-            'gemini-3.1-pro',
-            'gemini-3.8-flash',
-            'gemini-3.1-pro-preview',
-        ]));
+            config('services.gemini.model', 'gemini-2.5-flash'),
+            config('services.gemini.model_fallback', 'gemini-2.5-flash-lite'),
+        ])));
 
         foreach ($kandidatModel as $modelName) {
-            if ($modelName === 'smart_local' or str_starts_with($modelName, 'gemini-2')) {
+            if ($modelName === 'smart_local') {
                 continue;
             }
 
-            $urlEndpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent";
+            $urlEndpoint = "{$baseUrl}/models/{$modelName}:generateContent";
 
             try {
                 $response = Http::withHeaders([
@@ -383,7 +424,7 @@ class BeritaController extends Controller
                     }
                 }
             } catch (\Exception $e) {
-                // Lanjut ke kandidat model Gemini 3 berikutnya
+                // Lanjut ke kandidat model Gemini berikutnya
             }
         }
 
@@ -485,6 +526,8 @@ class BeritaController extends Controller
 
     /**
      * Mesin Penulis Berita Kontekstual (Smart AI Studio Lokal MIN 1 Ciamis)
+     *
+     * Mengenali 7 kategori topik madrasah dan menyusun draf artikel yang relevan.
      */
     private function susunBeritaSmartLokal(string $topik, string $kategori): array
     {
@@ -495,7 +538,8 @@ class BeritaController extends Controller
 
         $lower = strtolower($topik);
 
-        if (str_contains($lower, 'shalat') or str_contains($lower, 'dhuha') or str_contains($lower, 'mengaji') or str_contains($lower, 'tahfidz')) {
+        // Kategori 1: Ibadah & Keagamaan
+        if (str_contains($lower, 'shalat') || str_contains($lower, 'dhuha') || str_contains($lower, 'mengaji') || str_contains($lower, 'tahfidz') || str_contains($lower, 'qur') || str_contains($lower, 'isra') || str_contains($lower, 'maulid') || str_contains($lower, 'pesantren')) {
             $kutipan = 'Pembiasaan ibadah sejak dini adalah fondasi utama dalam membentuk generasi madrasah yang beriman, bertakwa, dan berakhlakul karimah.';
             $isi = '<h4>Pembiasaan Ibadah Pagi di Lingkungan Madrasah</h4>'
                 ."<p><strong>CIAMIS</strong> — Suasana religius dan penuh kekhusyukan tampak menyelimuti halaman serta mushala Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis dalam pelaksanaan <strong>{$topik}</strong>. Kegiatan rutin keagamaan ini diikuti oleh seluruh peserta didik dengan didampingi langsung oleh Bapak dan Ibu dewan guru.</p>"
@@ -507,7 +551,79 @@ class BeritaController extends Controller
                 .'<li><strong>Pengamalan Nilai Ibadah:</strong> Membiasakan praktik shalat dan doa agar melekat dalam keseharian siswa baik di madrasah maupun di rumah.</li>'
                 .'</ul>'
                 .'<p>Kepala Madrasah beserta jajaran pendidik MIN 1 Ciamis berharap program pembiasaan ibadah ini terus istiqamah dijalankan demi mencetak lulusan yang cerdas secara intelektual sekaligus kokoh dalam spiritual.</p>';
-        } else {
+        }
+        // Kategori 2: Upacara & Hari Besar Nasional
+        elseif (str_contains($lower, 'upacara') || str_contains($lower, 'kemerdekaan') || str_contains($lower, 'hari guru') || str_contains($lower, 'hari santri') || str_contains($lower, 'hari pendidikan') || str_contains($lower, 'bendera') || str_contains($lower, 'nasional')) {
+            $kutipan = 'Melalui peringatan hari besar nasional, semangat cinta tanah air dan nilai kebangsaan tertanam kuat di hati setiap siswa MIN 1 Ciamis.';
+            $isi = '<h4>Upacara & Peringatan Hari Besar di MIN 1 Ciamis</h4>'
+                ."<p><strong>CIAMIS</strong> — Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis dengan penuh khidmat menyelenggarakan <strong>{$topik}</strong>. Seluruh warga madrasah — mulai dari Kepala Madrasah, dewan guru, tenaga kependidikan, hingga para siswa — hadir kompak mengenakan atribut lengkap sebagai bentuk penghormatan.</p>"
+                .'<p>Pembina upacara menyampaikan amanat yang menekankan pentingnya meneladani semangat para pahlawan dan pendiri bangsa. Pesan ini disampaikan dengan bahasa yang membumi agar mudah dipahami oleh peserta didik tingkat dasar.</p>'
+                .'<h4>Nilai-Nilai yang Ditanamkan</h4>'
+                .'<ul>'
+                .'<li><strong>Cinta Tanah Air:</strong> Menanamkan rasa kebangsaan dan patriotisme melalui lagu-lagu nasional dan amanat upacara.</li>'
+                .'<li><strong>Kedisiplinan:</strong> Melatih siswa berbaris rapi, mendengarkan dengan tertib, dan menghormati simbol negara.</li>'
+                .'<li><strong>Semangat Juang:</strong> Menginspirasi siswa untuk tekun belajar demi kemajuan agama, bangsa, dan negara.</li>'
+                .'</ul>'
+                .'<p>Kegiatan diakhiri dengan doa bersama dan sesi foto seluruh peserta upacara sebagai dokumentasi kegiatan madrasah.</p>';
+        }
+        // Kategori 3: Lomba, Prestasi & Kompetisi
+        elseif (str_contains($lower, 'lomba') || str_contains($lower, 'juara') || str_contains($lower, 'prestasi') || str_contains($lower, 'kompetisi') || str_contains($lower, 'olimpiade') || str_contains($lower, 'ksm') || str_contains($lower, 'aksioma') || str_contains($lower, 'porseni')) {
+            $kutipan = 'Prestasi gemilang siswa MIN 1 Ciamis membuktikan bahwa madrasah mampu bersaing di kancah lokal maupun nasional.';
+            $isi = '<h4>Raihan Prestasi Membanggakan dari MIN 1 Ciamis</h4>'
+                ."<p><strong>CIAMIS</strong> — Putra-putri terbaik Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis kembali mengukir prestasi membanggakan dalam ajang <strong>{$topik}</strong>. Keberhasilan ini merupakan buah dari pembinaan intensif yang dilakukan oleh para guru pembimbing dan semangat pantang menyerah dari para siswa.</p>"
+                .'<p>Para juara tampak bangga menerima piala dan sertifikat penghargaan yang diserahkan langsung dalam upacara khusus di halaman madrasah. Kepala Madrasah memberikan apresiasi setinggi-tingginya atas pencapaian ini.</p>'
+                .'<h4>Pembinaan Berkelanjutan</h4>'
+                .'<ul>'
+                .'<li><strong>Program Bimbingan Intensif:</strong> Siswa berprestasi mendapatkan sesi bimbingan tambahan dari guru mapel dan tutor eksternal.</li>'
+                .'<li><strong>Dukungan Fasilitas:</strong> Madrasah menyediakan perpustakaan, laboratorium, dan akses belajar digital untuk menunjang persiapan lomba.</li>'
+                .'<li><strong>Mental Juara:</strong> Pembekalan motivasi dan simulasi kompetisi rutin dilaksanakan untuk membentuk mental tangguh siswa.</li>'
+                .'</ul>'
+                .'<p>MIN 1 Ciamis bertekad terus mencetak generasi berprestasi yang mampu menjadi kebanggaan madrasah, orang tua, dan bangsa.</p>';
+        }
+        // Kategori 4: PPDB & Penerimaan Siswa Baru
+        elseif (str_contains($lower, 'ppdb') || str_contains($lower, 'pendaftaran') || str_contains($lower, 'siswa baru') || str_contains($lower, 'penerimaan') || str_contains($lower, 'orientasi')) {
+            $kutipan = 'Pendaftaran peserta didik baru dibuka sebagai langkah awal dalam mewujudkan generasi madrasah yang unggul dan berakhlak mulia.';
+            $isi = '<h4>Informasi Penerimaan Peserta Didik Baru</h4>'
+                ."<p><strong>CIAMIS</strong> — Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis resmi membuka kegiatan <strong>{$topik}</strong>. Proses penerimaan dilaksanakan secara transparan, adil, dan sesuai ketentuan Kementerian Agama Republik Indonesia.</p>"
+                .'<p>Para calon wali murid dapat memperoleh informasi lengkap mengenai persyaratan, jadwal seleksi, dan ketentuan lainnya melalui website resmi madrasah atau datang langsung ke kantor tata usaha pada jam kerja.</p>'
+                .'<h4>Keunggulan MIN 1 Ciamis</h4>'
+                .'<ul>'
+                .'<li><strong>Akreditasi Unggul:</strong> Kualitas pendidikan terjamin dengan capaian akreditasi terbaik dari BAN-S/M.</li>'
+                .'<li><strong>Kurikulum Terpadu:</strong> Memadukan kurikulum nasional dengan muatan keagamaan dan karakter Islami.</li>'
+                .'<li><strong>Lingkungan Kondusif:</strong> Fasilitas belajar modern, area hijau, dan suasana yang aman serta nyaman bagi anak.</li>'
+                .'</ul>'
+                .'<p>Ayo bergabung bersama keluarga besar MIN 1 Ciamis untuk masa depan putra-putri yang lebih cerah!</p>';
+        }
+        // Kategori 5: Olahraga & Senam
+        elseif (str_contains($lower, 'senam') || str_contains($lower, 'olahraga') || str_contains($lower, 'jalan sehat') || str_contains($lower, 'renang') || str_contains($lower, 'futsal') || str_contains($lower, 'bola') || str_contains($lower, 'atletik')) {
+            $kutipan = 'Tubuh yang sehat melahirkan jiwa yang kuat — semangat olahraga menjadi bagian penting kehidupan madrasah.';
+            $isi = '<h4>Kegiatan Olahraga & Kebugaran di MIN 1 Ciamis</h4>'
+                ."<p><strong>CIAMIS</strong> — Suasana ceria dan penuh semangat menghiasi halaman Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis dalam kegiatan <strong>{$topik}</strong>. Seluruh siswa berpartisipasi aktif dengan antusias tinggi.</p>"
+                .'<p>Kegiatan ini bertujuan menumbuhkan budaya hidup sehat dan aktif di kalangan warga madrasah, sekaligus menjadi sarana mempererat kebersamaan antar-siswa dari berbagai kelas.</p>'
+                .'<h4>Manfaat bagi Siswa</h4>'
+                .'<ul>'
+                .'<li><strong>Kesehatan Jasmani:</strong> Menjaga kebugaran tubuh agar siswa tetap prima dan bersemangat dalam belajar.</li>'
+                .'<li><strong>Sportivitas:</strong> Menanamkan jiwa sportif, kerja sama tim, dan sikap pantang menyerah.</li>'
+                .'<li><strong>Kebersamaan:</strong> Mempererat silaturahmi dan kekompakan antar-siswa lintas kelas.</li>'
+                .'</ul>'
+                .'<p>MIN 1 Ciamis berkomitmen menjadikan olahraga sebagai bagian rutin pendidikan holistik bagi seluruh peserta didik.</p>';
+        }
+        // Kategori 6: Kunjungan, Study Tour & Kolaborasi
+        elseif (str_contains($lower, 'kunjungan') || str_contains($lower, 'study tour') || str_contains($lower, 'wisata') || str_contains($lower, 'museum') || str_contains($lower, 'kolaborasi') || str_contains($lower, 'kerja sama') || str_contains($lower, 'mou')) {
+            $kutipan = 'Belajar tidak hanya di dalam kelas — pengalaman di luar madrasah memperluas cakrawala pengetahuan siswa.';
+            $isi = '<h4>Kegiatan Kunjungan Edukatif MIN 1 Ciamis</h4>'
+                ."<p><strong>CIAMIS</strong> — Dalam rangka memperkaya pengalaman belajar siswa, Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis menyelenggarakan <strong>{$topik}</strong>. Kegiatan ini diikuti dengan penuh antusiasme oleh para peserta didik didampingi oleh guru-guru pendamping.</p>"
+                .'<p>Melalui kegiatan ini, siswa mendapatkan kesempatan belajar langsung dari sumber dan lingkungan nyata yang tidak ditemukan di ruang kelas biasa.</p>'
+                .'<h4>Dampak Positif</h4>'
+                .'<ul>'
+                .'<li><strong>Wawasan Luas:</strong> Siswa mengenal secara langsung objek pembelajaran yang sebelumnya hanya dibaca di buku teks.</li>'
+                .'<li><strong>Kolaborasi:</strong> Terbukanya peluang kerja sama antara madrasah dengan lembaga dan institusi lain.</li>'
+                .'<li><strong>Motivasi Belajar:</strong> Pengalaman baru memicu semangat dan rasa ingin tahu yang lebih besar pada siswa.</li>'
+                .'</ul>'
+                .'<p>Kegiatan ini menjadi bukti komitmen MIN 1 Ciamis dalam menerapkan pembelajaran kontekstual dan bermakna.</p>';
+        }
+        // Kategori 7: Default / Umum
+        else {
             $kutipan = "Melalui kegiatan {$topik}, kita wujudkan generasi MIN 1 Ciamis yang berakhlak mulia, cerdas, dan siap berprestasi.";
             $isi = '<h4>Pelaksanaan Kegiatan di MIN 1 Ciamis</h4>'
                 ."<p><strong>CIAMIS</strong> — Madrasah Ibtidaiyah Negeri (MIN) 1 Ciamis kembali menyelenggarakan agenda positif bertajuk <strong>{$topik}</strong>. Kegiatan yang berlangsung dengan penuh antusiasme ini diikuti oleh jajaran pendidik, tenaga kependidikan, serta para siswa sebagai wujud nyata komitmen madrasah dalam menghadirkan layanan pendidikan yang unggul.</p>"

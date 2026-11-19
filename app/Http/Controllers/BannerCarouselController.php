@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Ai\Agents\BannerTaglineAgent;
 use App\Models\BannerCarousel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -122,5 +123,39 @@ class BannerCarouselController extends Controller
         $banner->delete();
 
         return redirect()->back()->with('success', 'Slide Hero Carousel berhasil dihapus!');
+    }
+
+    /**
+     * Generate Tagline & Teks Banner Carousel Menggunakan Laravel AI Agent (BannerTaglineAgent)
+     */
+    public function generateAi(Request $request)
+    {
+        $tema = trim((string) $request->input('tema', 'Pendidikan Karakter Islami dan Prestasi Siswa Madrasah'));
+
+        try {
+            $agent = new BannerTaglineAgent;
+            $result = $agent->prompt("Tema Banner: {$tema}\nBuatkan teks banner hero landing page yang memikat.");
+
+            if (! empty($result['aksara_besar'])) {
+                return response()->json([
+                    'status' => 'success',
+                    'source' => 'Laravel AI SDK (BannerTaglineAgent)',
+                    'data' => $result,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Fallback ke Smart AI Lokal
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'source' => 'Smart AI Studio Lokal',
+            'data' => [
+                'aksara_kecil' => 'MADRASAH IBTIDAIYAH NEGERI 1 CIAMIS',
+                'aksara_besar' => strlen($tema) > 10 ? ucwords($tema) : 'Mewujudkan Generasi Madrasah Unggul, Berakhlak, dan Berprestasi',
+                'teks_domain' => 'BERAKHLAK MULIA • CERDAS • BERPRESTASI GLOBAL',
+                'deskripsi' => 'Lembaga pendidikan dasar berciri khas Islam dengan kurikulum terpadu, lingkungan asri, dan pembinaan karakter holistik.',
+            ],
+        ]);
     }
 }

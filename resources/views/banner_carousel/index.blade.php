@@ -62,6 +62,17 @@
                     @csrf
                     <div class="card-body p-20">
 
+                        <!-- Asisten AI Generator Tagline Banner -->
+                        <div class="p-12 radius-12 bg-warning-focus border border-warning mb-16 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                                <span class="fw-bold text-xs text-warning-main d-block">✨ Asisten AI Copywriter Banner</span>
+                                <span class="text-xs text-secondary-light">Buat paduan aksara &amp; slogan inspiratif secara instan</span>
+                            </div>
+                            <button type="button" class="btn btn-warning btn-sm radius-8 fw-bold text-xs px-12 py-6" onclick="generateBannerAi()">
+                                ⚡ Buat Tagline AI
+                            </button>
+                        </div>
+
                         <!-- Pilihan Tata Letak Slide -->
                         <div class="p-14 radius-12 bg-success-focus border border-success mb-16">
                             <label class="form-label fw-bold text-xs text-success-main mb-6 d-block">
@@ -82,6 +93,7 @@
                                     </label>
                                     <input type="text"
                                            name="aksara_kecil"
+                                           id="inputAksaraKecil"
                                            class="form-control radius-8 fw-semibold"
                                            placeholder="Contoh: Selamat datang di"
                                            required>
@@ -103,6 +115,7 @@
                                 </label>
                                 <input type="text"
                                        name="aksara_besar"
+                                       id="inputAksaraBesar"
                                        class="form-control radius-8 fw-bold text-uppercase"
                                        placeholder="Contoh: MIN 1 CIAMIS"
                                        required>
@@ -114,6 +127,7 @@
                                 </label>
                                 <input type="text"
                                        name="teks_domain"
+                                       id="inputTeksDomain"
                                        class="form-control form-control-sm radius-8 font-monospace text-xs"
                                        value="w w w . m i n 1 c i a m i s . s c h . i d"
                                        placeholder="w w w . m i n 1 c i a m i s . s c h . i d">
@@ -128,6 +142,7 @@
                                 </label>
                                 <input type="text"
                                        name="keterangan_1"
+                                       id="inputKeterangan1"
                                        class="form-control form-control-sm radius-8 fw-semibold"
                                        placeholder="Contoh: Bertaqwa ~ Berakhlaq Mulia ~ Unggul Prestasi"
                                        required>
@@ -139,6 +154,7 @@
                                 </label>
                                 <input type="text"
                                        name="keterangan_2"
+                                       id="inputKeterangan2"
                                        class="form-control form-control-sm radius-8 fw-semibold"
                                        placeholder="Contoh: Cakap Berteknologi ~ Berwawasan Global ~ Peduli Lingkungan">
                             </div>
@@ -387,6 +403,55 @@
             } else {
                 box.classList.remove('d-none');
             }
+        }
+
+        function generateBannerAi() {
+            Swal.fire({
+                title: '✨ Buat Tagline Banner AI',
+                input: 'text',
+                inputLabel: 'Masukkan topik atau tema banner (contoh: Prestasi Sains & Tahfidz, Madrasah Digital, PPDB):',
+                inputValue: 'Pendidikan Karakter Qurani dan Prestasi Unggul',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '⚡ Generate AI',
+                cancelButtonText: 'Batal',
+                showLoaderOnConfirm: true,
+                preConfirm: function (tema) {
+                    return fetch("{{ route('banner-carousel.generateAi') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify({ tema: tema })
+                    })
+                    .then(function (res) {
+                        if (!res.ok) throw new Error(res.statusText);
+                        return res.json();
+                    })
+                    .catch(function (error) {
+                        Swal.showValidationMessage('Gagal generate: ' + error);
+                    });
+                },
+                allowOutsideClick: function () { return !Swal.isLoading(); }
+            }).then(function (result) {
+                if (result.isConfirmed && result.value && result.value.status === 'success') {
+                    var d = result.value.data;
+                    if (d.aksara_kecil) document.getElementById('inputAksaraKecil').value = d.aksara_kecil;
+                    if (d.aksara_besar) document.getElementById('inputAksaraBesar').value = d.aksara_besar;
+                    if (d.teks_domain) document.getElementById('inputTeksDomain').value = d.teks_domain;
+                    if (d.deskripsi) document.getElementById('inputKeterangan1').value = d.deskripsi;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tagline Banner Siap!',
+                        text: 'Teks banner berhasil disusun oleh ' + (result.value.source || 'AI Agent') + '.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
         }
 
         function tampilkanPreview(input, targetImgId) {

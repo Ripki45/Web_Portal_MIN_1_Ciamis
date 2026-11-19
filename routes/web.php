@@ -135,6 +135,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/kategori-berita/{id}', [BeritaController::class, 'updateKategori'])->name('kategori-berita.update');
     Route::delete('/kategori-berita/{id}', [BeritaController::class, 'destroyKategori'])->name('kategori-berita.destroy');
 
+    Route::post('/banner-carousel/generate-ai', [BannerCarouselController::class, 'generateAi'])->name('banner-carousel.generateAi');
     Route::resource('banner-carousel', BannerCarouselController::class)->except(['create', 'show', 'edit']);
     // Manajemen Terpadu: Sambutan Kepala Madrasah, Profil, Visi, Misi & Motto
     Route::get('/sambutan-profil', [SambutanProfilController::class, 'index'])->name('sambutan-profil.index');
