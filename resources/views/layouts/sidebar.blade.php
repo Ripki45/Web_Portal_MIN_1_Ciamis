@@ -325,6 +325,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('program-unggulan.index') }}">
+                            <i class="ph ph-star"></i><span>Program Unggulan</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#"><i class="ph ph-megaphone"></i><span>Pengumuman</span></a>
                     </li>
                     <li>

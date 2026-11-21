@@ -23,6 +23,7 @@ use App\Http\Controllers\PosisiController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilMadrasahController;
+use App\Http\Controllers\ProgramUnggulanController;
 use App\Http\Controllers\SambutanProfilController;
 use App\Http\Controllers\SemanticSearchController;
 use App\Http\Controllers\SiswaController;
@@ -51,6 +52,11 @@ Route::get('/layanan', [LayananCepatController::class, 'publik']);
 // Route Halaman Publik Dunia Ilmu (Direktori Media Pembelajaran & Aplikasi Edukasi)
 Route::get('/dunia-ilmu', [DuniaIlmuController::class, 'publik'])->name('dunia-ilmu.publik');
 Route::get('/media-pembelajaran', [DuniaIlmuController::class, 'publik']);
+
+// Route Halaman Publik Program Unggulan
+Route::get('/program-unggulan', [ProgramUnggulanController::class, 'publik'])->name('program-unggulan.publik');
+Route::get('/program', [ProgramUnggulanController::class, 'publik']);
+Route::get('/program-unggulan/{slug}', [ProgramUnggulanController::class, 'detail'])->name('program-unggulan.detail');
 Route::post('/scan-presensi/verifikasi-pin', [PresensiController::class, 'verifikasiPinServer'])
     ->middleware('throttle:5,1')
     ->name('presensi.verifikasiPin');
@@ -64,6 +70,8 @@ Route::get('/profil-madrasah', [ProfilMadrasahController::class, 'showFrontend']
 Route::get('/kepala-madrasah-dan-staff', [KepalaStaffController::class, 'showFrontend'])->name('kepala-staff.public');
 // Halaman Publik Sub-Menu 3: Guru dan Staff
 Route::get('/guru-dan-staff', [GuruStaffController::class, 'showFrontend'])->name('guru-staff.public');
+// Halaman Publik Statis (NavMenu & Konten Informasi Madrasah)
+Route::get('/halaman/{slug}', [HalamanController::class, 'show'])->name('halaman.show');
 
 Route::middleware('auth')->group(function () {
     // Manajemen Role Pengguna & Toggle Hak Akses
@@ -174,6 +182,11 @@ Route::middleware('auth')->group(function () {
     // Manajemen Layanan Cepat (Quick Access Portal)
     Route::resource('layanan-cepat-admin', LayananCepatController::class)->names('layanan-cepat')->except(['create', 'show', 'edit']);
     Route::patch('/layanan-cepat-admin/{id}/toggle-status', [LayananCepatController::class, 'toggleStatus'])->name('layanan-cepat.toggle-status');
+
+    // Manajemen Program Unggulan
+    Route::post('/program-unggulan-admin/generate-ai', [ProgramUnggulanController::class, 'generateAiProgram'])->name('program-unggulan.generateAi');
+    Route::resource('program-unggulan-admin', ProgramUnggulanController::class)->names('program-unggulan')->parameters(['program-unggulan-admin' => 'id'])->except(['show']);
+    Route::patch('/program-unggulan-admin/{id}/toggle-status', [ProgramUnggulanController::class, 'toggleStatus'])->name('program-unggulan.toggle-status');
 });
 
 require __DIR__.'/auth.php';

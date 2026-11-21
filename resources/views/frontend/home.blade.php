@@ -1845,56 +1845,59 @@
             </div>
 
             <div class="programs-grid">
-                <div class="program-card-modern">
-                    <div class="program-card-banner">
-                        <img src="{{ asset('frontend/assets/imgs/page/img-4.png') }}" alt="Tahfidzul Qur'an" />
-                        <span class="program-card-badge"><i class="fas fa-quran"></i> Karakter Qur'ani</span>
-                    </div>
-                    <div class="program-card-body">
-                        <h3 class="program-card-title">Tahfidz &amp; Tartil Qur'an</h3>
-                        <p class="program-card-desc">Program pembiasaan hafalan surat pilihan dan Juz 30 dengan bimbingan
-                            ustadz/ustadzah bersertifikasi makharijul huruf.</p>
-                        <ul class="program-card-features">
-                            <li><i class="fas fa-check-circle"></i> Target Hafalan Juz Amma (Juz 30)</li>
-                            <li><i class="fas fa-check-circle"></i> Pembiasaan Dhuha &amp; Dhuhur Berjamaah</li>
-                            <li><i class="fas fa-check-circle"></i> Munaqosyah &amp; Wisuda Tahfidz</li>
-                        </ul>
-                    </div>
-                </div>
+                @php
+                    $listPrograms = isset($programUnggulans) && $programUnggulans->isNotEmpty()
+                        ? $programUnggulans->take(3)
+                        : \App\Models\ProgramUnggulan::where('is_active', true)->orderBy('urutan', 'asc')->take(3)->get();
+                @endphp
 
-                <div class="program-card-modern">
-                    <div class="program-card-banner">
-                        <img src="{{ asset('frontend/assets/imgs/page/img-5.png') }}" alt="Club Sains Madrasah" />
-                        <span class="program-card-badge"><i class="fas fa-flask"></i> Sains &amp; Riset</span>
-                    </div>
-                    <div class="program-card-body">
-                        <h3 class="program-card-title">Club Sains Madrasah (KSM)</h3>
-                        <p class="program-card-desc">Inkubasi talenta sains dan matematika terintegrasi nilai-nilai
-                            keislaman untuk mencetak juara olimpiade sains madrasah.</p>
-                        <ul class="program-card-features">
-                            <li><i class="fas fa-check-circle"></i> Bimbingan Matematika Terintegrasi</li>
-                            <li><i class="fas fa-check-circle"></i> Praktikum Sains &amp; Lingkungan Hidup</li>
-                            <li><i class="fas fa-check-circle"></i> Mentoring Juara KSM &amp; OSN</li>
-                        </ul>
-                    </div>
-                </div>
+                @forelse ($listPrograms as $prog)
+                    <div class="program-card-modern" style="cursor: pointer;" onclick="window.location.href='{{ route('program-unggulan.detail', $prog->slug) }}'">
+                        <div class="program-card-banner">
+                            <img src="{{ $prog->gambar_url }}" alt="{{ $prog->judul }}" loading="lazy" />
+                            <span class="program-card-badge">
+                                <i class="{{ $prog->icon }}"></i> {{ $prog->kategori_badge }}
+                            </span>
+                        </div>
+                        <div class="program-card-body d-flex flex-column justify-content-between">
+                            <div>
+                                <h3 class="program-card-title">{{ $prog->judul }}</h3>
+                                <p class="program-card-desc">{{ $prog->ringkasan }}</p>
+                                @php
+                                    $poinHome = $prog->poin_list;
+                                @endphp
+                                @if (!empty($poinHome))
+                                    <ul class="program-card-features">
+                                        @foreach (array_slice($poinHome, 0, 3) as $poin)
+                                            <li><i class="fas fa-check-circle"></i> {{ $poin }}</li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </div>
 
-                <div class="program-card-modern">
-                    <div class="program-card-banner">
-                        <img src="{{ asset('frontend/assets/imgs/page/img-6.png') }}" alt="Madrasah Digital" />
-                        <span class="program-card-badge"><i class="fas fa-laptop"></i> Digitalisasi</span>
+                            <div class="pt-3 border-top mt-3 d-flex align-items-center justify-content-between" style="border-top-color: #f1f5f9 !important;">
+                                <span style="font-size: 0.82rem; font-weight: 700; color: #0D6A56; display: inline-flex; align-items: center; gap: 6px;">
+                                    Pelajari Program <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span style="font-size: 0.74rem; color: #94a3b8; font-weight: 600;">
+                                    <i class="far fa-clock"></i> {{ $prog->waktu_baca }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="program-card-body">
-                        <h3 class="program-card-title">Madrasah Digital &amp; Literasi</h3>
-                        <p class="program-card-desc">Pemanfaatan media pembelajaran digital interaktif, asesmen berbasis
-                            komputer, dan penguatan literasi 3 bahasa.</p>
-                        <ul class="program-card-features">
-                            <li><i class="fas fa-check-circle"></i> Media Pembelajaran Interaktif</li>
-                            <li><i class="fas fa-check-circle"></i> Presensi QR Code &amp; Rapor Digital</li>
-                            <li><i class="fas fa-check-circle"></i> Pembiasaan Literasi Pagi</li>
-                        </ul>
+                @empty
+                    <div class="text-center py-4 w-100 col-12 text-muted">
+                        Belum ada program unggulan aktif.
                     </div>
-                </div>
+                @endforelse
+            </div>
+
+            <!-- Tombol Lihat Selengkapnya Menuju Halaman Direktori Program Unggulan -->
+            <div style="text-align: center; margin-top: 42px;">
+                <a href="{{ route('program-unggulan.publik') }}" class="guru-view-all-btn" style="display: inline-flex; text-decoration: none; padding: 12px 28px; font-size: 0.92rem;">
+                    <span>Lihat Seluruh Program Unggulan</span>
+                    <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                </a>
             </div>
         </div>
     </section>

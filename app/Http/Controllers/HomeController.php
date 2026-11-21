@@ -10,6 +10,7 @@ use App\Models\Gtk;
 use App\Models\KategoriBerita;
 use App\Models\Kelas;
 use App\Models\LayananCepat;
+use App\Models\ProgramUnggulan;
 use App\Models\Siswa;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -76,9 +77,15 @@ class HomeController extends Controller
         KategoriBerita::pastikanTabelSiap();
         BannerPpdb::pastikanTabelSiap();
         LayananCepat::pastikanTabelSiap();
+        ProgramUnggulan::pastikanTabelSiap();
 
         $bannerPpdb = BannerPpdb::ambilData();
         $layananCepats = LayananCepat::where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $programUnggulans = ProgramUnggulan::where('is_active', true)
             ->orderBy('urutan', 'asc')
             ->orderBy('id', 'asc')
             ->get();
@@ -110,7 +117,7 @@ class HomeController extends Controller
 
         return compact(
             'banners', 'gtks', 'ekskuls', 'totalSiswa', 'totalGuru', 'totalKelas', 'totalEkskul',
-            'beritaUtama', 'beritaSamping', 'warnaKategori', 'bannerPpdb', 'layananCepats'
+            'beritaUtama', 'beritaSamping', 'warnaKategori', 'bannerPpdb', 'layananCepats', 'programUnggulans'
         );
     }
 
