@@ -13,7 +13,7 @@
                         </svg>
                     </a>
                     <h5 class="mb-4">Cari Berita & Informasi Madrasah</h5>
-                    <form action="{{ route('home') }}" method="GET" class="d-flex flex-wrap flex-lg-nowrap gap-2">
+                    <form action="{{ route('berita.publik') }}" method="GET" class="d-flex flex-wrap flex-lg-nowrap gap-2">
                         <input class="form-control" type="text" name="q"
                             placeholder="Ketik kata kunci berita, ekskul, atau pengumuman...">
                         <button class="btn btn-dark button-effect-1" type="submit">Cari</button>

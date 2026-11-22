@@ -60,6 +60,10 @@
 
                 <h3 class="footer-widget-title" style="margin-top: 14px">Tautan Cepat</h3>
                 <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem;">
+                    <a href="{{ route('berita.publik') }}" style="color: #cbd5e1; text-decoration: none">
+                        <i class="fas fa-chevron-right"
+                            style="color: #1b9c85; font-size: 0.75rem; margin-right: 6px"></i> Kabar &amp; Berita Madrasah
+                    </a>
                     <a href="{{ route('home') }}#profil" style="color: #cbd5e1; text-decoration: none">
                         <i class="fas fa-chevron-right"
                             style="color: #1b9c85; font-size: 0.75rem; margin-right: 6px"></i> Profil Madrasah

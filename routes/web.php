@@ -33,6 +33,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/api/semantic-search', [SemanticSearchController::class, 'search'])->name('api.semantic-search');
+// Route Halaman Publik Kabar Madrasah (Portal Berita & Warta)
+Route::get('/kabar-madrasah', [BeritaController::class, 'publik'])->name('berita.publik');
+Route::get('/kabar', [BeritaController::class, 'publik']);
+Route::get('/warta', [BeritaController::class, 'publik']);
+Route::get('/warta-madrasah', [BeritaController::class, 'publik']);
 Route::get('/berita/{slug}', [BeritaController::class, 'show'])
     ->where('slug', '^(?!create$|edit$).*')
     ->name('berita.show');

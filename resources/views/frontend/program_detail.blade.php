@@ -621,7 +621,7 @@
                     @endforeach
                 </div>
 
-                <!-- Share Bar & Navigasi -->
+                <!-- Tag & Tombol Bagikan -->
                 <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between p-3 bg-light rounded-12 border">
                     <div class="d-flex align-items-center gap-2">
                         <a href="{{ route('program-unggulan.publik') }}" class="btn btn-outline-success btn-sm radius-8 fw-bold">
@@ -659,22 +659,21 @@
         <!-- =========================================================================
              4. BOTTOM SECTION: PROGRAM UNGGULAN LAINNYA, DATA MADRASAH & KONSULTASI
              ========================================================================= -->
-        <section class="sra-bottom-section">
+        <section class="sra-bottom-section" style="background: #fafcfb; border-top: 1px solid #e2e8f0; padding: 60px 0 70px;">
             <div class="container">
                 <div class="row g-4">
-
                     <!-- Kolom 1: Profil & PPDB -->
                     <div class="col-lg-4 col-md-6">
-                        <div class="author-card h-100 p-24 bg-white border radius-16 shadow-2xs text-center d-flex flex-column justify-content-between">
+                        <div class="author-card h-100 p-24 bg-white border radius-16 shadow-2xs text-center d-flex flex-column justify-content-between" style="border-radius: 18px; padding: 24px;">
                             <div>
                                 <div class="card-img mb-3 text-center">
                                     <img class="rounded-circle avatar-154 p-3 bg-white shadow-sm"
                                         src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Logo MIN 1 Ciamis"
-                                        style="object-fit: contain; width: 100px; height: 100px;" />
+                                        style="object-fit: contain; width: 90px; height: 90px;" />
                                 </div>
                                 <h5 class="mb-2" style="font-family: 'Outfit', sans-serif; font-weight: 800;">MIN 1 Ciamis</h5>
                                 <p class="mb-4 fs-7 text-muted">
-                                    Madrasah Ibtidaiyah Negeri 1 Ciamis — Membina generasi Qur'ani, berakhlak mulia, unggul prestasi sains, dan adaptif terhadap perkembangan teknologi.
+                                    Madrasah Ibtidaiyah Negeri 1 Ciamis — Membina generasi Qur'ani, berakhlak mulia, unggul prestasi sains, dan adaptif terhadap teknologi.
                                 </p>
                             </div>
                             <a href="{{ route('home') }}#banner-ppdb" class="btn btn-success w-100 button-effect-1"
@@ -686,7 +685,7 @@
 
                     <!-- Kolom 2: Program Unggulan Lainnya -->
                     <div class="col-lg-4 col-md-6">
-                        <div class="p-24 bg-white border radius-16 shadow-2xs h-100 d-flex flex-column">
+                        <div class="p-24 bg-white border radius-16 shadow-2xs h-100 d-flex flex-column" style="border-radius: 18px; padding: 24px;">
                             <div class="d-flex align-items-center gap-2 mb-3">
                                 <i class="fas fa-star text-warning" style="font-size: 1.2rem;"></i>
                                 <h5 class="mb-0 fw-bold" style="font-family: 'Outfit', sans-serif;">Program Unggulan Lainnya</h5>
@@ -695,14 +694,14 @@
                             <div class="d-flex flex-column gap-3 flex-grow-1">
                                 @forelse ($programLain as $pl)
                                     <a href="{{ route('program-unggulan.detail', $pl->slug) }}"
-                                       class="d-flex align-items-center gap-3 p-10 bg-light rounded-12 border text-decoration-none hover-up">
+                                       class="d-flex align-items-center gap-3 p-10 bg-light rounded-12 border text-decoration-none hover-up" style="border-radius: 12px; padding: 10px;">
                                         <img src="{{ $pl->gambar_url }}" alt="{{ $pl->judul }}"
-                                             class="rounded-8 flex-shrink-0" style="width: 60px; height: 48px; object-fit: cover;">
+                                             class="rounded-8 flex-shrink-0" style="width: 58px; height: 46px; object-fit: cover; border-radius: 8px;">
                                         <div>
                                             <span class="badge bg-white text-success fw-bold text-2xs mb-1 border">
                                                 <i class="{{ $pl->icon }}"></i> {{ $pl->kategori_badge }}
                                             </span>
-                                            <h6 class="fs-7 fw-bold text-dark mb-0 text-truncate" style="max-width: 190px;">
+                                            <h6 class="fs-7 fw-bold text-dark mb-0 text-truncate" style="max-width: 180px;">
                                                 {{ $pl->judul }}
                                             </h6>
                                         </div>
@@ -718,9 +717,9 @@
                     <div class="col-lg-4 col-md-12">
                         <div class="d-flex flex-column gap-3 h-100">
                             <!-- Konsultasi Program -->
-                            <div class="p-20 radius-16" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; border-radius: 18px;">
+                            <div class="p-20 radius-16" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; border-radius: 18px; padding: 20px;">
                                 <div class="d-flex align-items-center gap-3 mb-2">
-                                    <div style="width: 42px; height: 42px; border-radius: 10px; background: #0D6A56; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #0D6A56; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 17px;">
                                         <i class="fas fa-headset"></i>
                                     </div>
                                     <div>
@@ -738,7 +737,7 @@
 
                             <!-- Data Real-Time Madrasah (Odometer) -->
                             @if (!empty($statMadrasah))
-                                <div class="p-20 bg-white border radius-16 shadow-2xs flex-grow-1">
+                                <div class="p-20 bg-white border radius-16 shadow-2xs flex-grow-1" style="border-radius: 18px; padding: 20px;">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-chart-line text-success"></i>
                                         <h6 class="mb-0 fw-bold" style="font-family: 'Outfit', sans-serif;">Data Real-Time Madrasah</h6>
@@ -765,6 +764,8 @@
                     </div>
 
                 </div>
+            </div>
+        </section>
             </div>
         </section>
 

@@ -2086,6 +2086,14 @@
                     </div>
                 @endforeach
             </div>
+
+            <!-- Tombol Lihat Selengkapnya Menuju Halaman Kabar Madrasah -->
+            <div style="text-align: center; margin-top: 42px;">
+                <a href="{{ route('berita.publik') }}" class="guru-view-all-btn" style="display: inline-flex; text-decoration: none; padding: 12px 30px; font-size: 0.95rem; font-weight: 700;">
+                    <span>Lihat Seluruh Kabar Madrasah</span>
+                    <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                </a>
+            </div>
         </div>
     </section>
 

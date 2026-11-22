@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class BeritaController extends Controller
 {
@@ -653,6 +654,85 @@ class BeritaController extends Controller
         ];
     }
 
+    /**
+     * Halaman Publik: Direktori Kabar Madrasah (Warta, Berita & Artikel)
+     */
+    public function publik(Request $request): View
+    {
+        Berita::pastikanTabelSiap();
+        KategoriBerita::pastikanTabelSiap();
+
+        $query = Berita::where('status', 'Tayang');
+
+        // Filter Kategori
+        $kategoriAktif = $request->query('kategori', 'semua');
+        if ($kategoriAktif && $kategoriAktif !== 'semua') {
+            $query->where('kategori', $kategoriAktif);
+        }
+
+        // Pencarian Kata Kunci
+        $q = trim((string) $request->query('q', ''));
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('judul', 'like', "%{$q}%")
+                    ->orWhere('ringkasan', 'like', "%{$q}%")
+                    ->orWhere('isi_konten', 'like', "%{$q}%")
+                    ->orWhere('tags', 'like', "%{$q}%")
+                    ->orWhere('penulis', 'like', "%{$q}%");
+            });
+        }
+
+        // Sorting (Terbaru, Populer, Terlama)
+        $sort = $request->query('sort', 'terbaru');
+        if ($sort === 'populer') {
+            $query->orderBy('views', 'desc')->orderBy('id', 'desc');
+        } elseif ($sort === 'terlama') {
+            $query->orderBy('id', 'asc');
+        } else {
+            $query->orderBy('is_featured', 'desc')->orderBy('id', 'desc');
+        }
+
+        $beritas = $query->paginate(9)->withQueryString();
+
+        // Berita Sorotan / Utama (khusus ditampilkan menonjol di halaman 1 saat tidak sedang mencari)
+        $beritaUtama = null;
+        $page = (int) $request->query('page', 1);
+        if ($page <= 1 && empty($q) && $kategoriAktif === 'semua') {
+            $beritaUtama = Berita::where('status', 'Tayang')
+                ->where('is_featured', true)
+                ->latest('id')
+                ->first()
+                ?? Berita::where('status', 'Tayang')->latest('id')->first();
+        }
+
+        // 4 Berita Terpopuler untuk Sidebar / Sorotan
+        $beritaPopuler = Berita::where('status', 'Tayang')
+            ->orderBy('views', 'desc')
+            ->take(4)
+            ->get();
+
+        $kategoris = KategoriBerita::withCount(['beritas' => function ($q) {
+            $q->where('status', 'Tayang');
+        }])->orderBy('nama_kategori', 'asc')->get();
+
+        $totalBerita = Berita::where('status', 'Tayang')->count();
+        $totalPembaca = Berita::where('status', 'Tayang')->sum('views');
+        $warnaKategori = KategoriBerita::pluck('warna_badge', 'nama_kategori')->toArray();
+
+        return view('frontend.berita', compact(
+            'beritas',
+            'beritaUtama',
+            'beritaPopuler',
+            'kategoris',
+            'totalBerita',
+            'totalPembaca',
+            'kategoriAktif',
+            'q',
+            'sort',
+            'warnaKategori'
+        ));
+    }
+
     public function show($slug)
     {
         Berita::pastikanTabelSiap();
@@ -673,6 +753,10 @@ class BeritaController extends Controller
             'Ekstrakurikuler' => Ekskul::where('status', 'Aktif')->count(),
         ];
 
-        return view('frontend.berita_detail', compact('berita', 'beritaTerkait', 'statMadrasah'));
+        $kategoriPopuler = KategoriBerita::withCount(['beritas' => function ($q) {
+            $q->where('status', 'Tayang');
+        }])->orderByDesc('beritas_count')->take(10)->get();
+
+        return view('frontend.berita_detail', compact('berita', 'beritaTerkait', 'statMadrasah', 'kategoriPopuler'));
     }
 }
