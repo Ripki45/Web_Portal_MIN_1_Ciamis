@@ -11,7 +11,6 @@
             min-height: 85vh;
         }
 
-        /* Breadcrumb Bar */
         .program-breadcrumb-bar {
             display: flex;
             align-items: center;
@@ -33,7 +32,6 @@
             text-decoration: underline;
         }
 
-        /* Hero Banner Program Unggulan (Modern Emerald with Gold Ambient Glow) */
         .program-hero-card {
             background: linear-gradient(135deg, #06372D 0%, #0D6A56 50%, #15803D 100%);
             border-radius: 28px;
@@ -119,9 +117,6 @@
             color: #FFE15D;
         }
 
-        /* ==========================================================================
-           FILTER & SEARCH COMPONENT (MODERN & TOUCH-FRIENDLY)
-           ========================================================================== */
         .program-filter-card {
             background: #ffffff;
             border-radius: 22px;
@@ -187,7 +182,6 @@
             cursor: pointer;
         }
 
-        /* Horizontal Category Chips Carousel */
         .program-chips-scroll {
             display: flex;
             align-items: center;
@@ -239,7 +233,6 @@
             color: #64748b;
         }
 
-        /* Results Bar */
         .program-results-bar {
             display: flex;
             align-items: center;
@@ -258,13 +251,10 @@
             font-weight: 800;
         }
 
-        /* ==========================================================================
-           GRID KARTU PROGRAM UNGGULAN (MODERN SHOWCASE CARD)
-           ========================================================================== */
         .program-showcase-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 28px;
         }
         .program-showcase-card {
             background: #ffffff;
@@ -273,18 +263,15 @@
             border: 1.5px solid #e2e8f0;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
             position: relative;
         }
         .program-showcase-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             border-color: #1B9C85;
             box-shadow: 0 22px 45px rgba(27, 156, 133, 0.16);
         }
-
-        /* Banner Sampul */
         .program-card-thumb-wrap {
             position: relative;
             height: 220px;
@@ -340,8 +327,6 @@
             border-radius: 9999px;
             z-index: 2;
         }
-
-        /* Body Kartu */
         .program-card-content {
             padding: 26px;
             display: flex;
@@ -371,8 +356,6 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-
-        /* Poin Fitur Ceklis */
         .program-features-list {
             list-style: none;
             padding: 0;
@@ -396,8 +379,6 @@
             margin-top: 2px;
             flex-shrink: 0;
         }
-
-        /* Kutipan Tagline Mini */
         .program-quote-pill {
             background: #f0fdf4;
             border-left: 3px solid #0D6A56;
@@ -412,8 +393,6 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-
-        /* Footer Kartu & Tombol Selengkapnya */
         .program-card-footer-meta {
             padding-top: 16px;
             border-top: 1px solid #f1f5f9;
@@ -452,7 +431,6 @@
             box-shadow: 0 4px 12px rgba(13, 106, 86, 0.25);
         }
 
-        /* Empty State */
         .program-empty-state {
             display: none;
             text-align: center;
@@ -474,130 +452,80 @@
             justify-content: center;
             font-size: 2rem;
         }
-
-        /* Dark Mode Theme */
-        [data-bs-theme="dark"] .program-page-wrap {
-            background: #0b1519;
+        .program-empty-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: #0f172a;
+            margin-bottom: 8px;
         }
-        [data-bs-theme="dark"] .program-breadcrumb-bar {
-            color: #94a3b8;
-        }
-        [data-bs-theme="dark"] .program-breadcrumb-bar a {
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-filter-card {
-            background: #132228;
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        [data-bs-theme="dark"] .program-search-input {
-            background: #1a2f37;
-            border-color: rgba(255, 255, 255, 0.12);
-            color: #f1f5f9;
-        }
-        [data-bs-theme="dark"] .program-search-input:focus {
-            background: #1e3740;
-            border-color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-chip-btn {
-            background: #1a2f37;
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #cbd5e1;
-        }
-        [data-bs-theme="dark"] .program-chip-btn:hover {
-            background: #243f4a;
-            color: #ffffff;
-        }
-        [data-bs-theme="dark"] .program-chip-btn.active {
-            background: linear-gradient(135deg, #1B9C85 0%, #0D6A56 100%);
-            color: #ffffff;
-            border-color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-results-count {
-            color: #cbd5e1;
-        }
-        [data-bs-theme="dark"] .program-results-count strong {
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-showcase-card {
-            background: #132228;
-            border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-        }
-        [data-bs-theme="dark"] .program-showcase-card:hover {
-            border-color: #34d399;
-            box-shadow: 0 22px 45px rgba(0, 0, 0, 0.45);
-        }
-        [data-bs-theme="dark"] .program-card-main-title {
-            color: #f1f5f9;
-        }
-        [data-bs-theme="dark"] .program-showcase-card:hover .program-card-main-title {
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-card-summary {
-            color: #94a3b8;
-        }
-        [data-bs-theme="dark"] .program-features-list li {
-            color: #cbd5e1;
-        }
-        [data-bs-theme="dark"] .program-features-list li i {
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-quote-pill {
-            background: rgba(13, 106, 86, 0.2);
-            color: #a7f3d0;
-            border-left-color: #34d399;
-        }
-        [data-bs-theme="dark"] .program-card-footer-meta {
-            border-top-color: rgba(255, 255, 255, 0.08);
-        }
-        [data-bs-theme="dark"] .program-card-author-info {
-            color: #94a3b8;
-        }
-        [data-bs-theme="dark"] .program-card-btn-action {
-            background: #1a2f37;
-            color: #34d399;
-            border-color: rgba(52, 211, 153, 0.3);
-        }
-        [data-bs-theme="dark"] .program-empty-state {
-            background: #132228;
-            border-color: rgba(255, 255, 255, 0.12);
+        .program-empty-desc {
+            font-size: 0.92rem;
+            color: #64748b;
+            max-width: 520px;
+            margin: 0 auto 20px;
         }
 
-        /* Mobile Responsive */
+        .program-cta-banner {
+            margin-top: 56px;
+            background: linear-gradient(135deg, #09332C 0%, #0D6A56 100%);
+            border-radius: 26px;
+            padding: 36px 38px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 24px;
+            box-shadow: 0 16px 36px rgba(9, 51, 44, 0.2);
+        }
+
+        /* Dark Mode */
+        [data-bs-theme="dark"] .program-page-wrap { background: #0b1519; }
+        [data-bs-theme="dark"] .program-breadcrumb-bar { color: #94a3b8; }
+        [data-bs-theme="dark"] .program-breadcrumb-bar a { color: #34d399; }
+        [data-bs-theme="dark"] .program-filter-card { background: #132228; border-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .program-search-input { background: #1a2f37; border-color: rgba(255, 255, 255, 0.12); color: #f1f5f9; }
+        [data-bs-theme="dark"] .program-search-input:focus { background: #1e3740; border-color: #34d399; }
+        [data-bs-theme="dark"] .program-chip-btn { background: #1a2f37; border-color: rgba(255, 255, 255, 0.1); color: #cbd5e1; }
+        [data-bs-theme="dark"] .program-chip-btn:hover { background: #243f4a; color: #ffffff; }
+        [data-bs-theme="dark"] .program-chip-btn.active { background: linear-gradient(135deg, #1B9C85 0%, #0D6A56 100%); color: #ffffff; border-color: #34d399; }
+        [data-bs-theme="dark"] .program-results-count { color: #cbd5e1; }
+        [data-bs-theme="dark"] .program-results-count strong { color: #34d399; }
+        [data-bs-theme="dark"] .program-showcase-card { background: #132228; border-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .program-showcase-card:hover { border-color: #34d399; }
+        [data-bs-theme="dark"] .program-card-main-title,
+        [data-bs-theme="dark"] .program-empty-title { color: #f1f5f9; }
+        [data-bs-theme="dark"] .program-showcase-card:hover .program-card-main-title { color: #34d399; }
+        [data-bs-theme="dark"] .program-card-summary,
+        [data-bs-theme="dark"] .program-card-author-info,
+        [data-bs-theme="dark"] .program-empty-desc { color: #94a3b8; }
+        [data-bs-theme="dark"] .program-features-list li { color: #cbd5e1; }
+        [data-bs-theme="dark"] .program-features-list li i { color: #34d399; }
+        [data-bs-theme="dark"] .program-quote-pill { background: rgba(13, 106, 86, 0.2); color: #a7f3d0; border-left-color: #34d399; }
+        [data-bs-theme="dark"] .program-card-footer-meta { border-top-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .program-card-btn-action { background: #1a2f37; color: #34d399; border-color: rgba(52, 211, 153, 0.3); }
+        [data-bs-theme="dark"] .program-empty-state { background: #132228; border-color: rgba(255, 255, 255, 0.12); }
+        [data-bs-theme="dark"] .program-empty-icon { background: #1a2f37; color: #64748b; }
+
         @media (max-width: 767.98px) {
-            .program-hero-card {
-                padding: 30px 22px;
-                border-radius: 20px;
-                margin-bottom: 22px;
-            }
-            .program-hero-title {
-                font-size: 1.8rem;
-            }
-            .program-hero-desc {
-                font-size: 0.92rem;
-            }
-            .program-filter-card {
-                padding: 16px;
-                border-radius: 18px;
-            }
-            .program-showcase-grid {
-                grid-template-columns: 1fr;
-                gap: 22px;
-            }
+            .program-hero-card { padding: 30px 22px; border-radius: 20px; margin-bottom: 22px; }
+            .program-hero-title { font-size: 1.8rem; }
+            .program-hero-desc { font-size: 0.92rem; }
+            .program-filter-card { padding: 16px; border-radius: 18px; }
+            .program-showcase-grid { grid-template-columns: 1fr; gap: 22px; }
+            .program-cta-banner { padding: 26px 22px; }
         }
     </style>
 
     <div class="program-page-wrap">
         <div class="container">
 
-            <!-- Breadcrumb Navigation -->
+            <!-- Breadcrumb -->
             <div class="program-breadcrumb-bar">
                 <a href="{{ route('home') }}"><i class="fas fa-home"></i> Beranda</a>
-                <i class="fas fa-chevron-right text-xs" style="font-size: 10px;"></i>
-                <a href="{{ route('home') }}#program"><i class="fas fa-star"></i> Program Unggulan</a>
-                <i class="fas fa-chevron-right text-xs" style="font-size: 10px;"></i>
-                <span>Direktori Lengkap</span>
+                <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+                <span>Program Unggulan</span>
             </div>
 
             <!-- Hero Section -->
@@ -607,7 +535,7 @@
                 </div>
                 <h1 class="program-hero-title">Katalog Program Unggulan MIN 1 Ciamis</h1>
                 <p class="program-hero-desc">
-                    Mewujudkan ekosistem pendidikan dasar Islam yang seimbang dan adaptif: mengakar kuat dalam nilai Qur'ani, unggul dalam penguasaan sains dan literasi digital, serta menumbuhkan potensi fitrah santri dalam lingkungan belajar Sekolah Ramah Anak yang penuh kasih sayang.
+                    Mewujudkan ekosistem pendidikan dasar Islam yang seimbang dan adaptif: mengakar kuat dalam nilai Qur'ani, unggul dalam penguasaan sains dan literasi digital, serta menumbuhkan potensi fitrah santri dalam lingkungan belajar yang aman dan penuh kasih sayang.
                 </p>
 
                 <div class="program-hero-stats">
@@ -615,32 +543,22 @@
                         <i class="fas fa-layer-group"></i>
                         <span><strong>{{ $totalSemua }}</strong> Program Unggulan</span>
                     </div>
-                    <div class="program-hero-stat-pill">
-                        <i class="fas fa-child-reaching"></i>
-                        <span>Sekolah Ramah Anak</span>
-                    </div>
-                    <div class="program-hero-stat-pill">
-                        <i class="fas fa-quran"></i>
-                        <span>Tahfidz Juz 30</span>
-                    </div>
-                    <div class="program-hero-stat-pill">
-                        <i class="fas fa-flask"></i>
-                        <span>Sains &amp; Riset KSM</span>
-                    </div>
-                    <div class="program-hero-stat-pill">
-                        <i class="fas fa-laptop-code"></i>
-                        <span>Madrasah Digital</span>
-                    </div>
+                    @foreach ($daftarKategori->take(4) as $katPill)
+                        <div class="program-hero-stat-pill">
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ $katPill }}</span>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Filter & Search Component -->
+            <!-- Filter & Search -->
             <div class="program-filter-card">
                 <div class="program-filter-top">
                     <div class="program-search-wrap">
                         <i class="fas fa-search search-icon"></i>
                         <input type="text" id="inputCariProgram" class="program-search-input"
-                               placeholder="Cari program unggulan (contoh: Sekolah Ramah Anak, Tahfidz, KSM Sains, Literasi, Adiwiyata)..."
+                               placeholder="Cari program unggulan (contoh: Sekolah Ramah Anak, Tahfidz, Sains, Literasi)..."
                                value="{{ request('q', '') }}"
                                autocomplete="off">
                         <button type="button" id="btnClearSearchProgram" class="program-search-clear" title="Bersihkan">
@@ -649,17 +567,14 @@
                     </div>
                 </div>
 
-                <!-- Horizontal Category Filter Chips -->
                 <div class="program-chips-scroll" id="scrollChipKategori">
                     <button type="button" class="program-chip-btn active" data-kategori="semua">
-                        <span>⭐ Semua Program</span>
+                        <span>Semua Program</span>
                         <span class="chip-count">{{ $programs->count() }}</span>
                     </button>
 
                     @foreach ($daftarKategori as $kat)
-                        @php
-                            $jmlKat = $programs->where('kategori_badge', $kat)->count();
-                        @endphp
+                        @php $jmlKat = $programs->where('kategori_badge', $kat)->count(); @endphp
                         <button type="button" class="program-chip-btn" data-kategori="{{ $kat }}">
                             <span>{{ $kat }}</span>
                             <span class="chip-count">{{ $jmlKat }}</span>
@@ -676,93 +591,88 @@
                 </div>
             </div>
 
-            <!-- Showcase Grid Program Unggulan -->
+            <!-- Showcase Grid -->
             <div class="program-showcase-grid" id="gridProgramUnggulan">
                 @foreach ($programs as $prog)
-                    @php
-                        $poinArr = $prog->poin_list;
-                    @endphp
+                    @php $poinArr = $prog->poin_list; @endphp
                     <div class="program-showcase-card"
                          data-id="{{ $prog->id }}"
                          data-judul="{{ strtolower($prog->judul) }}"
                          data-kategori="{{ $prog->kategori_badge }}"
-                         data-ringkasan="{{ strtolower($prog->ringkasan ?? '') }}">
+                         data-ringkasan="{{ strtolower($prog->ringkasan_polos) }}">
 
-                        <div>
-                            <!-- Banner Sampul -->
-                            <div class="program-card-thumb-wrap">
-                                <img src="{{ $prog->gambar_url }}" alt="{{ $prog->judul }}" class="program-card-thumb-img" loading="lazy">
-                                <div class="program-card-overlay"></div>
+                        <div class="program-card-thumb-wrap">
+                            <img src="{{ $prog->gambar_url }}" alt="{{ $prog->judul }}" class="program-card-thumb-img" loading="lazy">
+                            <div class="program-card-overlay"></div>
 
-                                <span class="program-card-badge-floating">
-                                    <i class="{{ $prog->icon }}"></i> {{ $prog->kategori_badge }}
-                                </span>
+                            <span class="program-card-badge-floating">
+                                <i class="{{ $prog->icon }}"></i> {{ $prog->kategori_badge }}
+                            </span>
 
-                                <span class="program-card-order-pill">
-                                    Unggulan #{{ $prog->urutan }}
-                                </span>
-                            </div>
-
-                            <!-- Body Kartu -->
-                            <div class="program-card-content">
-                                <div>
-                                    <h3 class="program-card-main-title">{{ $prog->judul }}</h3>
-                                    <p class="program-card-summary">{{ $prog->ringkasan }}</p>
-
-                                    @if (!empty($prog->kutipan))
-                                        <div class="program-quote-pill">
-                                            "{{ $prog->kutipan }}"
-                                        </div>
-                                    @endif
-
-                                    @if (!empty($poinArr))
-                                        <ul class="program-features-list">
-                                            @foreach (array_slice($poinArr, 0, 4) as $fitur)
-                                                <li>
-                                                    <i class="fas fa-check-circle"></i>
-                                                    <span>{{ $fitur }}</span>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-                                    @endif
-                                </div>
-
-                                <div class="program-card-footer-meta">
-                                    <div class="program-card-author-info">
-                                        <i class="fas fa-user-shield text-success"></i>
-                                        <span>{{ Str::limit($prog->penulis, 24) }}</span>
-                                    </div>
-
-                                    <a href="{{ route('program-unggulan.detail', $prog->slug) }}" class="program-card-btn-action">
-                                        <span>Pelajari Detail</span>
-                                        <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
+                            <span class="program-card-order-pill">
+                                Unggulan #{{ $prog->urutan }}
+                            </span>
                         </div>
 
+                        <div class="program-card-content">
+                            <div>
+                                <h3 class="program-card-main-title">{{ $prog->judul }}</h3>
+                                @if ($prog->ringkasan_polos !== '')
+                                    <p class="program-card-summary">{{ $prog->ringkasan_polos }}</p>
+                                @endif
+
+                                @if (! empty($prog->kutipan))
+                                    <div class="program-quote-pill">
+                                        “{{ $prog->kutipan }}”
+                                    </div>
+                                @endif
+
+                                @if (! empty($poinArr))
+                                    <ul class="program-features-list">
+                                        @foreach (array_slice($poinArr, 0, 4) as $fitur)
+                                            <li>
+                                                <i class="fas fa-check-circle"></i>
+                                                <span>{{ $fitur }}</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </div>
+
+                            <div class="program-card-footer-meta">
+                                <div class="program-card-author-info">
+                                    <i class="fas fa-user-shield text-success"></i>
+                                    <span>{{ \Illuminate\Support\Str::limit($prog->penulis, 24) }}</span>
+                                </div>
+
+                                <a href="{{ route('program-unggulan.detail', $prog->slug) }}" class="program-card-btn-action">
+                                    <span>Pelajari Detail</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 @endforeach
             </div>
 
-            <!-- Empty State Jika Tidak Ditemukan -->
-            <div class="program-empty-state" id="emptyStateProgram">
+            <!-- Empty State -->
+            <div class="program-empty-state" id="emptyStateProgram" style="{{ $programs->isEmpty() ? 'display: block;' : '' }}">
                 <div class="program-empty-icon">
                     <i class="fas fa-search"></i>
                 </div>
-                <h4 style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.35rem; color: #0f172a; margin-bottom: 8px;">
-                    Program Tidak Ditemukan
-                </h4>
-                <p style="font-size: 0.92rem; color: #64748b; max-width: 520px; margin: 0 auto 20px;">
-                    Tidak ada program unggulan yang cocok dengan kata kunci atau filter yang Anda pilih.
+                <h4 class="program-empty-title">Program Tidak Ditemukan</h4>
+                <p class="program-empty-desc">
+                    Tidak ada program unggulan yang cocok dengan kata kunci atau kategori yang Anda pilih.
                 </p>
-                <button type="button" class="btn btn-outline-success radius-8 px-20 py-8 fw-bold text-xs" onclick="resetPencarianProgram()">
-                    <i class="fas fa-redo"></i> Tampilkan Semua Program
-                </button>
+                @if ($programs->isNotEmpty())
+                    <button type="button" class="btn btn-outline-success radius-8 px-20 py-8 fw-bold text-xs" onclick="resetPencarianProgram()">
+                        <i class="fas fa-redo"></i> Tampilkan Semua Program
+                    </button>
+                @endif
             </div>
 
-            <!-- Bottom Call-To-Action (Konsultasi & Pendaftaran PPDB) -->
-            <div style="margin-top: 56px; background: linear-gradient(135deg, #09332C 0%, #0D6A56 100%); border-radius: 26px; padding: 36px 38px; color: #ffffff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; box-shadow: 0 16px 36px rgba(9, 51, 44, 0.2);">
+            <!-- Bottom CTA -->
+            <div class="program-cta-banner">
                 <div class="d-flex align-items-center gap-3">
                     <div style="width: 56px; height: 56px; border-radius: 18px; background: rgba(255, 225, 93, 0.2); border: 1.5px solid rgba(255, 225, 93, 0.4); color: #FFE15D; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;">
                         <i class="fas fa-graduation-cap"></i>
@@ -789,9 +699,8 @@
         </div>
     </div>
 
-    <!-- SCRIPT FILTER REAL-TIME & INSTANT CHIPS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var searchInput = document.getElementById('inputCariProgram');
             var btnClear = document.getElementById('btnClearSearchProgram');
             var chipsScroll = document.getElementById('scrollChipKategori');
@@ -799,18 +708,29 @@
             var emptyState = document.getElementById('emptyStateProgram');
             var countElem = document.getElementById('countProgramTampil');
 
+            var initialKat = @json(request('kategori', 'semua'));
             var filterState = {
                 q: (searchInput.value || '').trim().toLowerCase(),
-                kategori: 'semua'
+                kategori: initialKat || 'semua'
             };
 
-            searchInput.addEventListener('input', function() {
+            if (filterState.q.length > 0) {
+                btnClear.style.display = 'flex';
+            }
+
+            if (filterState.kategori !== 'semua') {
+                chipsScroll.querySelectorAll('.program-chip-btn').forEach(function (b) {
+                    b.classList.toggle('active', b.getAttribute('data-kategori') === filterState.kategori);
+                });
+            }
+
+            searchInput.addEventListener('input', function () {
                 filterState.q = this.value.trim().toLowerCase();
                 btnClear.style.display = this.value.length > 0 ? 'flex' : 'none';
                 terapkanFilter();
             });
 
-            btnClear.addEventListener('click', function() {
+            btnClear.addEventListener('click', function () {
                 searchInput.value = '';
                 filterState.q = '';
                 this.style.display = 'none';
@@ -818,30 +738,27 @@
                 terapkanFilter();
             });
 
-            chipsScroll.addEventListener('click', function(e) {
+            chipsScroll.addEventListener('click', function (e) {
                 var btn = e.target.closest('.program-chip-btn');
                 if (!btn) return;
-                var kat = btn.getAttribute('data-kategori');
-                filterState.kategori = kat;
 
-                chipsScroll.querySelectorAll('.program-chip-btn').forEach(function(b) {
+                filterState.kategori = btn.getAttribute('data-kategori');
+                chipsScroll.querySelectorAll('.program-chip-btn').forEach(function (b) {
                     b.classList.remove('active');
                 });
                 btn.classList.add('active');
-
                 btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 terapkanFilter();
             });
 
-            window.resetPencarianProgram = function() {
+            window.resetPencarianProgram = function () {
                 filterState.q = '';
                 filterState.kategori = 'semua';
                 searchInput.value = '';
                 btnClear.style.display = 'none';
 
-                chipsScroll.querySelectorAll('.program-chip-btn').forEach(function(b) {
-                    if (b.getAttribute('data-kategori') === 'semua') b.classList.add('active');
-                    else b.classList.remove('active');
+                chipsScroll.querySelectorAll('.program-chip-btn').forEach(function (b) {
+                    b.classList.toggle('active', b.getAttribute('data-kategori') === 'semua');
                 });
 
                 terapkanFilter();
@@ -851,22 +768,17 @@
                 var cards = grid.querySelectorAll('.program-showcase-card');
                 var matched = 0;
 
-                cards.forEach(function(card) {
+                cards.forEach(function (card) {
                     var judul = card.getAttribute('data-judul') || '';
                     var ringkasan = card.getAttribute('data-ringkasan') || '';
                     var kategori = card.getAttribute('data-kategori') || '';
 
-                    var matchQ = true;
-                    if (filterState.q) {
-                        matchQ = judul.indexOf(filterState.q) !== -1 ||
-                                 ringkasan.indexOf(filterState.q) !== -1 ||
-                                 kategori.toLowerCase().indexOf(filterState.q) !== -1;
-                    }
+                    var matchQ = !filterState.q
+                        || judul.indexOf(filterState.q) !== -1
+                        || ringkasan.indexOf(filterState.q) !== -1
+                        || kategori.toLowerCase().indexOf(filterState.q) !== -1;
 
-                    var matchKat = true;
-                    if (filterState.kategori !== 'semua') {
-                        matchKat = (kategori === filterState.kategori);
-                    }
+                    var matchKat = filterState.kategori === 'semua' || kategori === filterState.kategori;
 
                     if (matchQ && matchKat) {
                         card.style.display = 'flex';
@@ -877,14 +789,12 @@
                 });
 
                 countElem.textContent = matched;
+                grid.style.display = matched === 0 ? 'none' : 'grid';
+                emptyState.style.display = matched === 0 ? 'block' : 'none';
+            }
 
-                if (matched === 0) {
-                    grid.style.display = 'none';
-                    emptyState.style.display = 'block';
-                } else {
-                    grid.style.display = 'grid';
-                    emptyState.style.display = 'none';
-                }
+            if (filterState.q || filterState.kategori !== 'semua') {
+                terapkanFilter();
             }
         });
     </script>

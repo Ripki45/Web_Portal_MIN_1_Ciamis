@@ -4,9 +4,29 @@
 
 @section('content')
 
-    <!-- =========================================================================
-         STYLE KHUSUS DETAIL PROGRAM UNGGULAN (MIN 1 CIAMIS MODERN THEME)
-         ========================================================================= -->
+    @php
+        $miniCards = $program->mini_features_list;
+        $pilars = $program->pilar_list_formatted;
+        $kegiatanList = $program->kegiatan_list_data;
+
+        $kataJudul = preg_split('/\s+/', trim($program->judul)) ?: [];
+        $totalKata = count($kataJudul);
+        if ($totalKata > 2) {
+            $splitIndex = (int) ceil($totalKata / 2);
+            $bagianHitam = implode(' ', array_slice($kataJudul, 0, $splitIndex));
+            $bagianHijau = implode(' ', array_slice($kataJudul, $splitIndex));
+        } else {
+            $bagianHitam = $kataJudul[0] ?? $program->judul;
+            $bagianHijau = $kataJudul[1] ?? '';
+        }
+
+        $bolehEdit = auth()->check() && in_array(
+            strtolower((string) (auth()->user()->role ?? '')),
+            ['superadmin', 'super_admin', 'admin'],
+            true
+        );
+    @endphp
+
     <style>
         .sra-page-wrap {
             background: #ffffff;
@@ -14,7 +34,6 @@
             color: #1e293b;
         }
 
-        /* Breadcrumb Bar */
         .sra-breadcrumb-nav {
             background: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
@@ -42,10 +61,12 @@
             color: #1B9C85;
             text-decoration: underline;
         }
+        .sra-breadcrumb-current {
+            color: #0f172a;
+            font-weight: 700;
+        }
 
-        /* ==========================================================================
-           1. HERO SECTION (GRID 1.15 : 1 DENGAN MINI CARDS & OFFICIAL PHOTO)
-           ========================================================================== */
+        /* 1. HERO SECTION */
         .sra-hero-section {
             padding: 60px 0 50px;
             background: #ffffff;
@@ -82,14 +103,12 @@
         }
         .sra-quote-box {
             background: #fafcfb;
+            border: 1px solid #f1f5f9;
             border-left: 4px solid #0D6A56;
             padding: 20px 22px;
             border-radius: 0 14px 14px 0;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-            border-top: 1px solid #f1f5f9;
-            border-right: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
         }
         .sra-quote-text {
             color: #1e293b;
@@ -111,7 +130,7 @@
         }
         .sra-mini-features-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 16px;
         }
         .sra-mini-feature-card {
@@ -153,7 +172,6 @@
             border-radius: 22px;
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
             border: 1px solid #e2e8f0;
-            position: relative;
         }
         .sra-image-frame img {
             width: 100%;
@@ -174,9 +192,7 @@
             gap: 6px;
         }
 
-        /* ==========================================================================
-           2. 4 PILAR UTAMA PROGRAM (CARD GRID DENGAN WATERMARK ANGKA)
-           ========================================================================== */
+        /* 2. PILAR SECTION */
         .sra-pilar-section {
             padding: 70px 0;
             background: #fafcfb;
@@ -197,7 +213,7 @@
         }
         .sra-section-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 2.25rem;
+            font-size: 2.2rem;
             color: #0f172a;
             margin: 10px 0;
             font-weight: 800;
@@ -216,10 +232,9 @@
             margin: 18px auto 0;
             border-radius: 3px;
         }
-
         .sra-pilar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 24px;
         }
         .sra-pilar-card {
@@ -230,9 +245,6 @@
             border: 1px solid #e2e8f0;
             border-top: 4px solid #0D6A56;
             transition: all 0.28s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
             position: relative;
             overflow: hidden;
         }
@@ -267,7 +279,7 @@
         }
         .sra-pilar-card-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.18rem;
+            font-size: 1.15rem;
             color: #0f172a;
             margin-bottom: 10px;
             font-weight: 800;
@@ -279,18 +291,16 @@
             margin: 0;
         }
 
-        /* ==========================================================================
-           3. SECTION 3: AKTIVITAS & EDUKASI (GRID 3 KOLOM x 2 BARIS MODEL MIN 1)
-           ========================================================================== */
+        /* 3. KEGIATAN & SHARE BAR */
         .sra-activities-section {
-            padding: 70px 0 85px;
+            padding: 64px 0 70px;
             background: #ffffff;
         }
         .sra-kegiatan-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
-            margin-bottom: 45px;
+            margin-bottom: 42px;
         }
         .sra-kegiatan-card {
             background: #ffffff;
@@ -302,7 +312,6 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            text-align: left;
         }
         .sra-kegiatan-card:hover {
             transform: translateY(-4px);
@@ -334,222 +343,178 @@
             line-height: 1.65;
             margin: 0;
         }
+        .sra-share-bar {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-        /* Bottom Section: Footer Actions & Madrasah Info */
+        /* 4. BOTTOM SECTION */
         .sra-bottom-section {
             background: #fafcfb;
             border-top: 1px solid #e2e8f0;
             padding: 60px 0 70px;
         }
+        .sra-bottom-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 24px;
+            height: 100%;
+        }
+        .sra-related-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .sra-related-item:hover {
+            border-color: #0D6A56;
+            transform: translateY(-2px);
+        }
+        .sra-related-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+        .sra-consult-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border: 1.5px solid #a7f3d0;
+            border-radius: 18px;
+            padding: 20px;
+        }
 
-        /* Dark Mode Theme Compatibility */
-        [data-bs-theme="dark"] .sra-page-wrap {
-            background: #0b1519;
-            color: #f1f5f9;
-        }
-        [data-bs-theme="dark"] .sra-breadcrumb-nav {
-            background: #101c21;
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        [data-bs-theme="dark"] .sra-breadcrumb-list a {
-            color: #34d399;
-        }
+        /* Dark Mode */
+        [data-bs-theme="dark"] .sra-page-wrap { background: #0b1519; color: #f1f5f9; }
+        [data-bs-theme="dark"] .sra-breadcrumb-nav { background: #101c21; border-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .sra-breadcrumb-list a { color: #34d399; }
+        [data-bs-theme="dark"] .sra-breadcrumb-current { color: #f1f5f9; }
         [data-bs-theme="dark"] .sra-hero-section,
-        [data-bs-theme="dark"] .sra-activities-section {
-            background: #0b1519;
-        }
+        [data-bs-theme="dark"] .sra-activities-section { background: #0b1519; }
         [data-bs-theme="dark"] .sra-hero-title,
         [data-bs-theme="dark"] .sra-section-title,
-        [data-bs-theme="dark"] .sra-kegiatan-title {
-            color: #f1f5f9;
-        }
+        [data-bs-theme="dark"] .sra-kegiatan-title,
+        [data-bs-theme="dark"] .sra-mini-feature-title,
+        [data-bs-theme="dark"] .sra-pilar-card-title,
+        [data-bs-theme="dark"] .sra-related-title { color: #f1f5f9; }
         [data-bs-theme="dark"] .sra-hero-title span,
-        [data-bs-theme="dark"] .sra-section-subtitle {
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .sra-quote-box {
-            background: #132228;
-            border-left-color: #34d399;
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        [data-bs-theme="dark"] .sra-quote-text {
-            color: #a7f3d0;
-        }
+        [data-bs-theme="dark"] .sra-section-subtitle,
+        [data-bs-theme="dark"] .sra-mini-feature-icon { color: #34d399; }
+        [data-bs-theme="dark"] .sra-quote-box { background: #132228; border-color: rgba(255, 255, 255, 0.08); border-left-color: #34d399; }
+        [data-bs-theme="dark"] .sra-quote-text { color: #a7f3d0; }
         [data-bs-theme="dark"] .sra-hero-narrative,
         [data-bs-theme="dark"] .sra-section-desc,
-        [data-bs-theme="dark"] .sra-kegiatan-desc {
-            color: #94a3b8;
-        }
+        [data-bs-theme="dark"] .sra-kegiatan-desc,
+        [data-bs-theme="dark"] .sra-mini-feature-desc,
+        [data-bs-theme="dark"] .sra-pilar-card-desc,
+        [data-bs-theme="dark"] .sra-image-caption { color: #94a3b8; }
         [data-bs-theme="dark"] .sra-mini-feature-card,
         [data-bs-theme="dark"] .sra-pilar-card,
-        [data-bs-theme="dark"] .sra-kegiatan-card {
-            background: #132228;
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        [data-bs-theme="dark"] .sra-kegiatan-badge {
-            background: rgba(52, 211, 153, 0.15);
-            color: #34d399;
-            border-color: rgba(52, 211, 153, 0.25);
-        }
-        [data-bs-theme="dark"] .sra-mini-feature-icon {
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .sra-mini-feature-title {
-            color: #f1f5f9;
-        }
-        [data-bs-theme="dark"] .sra-image-frame {
-            background: #132228;
-            border-color: rgba(255, 255, 255, 0.1);
-        }
+        [data-bs-theme="dark"] .sra-kegiatan-card,
+        [data-bs-theme="dark"] .sra-image-frame,
+        [data-bs-theme="dark"] .sra-bottom-card,
+        [data-bs-theme="dark"] .sra-share-bar { background: #132228; border-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .sra-related-item { background: #1a2f37; border-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .sra-consult-card { background: rgba(13, 106, 86, 0.16); border-color: rgba(52, 211, 153, 0.3); }
+        [data-bs-theme="dark"] .sra-kegiatan-badge,
+        [data-bs-theme="dark"] .sra-pilar-icon-box { background: rgba(52, 211, 153, 0.15); color: #34d399; border-color: rgba(52, 211, 153, 0.25); }
         [data-bs-theme="dark"] .sra-pilar-section,
-        [data-bs-theme="dark"] .sra-bottom-section {
-            background: #0e191e;
-            border-color: rgba(255, 255, 255, 0.08);
-        }
-        [data-bs-theme="dark"] .sra-pilar-watermark {
-            color: rgba(52, 211, 153, 0.08);
-        }
-        [data-bs-theme="dark"] .sra-pilar-card-title {
-            color: #f1f5f9;
-        }
-        [data-bs-theme="dark"] .sra-pilar-icon-box {
-            background: rgba(52, 211, 153, 0.15);
-            color: #34d399;
-        }
-        [data-bs-theme="dark"] .sra-section-divider {
-            background: #34d399;
-        }
+        [data-bs-theme="dark"] .sra-bottom-section { background: #0e191e; border-color: rgba(255, 255, 255, 0.08); }
+        [data-bs-theme="dark"] .sra-pilar-watermark { color: rgba(52, 211, 153, 0.08); }
+        [data-bs-theme="dark"] .sra-section-divider { background: #34d399; }
 
-        /* Responsive Mobile Layout */
         @media (max-width: 991.98px) {
-            .sra-hero-grid {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            .sra-hero-title {
-                font-size: 2rem;
-            }
-            .sra-mini-features-grid {
-                grid-template-columns: 1fr;
-            }
-            .sra-kegiatan-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 18px;
-            }
+            .sra-hero-grid { grid-template-columns: 1fr; gap: 36px; }
+            .sra-hero-title { font-size: 2rem; }
+            .sra-kegiatan-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
         }
         @media (max-width: 767.98px) {
-            .sra-kegiatan-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-            }
-            .sra-section-title {
-                font-size: 1.85rem;
-            }
+            .sra-kegiatan-grid { grid-template-columns: 1fr; gap: 16px; }
+            .sra-section-title { font-size: 1.8rem; }
         }
     </style>
 
     <div class="sra-page-wrap">
 
-        <!-- ==========================================
-             BREADCRUMB BAR
-             ========================================== -->
+        <!-- Breadcrumb -->
         <div class="sra-breadcrumb-nav">
             <div class="container">
                 <ul class="sra-breadcrumb-list">
-                    <li>
-                        <a href="{{ route('home') }}"><i class="fas fa-home"></i> Beranda</a>
-                    </li>
-                    <li><i class="fas fa-chevron-right text-xs" style="font-size: 10px;"></i></li>
-                    <li>
-                        <a href="{{ route('program-unggulan.publik') }}"><i class="fas fa-star"></i> Program Unggulan</a>
-                    </li>
-                    <li><i class="fas fa-chevron-right text-xs" style="font-size: 10px;"></i></li>
-                    <li class="text-dark fw-bold">{{ $program->judul }}</li>
+                    <li><a href="{{ route('home') }}"><i class="fas fa-home"></i> Beranda</a></li>
+                    <li><i class="fas fa-chevron-right" style="font-size: 10px;"></i></li>
+                    <li><a href="{{ route('program-unggulan.publik') }}"><i class="fas fa-star"></i> Program Unggulan</a></li>
+                    <li><i class="fas fa-chevron-right" style="font-size: 10px;"></i></li>
+                    <li class="sra-breadcrumb-current">{{ $program->judul }}</li>
 
-                    @auth
+                    @if ($bolehEdit)
                         <li class="ms-auto">
-                            <a href="{{ route('program-unggulan.edit', $program->id) }}" class="badge bg-dark text-white text-decoration-none px-10 py-6 radius-6">
+                            <a href="{{ route('program-unggulan.edit', $program->id) }}"
+                               class="badge bg-dark text-white text-decoration-none px-10 py-6 radius-6">
                                 ✎ Edit Program
                             </a>
                         </li>
-                    @endauth
+                    @endif
                 </ul>
             </div>
         </div>
 
-        <!-- =========================================================================
-             1. SECTION 1: JUDUL & HERO PROGRAM UNGGULAN
-             ========================================================================= -->
+        <!-- 1. HERO SECTION -->
         <section class="sra-hero-section">
             <div class="container">
                 <div class="sra-hero-grid">
                     <div>
-                        <!-- Badge Hijau dengan Icon Font Awesome -->
                         <div class="sra-hero-badge">
                             <i class="{{ $program->icon }}"></i> {{ $program->kategori_badge }} • Unggulan Madrasah
                         </div>
 
-                        <!-- Judul Program Unggulan Warna Hitam & Hijau -->
-                        @php
-                            $kataJudul = explode(' ', $program->judul);
-                            $totalKata = count($kataJudul);
-                            if ($totalKata > 2) {
-                                $bagianHitam = implode(' ', array_slice($kataJudul, 0, (int) ceil($totalKata / 2)));
-                                $bagianHijau = implode(' ', array_slice($kataJudul, (int) ceil($totalKata / 2)));
-                            } else {
-                                $bagianHitam = $kataJudul[0] ?? '';
-                                $bagianHijau = $kataJudul[1] ?? '';
-                            }
-                        @endphp
                         <h1 class="sra-hero-title">
-                            {{ $bagianHitam }} <span>{{ $bagianHijau }}</span>
+                            {{ $bagianHitam }}@if ($bagianHijau !== '') <span>{{ $bagianHijau }}</span>@endif
                         </h1>
 
-                        <!-- Blockquote Komitmen -->
-                        @if (!empty($program->kutipan))
+                        @if (! empty($program->kutipan))
                             <div class="sra-quote-box">
-                                <blockquote class="sra-quote-text">
-                                    “{{ $program->kutipan }}”
-                                </blockquote>
-                            </div>
-                        @else
-                            <div class="sra-quote-box">
-                                <blockquote class="sra-quote-text">
-                                    “MIN 1 Ciamis berkomitmen menjadi tempat yang ideal bagi anak-anak peserta didik dalam mengembangkan segenap potensi diri secara optimal.”
-                                </blockquote>
+                                <blockquote class="sra-quote-text">“{{ $program->kutipan }}”</blockquote>
                             </div>
                         @endif
 
-                        <!-- Keterangan / Narasi Program (Quill.js Rich HTML) -->
                         <div class="sra-hero-narrative">
-                            {!! $program->ringkasan ?: '<p>Melalui program unggulan madrasah, kami menciptakan iklim belajar yang aman, nyaman, berkualitas tinggi, serta mendukung pembentukan akhlak mulia dan kecakapan masa depan santri.</p>' !!}
+                            {!! $program->ringkasan_bersih ?: '<p>Program unggulan MIN 1 Ciamis dirancang untuk mendukung pembentukan akhlak mulia, prestasi akademik, dan pengembangan potensi peserta didik secara optimal.</p>' !!}
                         </div>
 
-                        <!-- Card untuk 2 Kolom Mini Features -->
-                        @php
-                            $miniCards = $program->mini_features_list;
-                        @endphp
-                        <div class="sra-mini-features-grid">
-                            @foreach ($miniCards as $mc)
-                                <div class="sra-mini-feature-card">
-                                    <div class="sra-mini-feature-icon">
-                                        <i class="{{ $mc['icon'] ?? 'fas fa-check-circle' }}"></i>
+                        @if (count($miniCards) > 0)
+                            <div class="sra-mini-features-grid">
+                                @foreach ($miniCards as $mc)
+                                    <div class="sra-mini-feature-card">
+                                        <div class="sra-mini-feature-icon">
+                                            <i class="{{ $mc['icon'] }}"></i>
+                                        </div>
+                                        <strong class="sra-mini-feature-title">{{ $mc['title'] }}</strong>
+                                        @if (! empty($mc['desc']))
+                                            <span class="sra-mini-feature-desc">{{ $mc['desc'] }}</span>
+                                        @endif
                                     </div>
-                                    <strong class="sra-mini-feature-title">{{ $mc['title'] ?? 'Keunggulan' }}</strong>
-                                    <span class="sra-mini-feature-desc">
-                                        {{ $mc['desc'] ?? '' }}
-                                    </span>
-                                </div>
-                            @endforeach
-                        </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
-                    <!-- Frame Foto Dokumentasi Resmi -->
                     <div>
                         <div class="sra-image-frame">
                             <img src="{{ $program->gambar_url }}" alt="{{ $program->judul }}" loading="lazy">
                             <div class="sra-image-caption">
-                                <i class="fas fa-info-circle text-success"></i> Dokumentasi Gerakan {{ $program->judul }} MIN 1 Ciamis
+                                <i class="fas fa-info-circle text-success"></i> Dokumentasi {{ $program->judul }} — MIN 1 Ciamis
                             </div>
                         </div>
                     </div>
@@ -557,227 +522,164 @@
             </div>
         </section>
 
-        <!-- =========================================================================
-             2. SECTION 2: 4 PILAR PROGRAM
-             ========================================================================= -->
-        <section class="sra-pilar-section">
-            <div class="container">
-                <div class="sra-section-header">
-                    <span class="sra-section-subtitle">Fondasi &amp; Nilai Keunggulan</span>
-                    <h2 class="sra-section-title">4 Pilar {{ $program->judul }}</h2>
-                    <p class="sra-section-desc">
-                        Pilar penguatan lingkungan belajar yang mendukung hak anak, kesehatan jasmani-rohani, penguasaan ilmu, dan sinergi keluarga.
-                    </p>
-                    <div class="sra-section-divider"></div>
-                </div>
+        <!-- 2. PILAR SECTION (Hanya tampil jika pilar diisi) -->
+        @if (count($pilars) > 0)
+            <section class="sra-pilar-section">
+                <div class="container">
+                    <div class="sra-section-header">
+                        <span class="sra-section-subtitle">Fondasi &amp; Nilai Keunggulan</span>
+                        <h2 class="sra-section-title">{{ count($pilars) }} Pilar {{ $program->judul }}</h2>
+                        <p class="sra-section-desc">
+                            Pilar utama pelaksanaan program {{ $program->judul }} di lingkungan MIN 1 Ciamis.
+                        </p>
+                        <div class="sra-section-divider"></div>
+                    </div>
 
-                @php
-                    $pilars = $program->pilar_list_formatted;
-                @endphp
-
-                <div class="sra-pilar-grid">
-                    @foreach ($pilars as $idx => $pilar)
-                        <div class="sra-pilar-card">
-                            <div class="sra-pilar-watermark">0{{ $idx + 1 }}</div>
-                            <div>
+                    <div class="sra-pilar-grid">
+                        @foreach ($pilars as $idx => $pilar)
+                            <div class="sra-pilar-card">
+                                <div class="sra-pilar-watermark">0{{ $idx + 1 }}</div>
                                 <div class="sra-pilar-icon-box">
-                                    <i class="{{ $pilar['icon'] ?? 'fas fa-award' }}"></i>
+                                    <i class="{{ $pilar['icon'] }}"></i>
                                 </div>
                                 <h3 class="sra-pilar-card-title">{{ $pilar['title'] }}</h3>
-                                <p class="sra-pilar-card-desc">{{ $pilar['desc'] }}</p>
+                                @if (! empty($pilar['desc']))
+                                    <p class="sra-pilar-card-desc">{{ $pilar['desc'] }}</p>
+                                @endif
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        @endif
 
-        <!-- =========================================================================
-             3. SECTION 3: AKTIVITAS & EDUKASI (GRID 3 KOLOM x 2 BARIS MODEL MIN 1)
-             ========================================================================= -->
+        <!-- 3. KEGIATAN & BAR BAGIKAN -->
         <section class="sra-activities-section">
             <div class="container">
-                <!-- Section Header Terpusat -->
-                <div class="sra-section-header">
-                    <span class="sra-section-subtitle">{{ $program->kegiatan_badge_formatted }}</span>
-                    <h2 class="sra-section-title">{{ $program->kegiatan_judul_formatted }}</h2>
-                    <p class="sra-section-desc">
-                        {{ $program->kegiatan_deskripsi_formatted }}
-                    </p>
-                    <div class="sra-section-divider"></div>
-                </div>
+                @if (count($kegiatanList) > 0)
+                    <div class="sra-section-header">
+                        <span class="sra-section-subtitle">{{ $program->kegiatan_badge_formatted }}</span>
+                        <h2 class="sra-section-title">{{ $program->kegiatan_judul_formatted }}</h2>
+                        <p class="sra-section-desc">{{ $program->kegiatan_deskripsi_formatted }}</p>
+                        <div class="sra-section-divider"></div>
+                    </div>
 
-                <!-- Grid 6 Kartu Aktivitas & Edukasi (3 Kolom x 2 Baris) -->
-                @php
-                    $kegiatanList = $program->kegiatan_list_data;
-                @endphp
-                <div class="sra-kegiatan-grid">
-                    @foreach ($kegiatanList as $item)
-                        <div class="sra-kegiatan-card">
-                            <span class="sra-kegiatan-badge">{{ $item['badge'] ?? 'Kegiatan' }}</span>
-                            <h3 class="sra-kegiatan-title">{{ $item['title'] ?? '' }}</h3>
-                            <p class="sra-kegiatan-desc">{{ $item['desc'] ?? '' }}</p>
-                        </div>
-                    @endforeach
-                </div>
+                    <div class="sra-kegiatan-grid">
+                        @foreach ($kegiatanList as $item)
+                            <div class="sra-kegiatan-card">
+                                <span class="sra-kegiatan-badge">{{ $item['badge'] }}</span>
+                                <h3 class="sra-kegiatan-title">{{ $item['title'] }}</h3>
+                                @if (! empty($item['desc']))
+                                    <p class="sra-kegiatan-desc">{{ $item['desc'] }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
 
-                <!-- Tag & Tombol Bagikan -->
-                <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between p-3 bg-light rounded-12 border">
-                    <div class="d-flex align-items-center gap-2">
+                <!-- Bar Navigasi & Bagikan -->
+                <div class="sra-share-bar">
+                    <div class="d-flex flex-wrap align-items-center gap-2">
                         <a href="{{ route('program-unggulan.publik') }}" class="btn btn-outline-success btn-sm radius-8 fw-bold">
                             &larr; Semua Program Unggulan
                         </a>
-                        <span class="badge bg-white text-dark border">
+                        <span class="badge bg-success-subtle text-success border">
                             {{ $program->kategori_badge }}
                         </span>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="text-dark fs-7 fw-semibold">Bagikan:</span>
-                        <div class="d-inline-flex gap-2">
-                            <!-- WhatsApp -->
-                            <a href="https://wa.me/?text={{ urlencode($program->judul . ' - ' . request()->fullUrl()) }}"
-                                target="_blank" class="btn btn-sm btn-outline-success radius-8" title="Bagikan ke WhatsApp">
-                                <i class="fab fa-whatsapp"></i> WhatsApp
-                            </a>
-                            <!-- Facebook -->
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}"
-                                target="_blank" class="btn btn-sm btn-outline-primary radius-8" title="Bagikan ke Facebook">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <!-- Salin Tautan -->
-                            <button type="button" class="btn btn-sm btn-light border radius-8" onclick="salinTautanSRA()">
-                                <i class="fas fa-link"></i> Salin
-                            </button>
-                        </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="fs-7 fw-semibold">Bagikan:</span>
+                        <a href="https://wa.me/?text={{ urlencode($program->judul . ' - ' . request()->fullUrl()) }}"
+                           target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-success radius-8" title="Bagikan ke WhatsApp">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}"
+                           target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary radius-8" title="Bagikan ke Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <button type="button" id="btnSalinTautanProgram" class="btn btn-sm btn-outline-secondary radius-8" onclick="salinTautanProgram(this)">
+                            <i class="fas fa-link"></i> Salin Tautan
+                        </button>
                     </div>
                 </div>
-
             </div>
         </section>
 
-        <!-- =========================================================================
-             4. BOTTOM SECTION: PROGRAM UNGGULAN LAINNYA, DATA MADRASAH & KONSULTASI
-             ========================================================================= -->
-        <section class="sra-bottom-section" style="background: #fafcfb; border-top: 1px solid #e2e8f0; padding: 60px 0 70px;">
+        <!-- 4. BOTTOM SECTION (RINGKAS & BERSIH) -->
+        <section class="sra-bottom-section">
             <div class="container">
-                <div class="row g-4">
-                    <!-- Kolom 1: Profil & PPDB -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="author-card h-100 p-24 bg-white border radius-16 shadow-2xs text-center d-flex flex-column justify-content-between" style="border-radius: 18px; padding: 24px;">
-                            <div>
-                                <div class="card-img mb-3 text-center">
-                                    <img class="rounded-circle avatar-154 p-3 bg-white shadow-sm"
-                                        src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Logo MIN 1 Ciamis"
-                                        style="object-fit: contain; width: 90px; height: 90px;" />
-                                </div>
-                                <h5 class="mb-2" style="font-family: 'Outfit', sans-serif; font-weight: 800;">MIN 1 Ciamis</h5>
-                                <p class="mb-4 fs-7 text-muted">
-                                    Madrasah Ibtidaiyah Negeri 1 Ciamis — Membina generasi Qur'ani, berakhlak mulia, unggul prestasi sains, dan adaptif terhadap teknologi.
-                                </p>
-                            </div>
-                            <a href="{{ route('home') }}#banner-ppdb" class="btn btn-success w-100 button-effect-1"
-                                style="background: #0D6A56; border-color: #0D6A56; font-weight: 700; border-radius: 12px;">
-                                Informasi Pendaftaran (PPDB)
+                {{-- Hanya tampil jika memang ada program unggulan lain --}}
+                @if ($programLain->isNotEmpty())
+                    <div class="mb-5">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                            <h5 class="mb-0 fw-bold" style="font-family: 'Outfit', sans-serif;">
+                                <i class="fas fa-star text-warning me-1"></i> Program Unggulan Lainnya
+                            </h5>
+                            <a href="{{ route('program-unggulan.publik') }}" class="text-success fw-bold text-decoration-none fs-7">
+                                Lihat Semua &rarr;
                             </a>
                         </div>
-                    </div>
 
-                    <!-- Kolom 2: Program Unggulan Lainnya -->
-                    <div class="col-lg-4 col-md-6">
-                        <div class="p-24 bg-white border radius-16 shadow-2xs h-100 d-flex flex-column" style="border-radius: 18px; padding: 24px;">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <i class="fas fa-star text-warning" style="font-size: 1.2rem;"></i>
-                                <h5 class="mb-0 fw-bold" style="font-family: 'Outfit', sans-serif;">Program Unggulan Lainnya</h5>
-                            </div>
-
-                            <div class="d-flex flex-column gap-3 flex-grow-1">
-                                @forelse ($programLain as $pl)
-                                    <a href="{{ route('program-unggulan.detail', $pl->slug) }}"
-                                       class="d-flex align-items-center gap-3 p-10 bg-light rounded-12 border text-decoration-none hover-up" style="border-radius: 12px; padding: 10px;">
+                        <div class="row g-3">
+                            @foreach ($programLain->take(3) as $pl)
+                                <div class="col-lg-4 col-md-6">
+                                    <a href="{{ route('program-unggulan.detail', $pl->slug) }}" class="sra-related-item h-100">
                                         <img src="{{ $pl->gambar_url }}" alt="{{ $pl->judul }}"
-                                             class="rounded-8 flex-shrink-0" style="width: 58px; height: 46px; object-fit: cover; border-radius: 8px;">
-                                        <div>
-                                            <span class="badge bg-white text-success fw-bold text-2xs mb-1 border">
+                                             class="flex-shrink-0" style="width: 68px; height: 54px; object-fit: cover; border-radius: 10px;">
+                                        <div class="overflow-hidden">
+                                            <span class="badge bg-success-subtle text-success fw-bold text-2xs mb-1">
                                                 <i class="{{ $pl->icon }}"></i> {{ $pl->kategori_badge }}
                                             </span>
-                                            <h6 class="fs-7 fw-bold text-dark mb-0 text-truncate" style="max-width: 180px;">
-                                                {{ $pl->judul }}
-                                            </h6>
+                                            <h6 class="sra-related-title text-truncate">{{ $pl->judul }}</h6>
                                         </div>
                                     </a>
-                                @empty
-                                    <p class="fs-7 text-muted">Belum ada program lainnya.</p>
-                                @endforelse
-                            </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- 1 Banner CTA Horizontal (Konsultasi & PPDB) --}}
+                <div style="background: linear-gradient(135deg, #06372D 0%, #0D6A56 100%); border-radius: 22px; padding: 32px 34px; color: #ffffff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; box-shadow: 0 14px 32px rgba(6, 55, 45, 0.16);">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="{{ asset('backend/assets/images/icon_min.png') }}" alt="Logo MIN 1 Ciamis"
+                             style="width: 58px; height: 58px; object-fit: contain; background: #ffffff; padding: 6px; border-radius: 14px; flex-shrink: 0;">
+                        <div>
+                            <h5 style="font-family: 'Outfit', sans-serif; font-weight: 800; color: #ffffff; margin: 0 0 4px;">
+                                Tertarik dengan Program {{ $program->judul }}?
+                            </h5>
+                            <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.88); margin: 0; max-width: 560px; line-height: 1.5;">
+                                Konsultasikan program pendidikan bersama Tim Humas &amp; Kurikulum atau lihat informasi PPDB MIN 1 Ciamis.
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Kolom 3: Konsultasi & Data Real-Time -->
-                    <div class="col-lg-4 col-md-12">
-                        <div class="d-flex flex-column gap-3 h-100">
-                            <!-- Konsultasi Program -->
-                            <div class="p-20 radius-16" style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #a7f3d0; border-radius: 18px; padding: 20px;">
-                                <div class="d-flex align-items-center gap-3 mb-2">
-                                    <div style="width: 40px; height: 40px; border-radius: 10px; background: #0D6A56; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 17px;">
-                                        <i class="fas fa-headset"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-0 text-dark" style="font-family: 'Outfit', sans-serif;">Konsultasi Program</h6>
-                                        <span class="text-xs text-muted">Tim Humas &amp; Kurikulum</span>
-                                    </div>
-                                </div>
-                                <p class="fs-8 text-secondary-light mb-3">
-                                    Tertarik berkonsultasi mengenai kurikulum, pendampingan ramah anak, atau program tahfidz untuk putra-putri Anda?
-                                </p>
-                                <a href="{{ route('home') }}#kontak" class="btn btn-outline-success btn-sm w-100 fw-bold radius-8 py-2">
-                                    <i class="fas fa-paper-plane"></i> Hubungi Kami
-                                </a>
-                            </div>
-
-                            <!-- Data Real-Time Madrasah (Odometer) -->
-                            @if (!empty($statMadrasah))
-                                <div class="p-20 bg-white border radius-16 shadow-2xs flex-grow-1" style="border-radius: 18px; padding: 20px;">
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-chart-line text-success"></i>
-                                        <h6 class="mb-0 fw-bold" style="font-family: 'Outfit', sans-serif;">Data Real-Time Madrasah</h6>
-                                    </div>
-                                    <ul class="list-unstyled d-flex flex-wrap gap-2 ps-0 mb-0">
-                                        @foreach ($statMadrasah as $labelStat => $angkaStat)
-                                            <li class="carouselTicker__item mx-0">
-                                                <a href="#" class="tag-item link-effect-2">
-                                                    <span class="text">
-                                                        <span class="text1">{{ $labelStat }}</span>
-                                                        <span class="text2">{{ $labelStat }}</span>
-                                                    </span>
-                                                    <span class="number">
-                                                        <span class="odometer text-nowrap"
-                                                            data-count="{{ $angkaStat }}"></span>
-                                                    </span>
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </div>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <a href="{{ route('home') }}#kontak"
+                           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.65); color: #ffffff; font-weight: 700; font-size: 0.88rem; text-decoration: none;">
+                            <i class="fas fa-comments"></i> Hubungi Kami
+                        </a>
+                        <a href="{{ route('home') }}#banner-ppdb"
+                           style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 12px; background: #FFE15D; color: #06372D; font-weight: 800; font-size: 0.88rem; text-decoration: none;">
+                            <i class="fas fa-user-plus"></i> Informasi PPDB
+                        </a>
                     </div>
-
                 </div>
-            </div>
-        </section>
+
             </div>
         </section>
 
     </div>
 
-    <!-- Script Salin Tautan -->
     <script>
-        function salinTautanSRA() {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(window.location.href).then(function() {
-                    alert('✓ Tautan halaman program berhasil disalin ke clipboard!');
-                }).catch(function() {
+        function salinTautanProgram(btn) {
+            var labelAsli = btn.innerHTML;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(window.location.href).then(function () {
+                    btn.innerHTML = '<i class="fas fa-check text-success"></i> Tersalin!';
+                    setTimeout(function () { btn.innerHTML = labelAsli; }, 2200);
+                }).catch(function () {
                     prompt('Salin tautan ini:', window.location.href);
                 });
             } else {

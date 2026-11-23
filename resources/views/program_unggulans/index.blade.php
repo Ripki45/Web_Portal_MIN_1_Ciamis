@@ -4,14 +4,13 @@
 
 @section('content')
 
-    <!-- Font Awesome 6.5.1 untuk Preview Ikon Nyata di Dashboard -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
         .program-thumb-preview {
-            width: 72px;
-            height: 48px;
+            width: 76px;
+            height: 52px;
             border-radius: 8px;
             object-fit: cover;
             border: 1px solid #e2e8f0;
@@ -21,13 +20,30 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 4px 10px;
+            padding: 3px 10px;
             border-radius: 9999px;
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 700;
             background: #ecfdf5;
             color: #065f46;
             border: 1px solid #a7f3d0;
+        }
+        .section-pill-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #475569;
+        }
+        .section-pill-chip.filled {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
         }
     </style>
 
@@ -36,13 +52,13 @@
         <div>
             <h6 class="fw-semibold mb-1">Manajemen Program Unggulan Madrasah</h6>
             <span class="text-xs text-secondary-light">
-                Kelola program-program unggulan madrasah (Sekolah Ramah Anak, Tahfidz, KSM Sains, Literasi Digital) beserta konten halaman detailnya.
+                Kelola daftar program unggulan MIN 1 Ciamis beserta halaman detail, pilar, dan daftar kegiatannya.
             </span>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <a href="{{ url('/') }}#program" target="_blank"
-                class="btn btn-outline-primary-600 radius-8 px-16 py-8 text-xs fw-bold d-inline-flex align-items-center gap-2">
-                <i class="ph-bold ph-arrow-square-out text-md"></i> Lihat di Beranda
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <a href="{{ route('program-unggulan.publik') }}" target="_blank"
+                class="btn btn-outline-primary-600 radius-8 px-14 py-8 text-xs fw-bold d-inline-flex align-items-center gap-2">
+                <i class="ph-bold ph-arrow-square-out text-md"></i> Katalog Publik
             </a>
             <a href="{{ route('program-unggulan.create') }}"
                 class="btn btn-primary-600 radius-8 px-16 py-8 text-xs fw-bold d-inline-flex align-items-center gap-2">
@@ -103,35 +119,51 @@
 
     <!-- Tabel Daftar Program Unggulan -->
     <div class="card radius-12 border shadow-sm">
-        <div class="card-header border-bottom bg-base py-16 px-20 d-flex align-items-center justify-content-between">
-            <h6 class="text-md fw-bold mb-0 text-primary-600 d-flex align-items-center gap-2">
-                <i class="ph-bold ph-list-dashes text-lg"></i> Daftar Program Unggulan MIN 1 Ciamis
-            </h6>
-            <span class="badge bg-primary-50 text-primary-600 radius-6 px-10 py-4 text-xs fw-bold">
-                {{ $totalProgram }} Item
-            </span>
+        <div class="card-header border-bottom bg-base py-16 px-20 d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="text-md fw-bold mb-0 text-primary-600 d-flex align-items-center gap-2">
+                    <i class="ph-bold ph-list-dashes text-lg"></i> Daftar Program Unggulan
+                </h6>
+                <span class="badge bg-primary-50 text-primary-600 radius-6 px-10 py-4 text-xs fw-bold">
+                    {{ $totalProgram }} Item
+                </span>
+            </div>
+
+            @if ($totalProgram > 0)
+                <div style="min-width: 240px;">
+                    <input type="text" id="cariTabelProgram" class="form-control form-control-sm radius-8"
+                        placeholder="Cari judul, kategori, atau PJ...">
+                </div>
+            @endif
         </div>
 
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0" id="tabelProgramUnggulan">
                     <thead class="table-light text-2xs text-secondary-light text-uppercase">
                         <tr>
-                            <th class="ps-20 py-12" style="width: 60px;">Urutan</th>
-                            <th class="py-12" style="width: 100px;">Sampul</th>
-                            <th class="py-12">Nama &amp; Ringkasan Program</th>
-                            <th class="py-12" style="width: 220px;">Poin Keunggulan</th>
-                            <th class="py-12" style="width: 150px;">Pengelola / PJ</th>
+                            <th class="ps-20 py-12 text-center" style="width: 70px;">Urut</th>
+                            <th class="py-12" style="width: 96px;">Sampul</th>
+                            <th class="py-12">Program &amp; Ringkasan</th>
+                            <th class="py-12" style="width: 210px;">Kelengkapan Konten</th>
+                            <th class="py-12" style="width: 160px;">Pengelola / PJ</th>
                             <th class="py-12 text-center" style="width: 100px;">Status</th>
-                            <th class="pe-20 py-12 text-end" style="width: 130px;">Aksi</th>
+                            <th class="pe-20 py-12 text-end" style="width: 150px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($programs as $item)
-                            <tr>
+                            @php
+                                $jmlMini = count($item->mini_features_list);
+                                $jmlPilar = count($item->pilar_list_formatted);
+                                $jmlKeg = count($item->kegiatan_list_data);
+                                $jmlPoin = count($item->poin_list);
+                            @endphp
+                            <tr class="baris-program"
+                                data-search="{{ strtolower($item->judul.' '.$item->kategori_badge.' '.$item->penulis.' '.$item->ringkasan_polos) }}">
                                 <!-- Urutan -->
                                 <td class="ps-20 py-14 text-center">
-                                    <span class="badge bg-light text-dark fw-bold radius-4 px-8 py-4">
+                                    <span class="badge bg-light text-dark border fw-bold radius-6 px-8 py-4">
                                         #{{ $item->urutan }}
                                     </span>
                                 </td>
@@ -141,9 +173,9 @@
                                     <img src="{{ $item->gambar_url }}" alt="{{ $item->judul }}" class="program-thumb-preview" loading="lazy">
                                 </td>
 
-                                <!-- Nama, Badge, dan Ringkasan -->
+                                <!-- Nama, Badge, dan Ringkasan Polos -->
                                 <td class="py-14">
-                                    <div class="d-flex align-items-center gap-2 mb-4">
+                                    <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
                                         <span class="program-icon-badge">
                                             <i class="{{ $item->icon }}"></i> {{ $item->kategori_badge }}
                                         </span>
@@ -151,36 +183,34 @@
                                             <i class="ph-bold ph-eye"></i> {{ number_format($item->views, 0, ',', '.') }} views
                                         </small>
                                     </div>
-                                    <h6 class="text-sm fw-bold mb-1 text-dark">
+                                    <h6 class="text-sm fw-bold mb-1">
                                         {{ $item->judul }}
                                     </h6>
-                                    @if ($item->ringkasan)
-                                        <p class="text-xs text-secondary-light mb-0 text-truncate" style="max-width: 360px;" title="{{ $item->ringkasan }}">
-                                            {{ $item->ringkasan }}
+                                    @if ($item->ringkasan_polos !== '')
+                                        <p class="text-xs text-secondary-light mb-0 text-truncate" style="max-width: 380px;" title="{{ $item->ringkasan_polos }}">
+                                            {{ $item->ringkasan_polos }}
                                         </p>
+                                    @else
+                                        <span class="text-2xs text-muted fst-italic">Belum ada ringkasan</span>
                                     @endif
                                 </td>
 
-                                <!-- Poin Keunggulan -->
+                                <!-- Indikator Kelengkapan Section -->
                                 <td class="py-14">
-                                    @php
-                                        $poins = $item->poin_list;
-                                    @endphp
-                                    @if (!empty($poins))
-                                        <ul class="list-unstyled mb-0 text-2xs text-secondary-light">
-                                            @foreach (array_slice($poins, 0, 3) as $p)
-                                                <li class="d-flex align-items-start gap-1 mb-1">
-                                                    <i class="ph-bold ph-check-circle text-success-main mt-1"></i>
-                                                    <span class="text-truncate" style="max-width: 190px;">{{ $p }}</span>
-                                                </li>
-                                            @endforeach
-                                            @if (count($poins) > 3)
-                                                <li class="text-primary-600 fw-bold">+{{ count($poins) - 3 }} poin lainnya</li>
-                                            @endif
-                                        </ul>
-                                    @else
-                                        <span class="text-2xs text-muted fst-italic">Belum ada poin</span>
-                                    @endif
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span class="section-pill-chip {{ $jmlMini > 0 ? 'filled' : '' }}" title="Mini Card Section 1">
+                                            Mini: {{ $jmlMini }}/2
+                                        </span>
+                                        <span class="section-pill-chip {{ $jmlPilar > 0 ? 'filled' : '' }}" title="Pilar Section 2">
+                                            Pilar: {{ $jmlPilar }}/4
+                                        </span>
+                                        <span class="section-pill-chip {{ $jmlKeg > 0 ? 'filled' : '' }}" title="Kartu Kegiatan Section 3">
+                                            Kegiatan: {{ $jmlKeg }}/6
+                                        </span>
+                                        <span class="section-pill-chip {{ $jmlPoin > 0 ? 'filled' : '' }}" title="Poin Ceklis Katalog">
+                                            Ceklis: {{ $jmlPoin }}
+                                        </span>
+                                    </div>
                                 </td>
 
                                 <!-- Penulis / PJ -->
@@ -195,7 +225,7 @@
                                     <form action="{{ route('program-unggulan.toggle-status', $item->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="border-0 bg-transparent p-0" title="Klik untuk ubah status aktif">
+                                        <button type="submit" class="border-0 bg-transparent p-0" title="Klik untuk ubah status tayang">
                                             @if ($item->is_active)
                                                 <span class="badge bg-success text-white radius-6 px-10 py-4 text-2xs fw-bold">
                                                     <i class="ph-bold ph-check"></i> Aktif
@@ -212,16 +242,22 @@
                                 <!-- Tombol Aksi -->
                                 <td class="pe-20 py-14 text-end">
                                     <div class="d-inline-flex align-items-center gap-1">
-                                        <!-- Tombol Edit -->
+                                        @if ($item->is_active)
+                                            <a href="{{ route('program-unggulan.detail', $item->slug) }}" target="_blank"
+                                               class="btn btn-outline-success btn-sm radius-6 px-8 py-4"
+                                               title="Lihat Halaman Publik">
+                                                <i class="ph-bold ph-eye text-sm"></i>
+                                            </a>
+                                        @endif
+
                                         <a href="{{ route('program-unggulan.edit', $item->id) }}"
                                            class="btn btn-outline-primary-600 btn-sm radius-6 px-8 py-4"
                                            title="Edit Program">
                                             <i class="ph-bold ph-pencil-simple text-sm"></i>
                                         </a>
 
-                                        <!-- Tombol Hapus -->
                                         <form action="{{ route('program-unggulan.destroy', $item->id) }}" method="POST"
-                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus program \'{{ addslashes($item->judul) }}\'?');"
+                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus program &quot;{{ addslashes($item->judul) }}&quot;?');"
                                               class="d-inline">
                                             @csrf
                                             @method('DELETE')
@@ -245,5 +281,20 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            var inputCari = document.getElementById('cariTabelProgram');
+            if (!inputCari) return;
+
+            inputCari.addEventListener('input', function () {
+                var q = this.value.trim().toLowerCase();
+                document.querySelectorAll('#tabelProgramUnggulan tbody tr.baris-program').forEach(function (row) {
+                    var teks = row.getAttribute('data-search') || '';
+                    row.style.display = teks.indexOf(q) !== -1 ? '' : 'none';
+                });
+            });
+        })();
+    </script>
 
 @endsection

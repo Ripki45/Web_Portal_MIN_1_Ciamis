@@ -1,0 +1,977 @@
+/* =========================================================================
+   HARMONISASI TAMPILAN RESMI LANDING PAGE MIN 1 CIAMIS (DESKTOP & MOBILE)
+   ========================================================================= */
+
+/* 1. HERO SLIDER SECTION */
+.hero-slider-section {
+    position: relative !important;
+    overflow: hidden !important;
+    background: #f8fafc !important;
+}
+
+.hero-slider-track {
+    height: 520px !important;
+    transition: height 0.3s ease !important;
+}
+
+.hero-slide-centered-single {
+    width: 100% !important;
+    max-width: 980px !important;
+    margin: 0 auto !important;
+    padding: 0 28px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    position: relative !important;
+    z-index: 4 !important;
+}
+
+.hero-slide-centered-single .hero-script-heading {
+    font-family: "Caveat", "Dancing Script", cursive !important;
+    font-size: clamp(1.8rem, 3.4vw, 2.7rem) !important;
+    font-weight: 700 !important;
+    color: #1b9c85 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 2px !important;
+    letter-spacing: -0.5px !important;
+}
+
+.hero-slide-centered-single .hero-bold-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: clamp(2.3rem, 5vw, 4.2rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    margin-bottom: 12px !important;
+    line-height: 1.1 !important;
+    color: #0f172a !important;
+    text-transform: uppercase !important;
+}
+
+.hero-slide-centered-single .hero-domain-line {
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: clamp(0.85rem, 1.6vw, 1.15rem) !important;
+    letter-spacing: clamp(1.5px, 0.4vw, 3.8px) !important;
+    margin-bottom: 20px !important;
+    color: #1b9c85 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+.hero-slide-centered-single .hero-slogan-lines {
+    font-family: "Rubik", "Poppins", sans-serif !important;
+    font-size: clamp(0.88rem, 1.25vw, 1.05rem) !important;
+    line-height: 1.7 !important;
+    color: #475569 !important;
+    max-width: 740px !important;
+    margin: 0 auto !important;
+    padding-top: 14px !important;
+    border-top: 1.5px dashed rgba(27, 156, 133, 0.35) !important;
+}
+
+.hero-slide-flex-container {
+    width: 100% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 36px !important;
+    display: grid !important;
+    grid-template-columns: 1.1fr 1fr !important;
+    gap: 36px !important;
+    align-items: center !important;
+}
+
+.hero-slide-left-text .hero-script-heading {
+    font-family: "Caveat", "Dancing Script", cursive !important;
+    font-size: clamp(1.8rem, 3vw, 2.5rem) !important;
+    font-weight: 700 !important;
+    color: #1b9c85 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 2px !important;
+}
+
+.hero-slide-left-text .hero-bold-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: clamp(2.1rem, 4.4vw, 3.6rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    line-height: 1.1 !important;
+    color: #0f172a !important;
+    margin-bottom: 10px !important;
+    text-transform: uppercase !important;
+}
+
+.hero-slogan-clean {
+    border-left: 3.5px solid #1b9c85 !important;
+    padding-left: 14px !important;
+    margin-top: 8px !important;
+    color: #475569 !important;
+    line-height: 1.65 !important;
+    font-size: clamp(0.88rem, 1.2vw, 1rem) !important;
+}
+
+.hero-collage-wrap {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.hero-collage-main-img {
+    max-height: 380px !important;
+    width: 100% !important;
+    object-fit: cover !important;
+    border-radius: 24px !important;
+}
+
+@media (max-width: 991px) {
+    .hero-slider-track {
+        height: 480px !important;
+    }
+    .hero-slide-flex-container {
+        grid-template-columns: 1fr !important;
+        text-align: center !important;
+        gap: 20px !important;
+        padding: 0 24px !important;
+    }
+    .hero-slogan-clean {
+        border-left: none !important;
+        padding-left: 0 !important;
+    }
+    .hero-collage-wrap {
+        max-width: 380px !important;
+        margin: 0 auto !important;
+    }
+    .hero-collage-main-img {
+        max-height: 260px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-slider-track {
+        height: auto !important;
+        min-height: 400px !important;
+        padding: 24px 0 56px 0 !important;
+    }
+    .hero-slide {
+        position: relative !important;
+        height: auto !important;
+        min-height: 380px !important;
+        display: none !important;
+    }
+    .hero-slide.active {
+        display: flex !important;
+    }
+    .hero-slide-centered-single {
+        padding: 0 16px !important;
+    }
+    .hero-slide-centered-single .hero-script-heading {
+        font-size: 1.85rem !important;
+    }
+    .hero-slide-centered-single .hero-bold-title {
+        font-size: 2.15rem !important;
+        margin-bottom: 8px !important;
+    }
+    .hero-slide-centered-single .hero-domain-line {
+        font-size: 0.85rem !important;
+        letter-spacing: 1.8px !important;
+        margin-bottom: 12px !important;
+    }
+    .hero-slide-centered-single .hero-slogan-lines {
+        font-size: 0.82rem !important;
+        padding-top: 10px !important;
+        line-height: 1.6 !important;
+    }
+    .hero-slider-section .slider-arrow {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.85rem !important;
+        opacity: 0.75 !important;
+    }
+    .hero-slider-section .slider-arrow.prev {
+        left: 8px !important;
+    }
+    .hero-slider-section .slider-arrow.next {
+        right: 8px !important;
+    }
+    .slider-dots-container {
+        bottom: 12px !important;
+        padding: 4px 10px !important;
+        gap: 6px !important;
+    }
+    .slider-dot {
+        width: 8px !important;
+        height: 8px !important;
+    }
+    .slider-dot.active {
+        width: 22px !important;
+    }
+}
+
+/* 2. SAMBUTAN & SEKILAS MADRASAH (#profil) */
+.sekilas-section {
+    padding: 65px 0 !important;
+}
+.sekilas-grid {
+    gap: 48px !important;
+}
+.sekilas-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: clamp(1.8rem, 3.2vw, 2.5rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    margin-bottom: 20px !important;
+}
+.sekilas-quote {
+    font-family: "Outfit", sans-serif !important;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem) !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    line-height: 1.45 !important;
+    margin-bottom: 12px !important;
+}
+.sekilas-text {
+    font-size: clamp(0.88rem, 1.1vw, 0.96rem) !important;
+    line-height: 1.75 !important;
+    color: #475569 !important;
+}
+
+@media (max-width: 768px) {
+    .sekilas-section {
+        padding: 40px 0 !important;
+    }
+    .sekilas-tabs-nav {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 4px 2px 10px 2px !important;
+        gap: 8px !important;
+        margin-bottom: 18px !important;
+        scrollbar-width: none !important;
+    }
+    .sekilas-tabs-nav::-webkit-scrollbar {
+        display: none !important;
+    }
+    .sekilas-tab-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        padding: 8px 18px !important;
+        font-size: 11.5px !important;
+    }
+    .sekilas-card-frame {
+        border-radius: 24px !important;
+        padding: 12px !important;
+    }
+    .sekilas-card-img-wrapper {
+        height: 330px !important;
+        border-radius: 20px !important;
+    }
+}
+
+/* 3. BANNER PPDB & LAYANAN CEPAT (#ppdb) */
+.hero-bottom-features-section {
+    margin: 32px 0 54px 0 !important;
+}
+.ppdb-landscape-banner-wrap {
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    border: 2px solid #ffffff;
+    background: #1e3a8a;
+    line-height: 0;
+    cursor: pointer;
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+.ppdb-landscape-banner-wrap:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+}
+.ppdb-landscape-banner-img {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 5.6;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+#layanan-cepat.layanan-cepat-card {
+    padding: 28px 32px !important;
+    border-radius: 24px !important;
+    background: linear-gradient(
+        135deg,
+        #064e3b 0%,
+        #0d6a56 50%,
+        #1b9c85 100%
+    ) !important;
+    box-shadow: 0 16px 36px rgba(13, 106, 86, 0.22) !important;
+}
+#layanan-cepat .layanan-cepat-header {
+    margin-bottom: 18px !important;
+}
+#layanan-cepat .layanan-cepat-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: 1.6rem !important;
+    font-weight: 800 !important;
+    color: #ffffff !important;
+    margin: 0 0 4px 0 !important;
+}
+#layanan-cepat .layanan-cepat-subtitle {
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 0.88rem !important;
+    color: #e2e8f0 !important;
+}
+.layanan-cepat-grid-custom {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 12px !important;
+}
+#layanan-cepat .layanan-cepat-item {
+    background: rgba(255, 255, 255, 0.94) !important;
+    padding: 14px 10px !important;
+    min-height: 84px !important;
+    border-radius: 16px !important;
+    gap: 6px !important;
+    text-decoration: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background 0.2s ease !important;
+}
+#layanan-cepat .layanan-cepat-item:hover {
+    transform: translateY(-4px) !important;
+    background: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.15) !important;
+}
+#layanan-cepat .lc-icon {
+    width: 32px !important;
+    height: 32px !important;
+    color: #1b9c85 !important;
+    font-size: 1.15rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#layanan-cepat .lc-label {
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    line-height: 1.25 !important;
+}
+
+.btn-layanan-more-wrap {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin-top: 22px !important;
+    position: relative !important;
+    z-index: 5 !important;
+}
+.btn-layanan-more {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
+    padding: 9px 24px !important;
+    border-radius: 50px !important;
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.btn-layanan-more:hover {
+    background: #ffffff !important;
+    color: #0d6a56 !important;
+    border-color: #ffffff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+}
+.btn-layanan-more i {
+    font-size: 0.8rem !important;
+    transition: transform 0.25s ease !important;
+}
+
+@media (max-width: 991px) {
+    .layanan-cepat-grid-custom {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px !important;
+    }
+}
+@media (max-width: 576px) {
+    .hero-bottom-features-section {
+        margin: 18px 0 36px 0 !important;
+    }
+    .ppdb-landscape-banner-wrap {
+        border-radius: 14px;
+        margin-bottom: 14px;
+    }
+    #layanan-cepat.layanan-cepat-card {
+        padding: 18px 14px !important;
+        border-radius: 18px !important;
+    }
+    #layanan-cepat .layanan-cepat-title {
+        font-size: 1.25rem !important;
+    }
+    #layanan-cepat .layanan-cepat-subtitle {
+        font-size: 0.74rem !important;
+    }
+    .layanan-cepat-grid-custom {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+    }
+    #layanan-cepat .layanan-cepat-item {
+        padding: 10px 6px !important;
+        min-height: 70px !important;
+        border-radius: 12px !important;
+    }
+    #layanan-cepat .lc-icon {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 0.95rem !important;
+    }
+    #layanan-cepat .lc-label {
+        font-size: 0.68rem !important;
+    }
+}
+
+/* 4. CAROUSEL SOROTAN BERITA */
+.sec-9-home-1 {
+    padding-top: 10px !important;
+    padding-bottom: 45px !important;
+}
+.block-card-swiper {
+    padding: 70px 0 !important;
+    border-radius: 24px !important;
+}
+@media (max-width: 768px) {
+    .block-card-swiper {
+        padding: 32px 14px !important;
+        border-radius: 18px !important;
+    }
+    .block-card-swiper .card-swiper-thumb .thumb {
+        width: 72px !important;
+        height: 58px !important;
+        min-width: 72px !important;
+        min-height: 58px !important;
+    }
+}
+
+/* 5. DIREKTORI GURU & TENDIK */
+.guru-tendik-section {
+    padding: 55px 0 !important;
+}
+.guru-main-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem) !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+.guru-card {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    border: 1px solid #e2e8f0 !important;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease !important;
+}
+.guru-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* SECTION HEADERS */
+.section-header {
+    text-align: center !important;
+    max-width: 760px !important;
+    margin: 0 auto 40px auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.section-title {
+    display: block !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    font-family: "Outfit", sans-serif !important;
+    font-size: clamp(1.8rem, 3.2vw, 2.5rem) !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    text-align: center !important;
+    margin: 0 auto 12px auto !important;
+    position: relative !important;
+    width: 100% !important;
+    line-height: 1.25 !important;
+}
+.section-title.white {
+    color: #ffffff !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.section-subtitle {
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+    color: #1b9c85 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.5px !important;
+    margin-bottom: 8px !important;
+    display: inline-block !important;
+    text-align: center !important;
+}
+.section-subtitle.white {
+    color: #4ebaa6 !important;
+}
+.section-desc {
+    font-family: "Rubik", "Poppins", sans-serif !important;
+    font-size: clamp(0.9rem, 1.2vw, 1.05rem) !important;
+    color: #64748b !important;
+    line-height: 1.65 !important;
+    text-align: center !important;
+    margin: 0 auto !important;
+    max-width: 650px !important;
+}
+.section-divider {
+    width: 60px !important;
+    height: 4px !important;
+    background-color: #1b9c85 !important;
+    margin: 14px auto 0 auto !important;
+    border-radius: 9999px !important;
+}
+
+/* 6. PRESTASI SISWA */
+.stats-section {
+    padding: 65px 0 !important;
+}
+.stat-card {
+    border-radius: 20px !important;
+    padding: 24px 18px !important;
+}
+@media (max-width: 640px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+    .stat-card {
+        padding: 16px 12px !important;
+    }
+    .stat-number {
+        font-size: 1.8rem !important;
+    }
+}
+
+/* 7. PROGRAM UNGGULAN */
+.programs-section {
+    padding: 65px 0 !important;
+}
+.program-card-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+}
+
+/* 8. DUNIA ILMU MADRASAH */
+.dunia-ilmu-section {
+    padding: 55px 0 !important;
+}
+.dunia-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    padding: 12px 18px;
+    border-radius: 18px;
+    margin-bottom: 22px;
+}
+@media (max-width: 768px) {
+    .dunia-filter-bar {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+        padding: 12px !important;
+    }
+    .dunia-filter-bar .filter-title {
+        grid-column: 1 / -1 !important;
+    }
+    .dunia-filter-bar select {
+        width: 100% !important;
+        font-size: 0.8rem !important;
+        padding: 8px 10px !important;
+    }
+    .dunia-filter-bar .btn-reset-filter {
+        grid-column: 1 / -1 !important;
+        text-align: center !important;
+        margin: 4px auto 0 !important;
+    }
+}
+
+/* 9. KABAR MADRASAH */
+.news-card {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    border: 1px solid #e2e8f0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    cursor: pointer;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease !important;
+}
+.news-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08) !important;
+}
+.news-thumb {
+    width: 100% !important;
+    aspect-ratio: 16 / 10 !important;
+    object-fit: cover !important;
+}
+.news-title {
+    font-family: "Outfit", sans-serif !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    line-height: 1.4 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+.news-excerpt {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+/* 10. MUTIARA HIKMAH */
+.mutiara-section {
+    padding: 50px 0 70px 0 !important;
+}
+.mutiara-card {
+    border-radius: 24px !important;
+    padding: 38px 32px !important;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12) !important;
+}
+.mutiara-quote-text {
+    font-size: clamp(1.05rem, 2.2vw, 1.35rem) !important;
+    line-height: 1.65 !important;
+}
+@media (max-width: 576px) {
+    .mutiara-card {
+        padding: 24px 18px !important;
+        border-radius: 18px !important;
+    }
+    .mutiara-actions {
+        display: flex !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+    .mutiara-actions button {
+        flex: 1 !important;
+        justify-content: center !important;
+        padding: 8px 12px !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+/* =========================================================================
+   DARK MODE SUPPORT
+   ========================================================================= */
+[data-bs-theme="dark"] body,
+[data-bs-theme="dark"] main {
+    background-color: #0b1317 !important;
+    color: #cbd5e1 !important;
+}
+[data-bs-theme="dark"] .dark-light-switcher .svg-dark {
+    display: none !important;
+}
+[data-bs-theme="dark"] .dark-light-switcher .svg-white {
+    display: inline-flex !important;
+}
+:root:not([data-bs-theme="dark"]) .dark-light-switcher .svg-dark,
+[data-bs-theme="light"] .dark-light-switcher .svg-dark {
+    display: inline-flex !important;
+}
+:root:not([data-bs-theme="dark"]) .dark-light-switcher .svg-white,
+[data-bs-theme="light"] .dark-light-switcher .svg-white {
+    display: none !important;
+}
+
+[data-bs-theme="dark"] .site-header {
+    background: transparent !important;
+}
+[data-bs-theme="dark"] .header-container {
+    background: rgba(15, 23, 42, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+}
+[data-bs-theme="dark"] .nav-menu .menu-link {
+    color: #e2e8f0 !important;
+}
+[data-bs-theme="dark"] .nav-menu .menu-link:hover,
+[data-bs-theme="dark"] .nav-menu .menu-item.active > .menu-link {
+    color: #2dd4bf !important;
+    background: rgba(45, 212, 191, 0.12) !important;
+}
+[data-bs-theme="dark"] .sub-menu,
+[data-bs-theme="dark"] .sub-menu .cucu-menu {
+    background: rgba(19, 34, 40, 0.98) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 20px 42px rgba(0, 0, 0, 0.55) !important;
+}
+[data-bs-theme="dark"] .sub-menu .menu-link {
+    color: #cbd5e1 !important;
+}
+[data-bs-theme="dark"] .sub-menu .menu-link:hover {
+    color: #2dd4bf !important;
+    background: rgba(45, 212, 191, 0.12) !important;
+}
+[data-bs-theme="dark"] .header-social-item,
+[data-bs-theme="dark"] .header-search-circle-btn,
+[data-bs-theme="dark"] .header-theme-toggle-btn,
+[data-bs-theme="dark"] .mobile-toggle-btn {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.14) !important;
+    color: #e2e8f0 !important;
+}
+[data-bs-theme="dark"] .header-social-item:hover,
+[data-bs-theme="dark"] .header-search-circle-btn:hover,
+[data-bs-theme="dark"] .header-theme-toggle-btn:hover {
+    background: rgba(45, 212, 191, 0.2) !important;
+    color: #2dd4bf !important;
+    border-color: #2dd4bf !important;
+}
+
+[data-bs-theme="dark"] .section-title,
+[data-bs-theme="dark"] .hero-slide-centered-single .hero-bold-title,
+[data-bs-theme="dark"] .hero-slide-left-text .hero-bold-title,
+[data-bs-theme="dark"] .sekilas-title,
+[data-bs-theme="dark"] .title-italic,
+[data-bs-theme="dark"] .guru-main-title,
+[data-bs-theme="dark"] .guru-name,
+[data-bs-theme="dark"] .program-card-title,
+[data-bs-theme="dark"] .news-title,
+[data-bs-theme="dark"] .mutiara-quote-text {
+    color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .section-subtitle,
+[data-bs-theme="dark"] .hero-slide-centered-single .hero-script-heading,
+[data-bs-theme="dark"] .hero-slide-left-text .hero-script-heading,
+[data-bs-theme="dark"] .hero-slide-centered-single .hero-domain-line,
+[data-bs-theme="dark"] .hero-slide-left-text .hero-domain-line,
+[data-bs-theme="dark"] .title-highlight,
+[data-bs-theme="dark"] .guru-role,
+[data-bs-theme="dark"] .program-card-features li i,
+[data-bs-theme="dark"] .dunia-filter-bar .filter-title,
+[data-bs-theme="dark"] .dunia-link-action,
+[data-bs-theme="dark"] .news-read-more {
+    color: #2dd4bf !important;
+}
+
+[data-bs-theme="dark"] .section-desc,
+[data-bs-theme="dark"] .hero-slide-centered-single .hero-slogan-lines,
+[data-bs-theme="dark"] .hero-slogan-clean,
+[data-bs-theme="dark"] .sekilas-text,
+[data-bs-theme="dark"] .guru-sub-desc,
+[data-bs-theme="dark"] .program-card-desc,
+[data-bs-theme="dark"] .news-date,
+[data-bs-theme="dark"] .news-excerpt {
+    color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .section-bg-alt,
+[data-bs-theme="dark"] .sekilas-section,
+[data-bs-theme="dark"] .guru-tendik-section,
+[data-bs-theme="dark"] .dunia-ilmu-section,
+[data-bs-theme="dark"] .mutiara-section {
+    background: #0d171c !important;
+}
+
+[data-bs-theme="dark"] .hero-slider-section,
+[data-bs-theme="dark"] .sec-9-home-1,
+[data-bs-theme="dark"] .programs-section,
+[data-bs-theme="dark"] #berita.section-bg-alt {
+    background: #0b1317 !important;
+}
+
+[data-bs-theme="dark"] .hero-animated-grid-bg {
+    opacity: 0.05 !important;
+}
+[data-bs-theme="dark"] .hero-slide-centered-single .hero-slogan-lines {
+    border-top-color: rgba(45, 212, 191, 0.25) !important;
+}
+[data-bs-theme="dark"] .sekilas-quote,
+[data-bs-theme="dark"] #layanan-cepat .lc-label {
+    color: #f1f5f9 !important;
+}
+[data-bs-theme="dark"] .sekilas-tab-btn {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #94a3b8 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+[data-bs-theme="dark"] .sekilas-tab-btn:hover {
+    color: #2dd4bf !important;
+    background: rgba(45, 212, 191, 0.12) !important;
+}
+[data-bs-theme="dark"] .sekilas-tab-btn.active {
+    background: #1b9c85 !important;
+    color: #ffffff !important;
+    border-color: #1b9c85 !important;
+}
+[data-bs-theme="dark"] .sekilas-card-frame {
+    background: #162b28 !important;
+    border-color: rgba(45, 212, 191, 0.3) !important;
+}
+[data-bs-theme="dark"] .sekilas-feature-pill,
+[data-bs-theme="dark"] .guru-tendik-card,
+[data-bs-theme="dark"] .program-card-modern,
+[data-bs-theme="dark"] .dunia-filter-bar,
+[data-bs-theme="dark"] .news-card,
+[data-bs-theme="dark"] .search-modal-content,
+[data-bs-theme="dark"] .dunia-modal-box {
+    background: #132228 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .sekilas-feature-pill {
+    color: #e2e8f0 !important;
+}
+[data-bs-theme="dark"] .sekilas-feature-pill i,
+[data-bs-theme="dark"] #layanan-cepat .lc-icon {
+    color: #2dd4bf !important;
+}
+
+[data-bs-theme="dark"] #layanan-cepat.layanan-cepat-card {
+    background: linear-gradient(
+        135deg,
+        #032119 0%,
+        #064e3b 50%,
+        #0a5a4a 100%
+    ) !important;
+    border: 1.5px solid rgba(45, 212, 191, 0.25) !important;
+}
+[data-bs-theme="dark"] #layanan-cepat .layanan-cepat-item {
+    background: rgba(15, 23, 42, 0.88) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] #layanan-cepat .layanan-cepat-item:hover {
+    background: rgba(27, 156, 133, 0.35) !important;
+    border-color: #2dd4bf !important;
+}
+
+[data-bs-theme="dark"] .block-card-swiper {
+    background: #111e24 !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .guru-card,
+[data-bs-theme="dark"] .dunia-media-card {
+    background: #172a32 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .guru-card:hover,
+[data-bs-theme="dark"] .program-card-modern:hover,
+[data-bs-theme="dark"] .dunia-media-card:hover,
+[data-bs-theme="dark"] .news-card:hover {
+    border-color: #2dd4bf !important;
+}
+
+[data-bs-theme="dark"] .guru-nav-btn {
+    background: #1b2f38 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f1f5f9 !important;
+}
+[data-bs-theme="dark"] .guru-nav-btn:hover {
+    background: #1b9c85 !important;
+    color: #ffffff !important;
+}
+[data-bs-theme="dark"] .stats-section {
+    background: linear-gradient(135deg, #020a06 0%, #05140c 100%) !important;
+}
+[data-bs-theme="dark"] .stat-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .stat-card:hover {
+    background: rgba(45, 212, 191, 0.1) !important;
+    border-color: #2dd4bf !important;
+}
+[data-bs-theme="dark"] .total-prestasi-banner {
+    background: linear-gradient(
+        135deg,
+        rgba(3, 24, 20, 0.98) 0%,
+        rgba(7, 48, 44, 0.96) 50%,
+        rgba(3, 24, 20, 0.98) 100%
+    ) !important;
+    border-color: rgba(251, 191, 36, 0.45) !important;
+}
+[data-bs-theme="dark"] .program-card-features li {
+    color: #cbd5e1 !important;
+}
+[data-bs-theme="dark"] .dunia-filter-bar select,
+[data-bs-theme="dark"] .search-input,
+[data-bs-theme="dark"] .dunia-modal-filter-select {
+    background: #1a2f37 !important;
+    color: #f1f5f9 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+[data-bs-theme="dark"] .dunia-link-action {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .mutiara-card {
+    background: linear-gradient(135deg, #05261f 0%, #0c3d33 100%) !important;
+    border-color: rgba(251, 191, 36, 0.35) !important;
+}
+[data-bs-theme="dark"] .mutiara-author {
+    color: #fde047 !important;
+}
+[data-bs-theme="dark"] .mobile-drawer {
+    background: #0f172a !important;
+}
+[data-bs-theme="dark"] .mobile-nav-link {
+    background: #172a32 !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+[data-bs-theme="dark"] .mobile-sub-menu {
+    background: #111e24 !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+[data-bs-theme="dark"] .mobile-bottom-nav {
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .site-footer {
+    background: #060c0f !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .footer-bottom {
+    border-top-color: rgba(255, 255, 255, 0.08) !important;
+}

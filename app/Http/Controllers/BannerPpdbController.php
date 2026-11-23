@@ -15,7 +15,6 @@ class BannerPpdbController extends Controller
      */
     public function index(): View
     {
-        BannerPpdb::pastikanTabelSiap();
         $bannerPpdb = BannerPpdb::ambilData();
 
         return view('banner_ppdb.index', compact('bannerPpdb'));
@@ -26,7 +25,6 @@ class BannerPpdbController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        BannerPpdb::pastikanTabelSiap();
         $bannerPpdb = BannerPpdb::ambilData();
 
         $validated = $request->validate([
@@ -35,7 +33,7 @@ class BannerPpdbController extends Controller
             'tipe_link' => 'required|in:popup,url',
             'link_url' => 'nullable|string|max:255',
             'is_active' => 'nullable',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'hapus_gambar' => 'nullable|boolean',
 
             'is_active_popup' => 'nullable',
@@ -50,9 +48,10 @@ class BannerPpdbController extends Controller
             'popup_gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'hapus_popup_gambar' => 'nullable|boolean',
         ], [
-            'judul.required' => 'Judul banner PPDB wajib diisi.',
             'popup_judul.required' => 'Judul popup modal wajib diisi.',
+            'gambar.mimes' => 'Format gambar banner hanya mendukung JPG, JPEG, PNG, atau WEBP.',
             'gambar.max' => 'Ukuran gambar banner maksimal 5MB.',
+            'popup_gambar.mimes' => 'Format foto brosur popup hanya mendukung JPG, JPEG, PNG, atau WEBP.',
             'popup_gambar.max' => 'Ukuran foto brosur popup maksimal 5MB.',
         ]);
 
@@ -87,10 +86,10 @@ class BannerPpdbController extends Controller
         $bannerPpdb->subjudul = $validated['subjudul'] ?? $bannerPpdb->subjudul ?? '';
         $bannerPpdb->tipe_link = $validated['tipe_link'];
         $bannerPpdb->link_url = $validated['link_url'] ?? '#ppdb';
-        $bannerPpdb->is_active = $request->has('is_active');
+        $bannerPpdb->is_active = $request->boolean('is_active');
 
-        $bannerPpdb->is_active_popup = $request->has('is_active_popup');
-        $bannerPpdb->auto_popup = $request->has('auto_popup');
+        $bannerPpdb->is_active_popup = $request->boolean('is_active_popup');
+        $bannerPpdb->auto_popup = $request->boolean('auto_popup');
         $bannerPpdb->popup_judul = $validated['popup_judul'];
         $bannerPpdb->popup_badge = $validated['popup_badge'] ?? 'PPDB ONLINE';
         $bannerPpdb->popup_konten = $validated['popup_konten'] ?? '';

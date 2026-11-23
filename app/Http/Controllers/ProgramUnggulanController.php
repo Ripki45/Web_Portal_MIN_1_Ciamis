@@ -11,7 +11,9 @@ use App\Models\Siswa;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -21,29 +23,15 @@ class ProgramUnggulanController extends Controller
     /**
      * Halaman Publik: Direktori Semua Program Unggulan
      */
-    public function publik(Request $request): View
+    public function publik(): View
     {
-        ProgramUnggulan::pastikanTabelSiap();
+        $programs = ProgramUnggulan::where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
 
-        $query = ProgramUnggulan::where('is_active', true);
-
-        if ($request->filled('kategori') && $request->kategori !== 'semua') {
-            $query->where('kategori_badge', $request->kategori);
-        }
-
-        if ($request->filled('q')) {
-            $q = trim($request->q);
-            $query->where(function ($sub) use ($q) {
-                $sub->where('judul', 'like', "%{$q}%")
-                    ->orWhere('ringkasan', 'like', "%{$q}%")
-                    ->orWhere('kategori_badge', 'like', "%{$q}%")
-                    ->orWhere('isi_konten', 'like', "%{$q}%");
-            });
-        }
-
-        $programs = $query->orderBy('urutan', 'asc')->orderBy('id', 'asc')->get();
-        $totalSemua = ProgramUnggulan::where('is_active', true)->count();
-        $daftarKategori = ProgramUnggulan::where('is_active', true)->pluck('kategori_badge')->unique()->values();
+        $totalSemua = $programs->count();
+        $daftarKategori = $programs->pluck('kategori_badge')->filter()->unique()->values();
 
         return view('frontend.program_unggulan', compact('programs', 'totalSemua', 'daftarKategori'));
     }
@@ -53,9 +41,10 @@ class ProgramUnggulanController extends Controller
      */
     public function detail(string $slug): View
     {
-        ProgramUnggulan::pastikanTabelSiap();
+        $program = ProgramUnggulan::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
 
-        $program = ProgramUnggulan::where('slug', $slug)->where('is_active', true)->firstOrFail();
         $program->increment('views');
 
         $programLain = ProgramUnggulan::where('is_active', true)
@@ -64,12 +53,14 @@ class ProgramUnggulanController extends Controller
             ->take(5)
             ->get();
 
-        $statMadrasah = [
-            'Siswa Aktif' => Siswa::where('status', 'Aktif')->count(),
-            'Guru & Tendik' => Gtk::count(),
-            'Rombel Kelas' => Kelas::count(),
-            'Ekstrakurikuler' => Ekskul::where('status', 'Aktif')->count(),
-        ];
+        $statMadrasah = Cache::remember('stat_madrasah_ringkas', now()->addMinutes(5), function () {
+            return [
+                'Siswa Aktif' => Siswa::where('status', 'Aktif')->count(),
+                'Guru & Tendik' => Gtk::count(),
+                'Rombel Kelas' => Kelas::count(),
+                'Ekstrakurikuler' => Ekskul::where('status', 'Aktif')->count(),
+            ];
+        });
 
         return view('frontend.program_detail', compact('program', 'programLain', 'statMadrasah'));
     }
@@ -79,21 +70,14 @@ class ProgramUnggulanController extends Controller
      */
     public function index(): View
     {
-        ProgramUnggulan::pastikanTabelSiap();
+        $programs = ProgramUnggulan::orderBy('urutan', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
 
-        $programs = ProgramUnggulan::orderBy('urutan', 'asc')->orderBy('id', 'desc')->get();
         $totalProgram = $programs->count();
         $totalAktif = $programs->where('is_active', true)->count();
-        $iconRekomendasi = ProgramUnggulan::daftarIconRekomendasi();
-        $urutanBerikutnya = ($programs->max('urutan') ?? 0) + 1;
 
-        return view('program_unggulans.index', compact(
-            'programs',
-            'totalProgram',
-            'totalAktif',
-            'iconRekomendasi',
-            'urutanBerikutnya'
-        ));
+        return view('program_unggulans.index', compact('programs', 'totalProgram', 'totalAktif'));
     }
 
     /**
@@ -115,8 +99,6 @@ class ProgramUnggulanController extends Controller
      */
     public function create(): View
     {
-        ProgramUnggulan::pastikanTabelSiap();
-
         $iconRekomendasi = ProgramUnggulan::daftarIconRekomendasi();
         $urutanBerikutnya = (ProgramUnggulan::max('urutan') ?? 0) + 1;
         $daftarModelAi = self::daftarModelAi();
@@ -129,134 +111,28 @@ class ProgramUnggulanController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        ProgramUnggulan::pastikanTabelSiap();
+        $validated = $this->validasiProgram($request);
+        $data = $this->susunDataProgram($request, $validated);
 
-        $validated = $request->validate([
-            'judul' => 'required|string|max:160',
-            'kategori_badge' => 'required|string|max:80',
-            'icon' => 'required|string|max:80',
-            'ringkasan' => 'nullable|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:3072',
-            'kutipan' => 'nullable|string|max:600',
-            'keunggulan_poin' => 'nullable|string',
-            'mini_feature_title' => 'nullable|array',
-            'mini_feature_title.*' => 'nullable|string|max:100',
-            'mini_feature_desc' => 'nullable|array',
-            'mini_feature_desc.*' => 'nullable|string|max:255',
-            'mini_feature_icon' => 'nullable|array',
-            'mini_feature_icon.*' => 'nullable|string|max:80',
-            'pilar_title' => 'nullable|array',
-            'pilar_title.*' => 'nullable|string|max:120',
-            'pilar_desc' => 'nullable|array',
-            'pilar_desc.*' => 'nullable|string|max:500',
-            'pilar_icon' => 'nullable|array',
-            'pilar_icon.*' => 'nullable|string|max:80',
-            'kegiatan_judul' => 'nullable|string|max:220',
-            'kegiatan_badge' => 'nullable|string|max:100',
-            'kegiatan_deskripsi' => 'nullable|string|max:500',
-            'kegiatan_card_badge' => 'nullable|array',
-            'kegiatan_card_badge.*' => 'nullable|string|max:100',
-            'kegiatan_card_title' => 'nullable|array',
-            'kegiatan_card_title.*' => 'nullable|string|max:220',
-            'kegiatan_card_desc' => 'nullable|array',
-            'kegiatan_card_desc.*' => 'nullable|string|max:1000',
-            'isi_konten' => 'nullable|string',
-            'penulis' => 'nullable|string|max:100',
-            'urutan' => 'nullable|integer|min:1',
-            'is_active' => 'nullable',
-        ], [
-            'judul.required' => 'Nama program unggulan wajib diisi.',
-            'kategori_badge.required' => 'Label kategori/badge wajib diisi.',
-            'icon.required' => 'Ikon Font Awesome program wajib dipilih/diisi.',
-            'gambar.max' => 'Ukuran gambar sampul maksimal 3 MB.',
-        ]);
-
-        $baseSlug = Str::slug($validated['judul']) ?: 'program-'.time();
+        $baseSlug = Str::slug($data['judul']) ?: 'program-'.time();
         $slug = $baseSlug;
         $counter = 1;
         while (ProgramUnggulan::where('slug', $slug)->exists()) {
             $slug = $baseSlug.'-'.$counter++;
         }
 
-        $gambarPath = null;
+        $data['slug'] = $slug;
+        $data['views'] = 0;
+
         if ($request->hasFile('gambar')) {
-            $gambarPath = $request->file('gambar')->store('program_unggulan', 'public');
+            $data['gambar_sampul'] = $request->file('gambar')->store('program_unggulan', 'public');
         }
 
-        $poinList = [];
-        if (! empty($validated['keunggulan_poin'])) {
-            $lines = explode("\n", str_replace("\r", '', $validated['keunggulan_poin']));
-            $poinList = array_values(array_filter(array_map('trim', $lines)));
-        }
-
-        // Susun 2 Mini Features Section 1
-        $miniFeatures = [];
-        if (! empty($request->input('mini_feature_title'))) {
-            foreach ($request->input('mini_feature_title') as $i => $title) {
-                if (! empty($title) || ! empty($request->input("mini_feature_desc.{$i}"))) {
-                    $miniFeatures[] = [
-                        'icon' => $request->input("mini_feature_icon.{$i}") ?: 'fas fa-shield-alt',
-                        'title' => strip_tags(trim((string) $title)),
-                        'desc' => strip_tags(trim((string) $request->input("mini_feature_desc.{$i}"))),
-                    ];
-                }
-            }
-        }
-
-        // Susun 4 Pilar Section 2
-        $pilarList = [];
-        if (! empty($request->input('pilar_title'))) {
-            foreach ($request->input('pilar_title') as $i => $title) {
-                if (! empty($title) || ! empty($request->input("pilar_desc.{$i}"))) {
-                    $pilarList[] = [
-                        'icon' => $request->input("pilar_icon.{$i}") ?: 'fas fa-award',
-                        'title' => strip_tags(trim((string) $title)),
-                        'desc' => strip_tags(trim((string) $request->input("pilar_desc.{$i}"))),
-                    ];
-                }
-            }
-        }
-
-        // Susun 6 Kegiatan Aktivitas Section 3
-        $kegiatanList = [];
-        if (! empty($request->input('kegiatan_card_title'))) {
-            foreach ($request->input('kegiatan_card_title') as $i => $cardTitle) {
-                if (! empty($cardTitle) || ! empty($request->input("kegiatan_card_desc.{$i}"))) {
-                    $kegiatanList[] = [
-                        'badge' => strip_tags(trim((string) ($request->input("kegiatan_card_badge.{$i}") ?: 'Kegiatan'))),
-                        'title' => strip_tags(trim((string) $cardTitle)),
-                        'desc' => strip_tags(trim((string) $request->input("kegiatan_card_desc.{$i}"))),
-                    ];
-                }
-            }
-        }
-
-        ProgramUnggulan::create([
-            'judul' => strip_tags(trim($validated['judul'])),
-            'slug' => $slug,
-            'kategori_badge' => strip_tags(trim($validated['kategori_badge'])),
-            'icon' => trim($validated['icon']),
-            'ringkasan' => trim((string) ($validated['ringkasan'] ?? '')),
-            'gambar_sampul' => $gambarPath,
-            'kutipan' => strip_tags(trim((string) ($validated['kutipan'] ?? ''))),
-            'mini_features' => $miniFeatures,
-            'keunggulan_poin' => $poinList,
-            'pilar_list' => $pilarList,
-            'kegiatan_badge' => strip_tags(trim((string) ($validated['kegiatan_badge'] ?? ''))),
-            'kegiatan_judul' => strip_tags(trim((string) ($validated['kegiatan_judul'] ?? ''))),
-            'kegiatan_deskripsi' => strip_tags(trim((string) ($validated['kegiatan_deskripsi'] ?? ''))),
-            'kegiatan_list' => $kegiatanList,
-            'isi_konten' => $validated['isi_konten'] ?? null,
-            'penulis' => strip_tags(trim((string) ($validated['penulis'] ?: 'Tim Kurikulum MIN 1 Ciamis'))),
-            'urutan' => (int) ($validated['urutan'] ?? ((ProgramUnggulan::max('urutan') ?? 0) + 1)),
-            'views' => 1,
-            'is_active' => $request->has('is_active'),
-        ]);
-
+        $program = ProgramUnggulan::create($data);
         HomeController::bersihkanCache();
 
         return redirect()->route('program-unggulan.index')
-            ->with('success', 'Program unggulan "'.e($validated['judul']).'" berhasil ditambahkan!');
+            ->with('success', 'Program unggulan "'.$program->judul.'" berhasil ditambahkan!');
     }
 
     /**
@@ -264,12 +140,12 @@ class ProgramUnggulanController extends Controller
      */
     public function edit(int $id): View
     {
-        ProgramUnggulan::pastikanTabelSiap();
         $program = ProgramUnggulan::findOrFail($id);
         $iconRekomendasi = ProgramUnggulan::daftarIconRekomendasi();
         $daftarModelAi = self::daftarModelAi();
+        $urutanBerikutnya = $program->urutan;
 
-        return view('program_unggulans.edit', compact('program', 'iconRekomendasi', 'daftarModelAi'));
+        return view('program_unggulans.edit', compact('program', 'iconRekomendasi', 'daftarModelAi', 'urutanBerikutnya'));
     }
 
     /**
@@ -277,117 +153,17 @@ class ProgramUnggulanController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        ProgramUnggulan::pastikanTabelSiap();
         $program = ProgramUnggulan::findOrFail($id);
-
-        $validated = $request->validate([
-            'judul' => 'required|string|max:160',
-            'kategori_badge' => 'required|string|max:80',
-            'icon' => 'required|string|max:80',
-            'ringkasan' => 'nullable|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:3072',
-            'kutipan' => 'nullable|string|max:600',
-            'keunggulan_poin' => 'nullable|string',
-            'mini_feature_title' => 'nullable|array',
-            'mini_feature_title.*' => 'nullable|string|max:100',
-            'mini_feature_desc' => 'nullable|array',
-            'mini_feature_desc.*' => 'nullable|string|max:255',
-            'mini_feature_icon' => 'nullable|array',
-            'mini_feature_icon.*' => 'nullable|string|max:80',
-            'pilar_title' => 'nullable|array',
-            'pilar_title.*' => 'nullable|string|max:120',
-            'pilar_desc' => 'nullable|array',
-            'pilar_desc.*' => 'nullable|string|max:500',
-            'pilar_icon' => 'nullable|array',
-            'pilar_icon.*' => 'nullable|string|max:80',
-            'kegiatan_judul' => 'nullable|string|max:220',
-            'kegiatan_badge' => 'nullable|string|max:100',
-            'kegiatan_deskripsi' => 'nullable|string|max:500',
-            'kegiatan_card_badge' => 'nullable|array',
-            'kegiatan_card_badge.*' => 'nullable|string|max:100',
-            'kegiatan_card_title' => 'nullable|array',
-            'kegiatan_card_title.*' => 'nullable|string|max:220',
-            'kegiatan_card_desc' => 'nullable|array',
-            'kegiatan_card_desc.*' => 'nullable|string|max:1000',
-            'isi_konten' => 'nullable|string',
-            'penulis' => 'nullable|string|max:100',
-            'urutan' => 'nullable|integer|min:1',
-            'is_active' => 'nullable',
-        ], [
-            'judul.required' => 'Nama program unggulan wajib diisi.',
-            'kategori_badge.required' => 'Label kategori/badge wajib diisi.',
-            'icon.required' => 'Ikon Font Awesome program wajib dipilih/diisi.',
-        ]);
-
-        $poinList = [];
-        if (! empty($validated['keunggulan_poin'])) {
-            $lines = explode("\n", str_replace("\r", '', $validated['keunggulan_poin']));
-            $poinList = array_values(array_filter(array_map('trim', $lines)));
-        }
-
-        // Susun 2 Mini Features Section 1
-        $miniFeatures = [];
-        if (! empty($request->input('mini_feature_title'))) {
-            foreach ($request->input('mini_feature_title') as $i => $title) {
-                if (! empty($title) || ! empty($request->input("mini_feature_desc.{$i}"))) {
-                    $miniFeatures[] = [
-                        'icon' => $request->input("mini_feature_icon.{$i}") ?: 'fas fa-shield-alt',
-                        'title' => strip_tags(trim((string) $title)),
-                        'desc' => strip_tags(trim((string) $request->input("mini_feature_desc.{$i}"))),
-                    ];
-                }
-            }
-        }
-
-        // Susun 4 Pilar Section 2
-        $pilarList = [];
-        if (! empty($request->input('pilar_title'))) {
-            foreach ($request->input('pilar_title') as $i => $title) {
-                if (! empty($title) || ! empty($request->input("pilar_desc.{$i}"))) {
-                    $pilarList[] = [
-                        'icon' => $request->input("pilar_icon.{$i}") ?: 'fas fa-award',
-                        'title' => strip_tags(trim((string) $title)),
-                        'desc' => strip_tags(trim((string) $request->input("pilar_desc.{$i}"))),
-                    ];
-                }
-            }
-        }
-
-        // Susun 6 Kegiatan Aktivitas Section 3
-        $kegiatanList = [];
-        if (! empty($request->input('kegiatan_card_title'))) {
-            foreach ($request->input('kegiatan_card_title') as $i => $cardTitle) {
-                if (! empty($cardTitle) || ! empty($request->input("kegiatan_card_desc.{$i}"))) {
-                    $kegiatanList[] = [
-                        'badge' => strip_tags(trim((string) ($request->input("kegiatan_card_badge.{$i}") ?: 'Kegiatan'))),
-                        'title' => strip_tags(trim((string) $cardTitle)),
-                        'desc' => strip_tags(trim((string) $request->input("kegiatan_card_desc.{$i}"))),
-                    ];
-                }
-            }
-        }
-
-        $data = [
-            'judul' => strip_tags(trim($validated['judul'])),
-            'kategori_badge' => strip_tags(trim($validated['kategori_badge'])),
-            'icon' => trim($validated['icon']),
-            'ringkasan' => trim((string) ($validated['ringkasan'] ?? '')),
-            'kutipan' => strip_tags(trim((string) ($validated['kutipan'] ?? ''))),
-            'mini_features' => $miniFeatures,
-            'keunggulan_poin' => $poinList,
-            'pilar_list' => $pilarList,
-            'kegiatan_badge' => strip_tags(trim((string) ($validated['kegiatan_badge'] ?? ''))),
-            'kegiatan_judul' => strip_tags(trim((string) ($validated['kegiatan_judul'] ?? ''))),
-            'kegiatan_deskripsi' => strip_tags(trim((string) ($validated['kegiatan_deskripsi'] ?? ''))),
-            'kegiatan_list' => $kegiatanList,
-            'isi_konten' => $validated['isi_konten'] ?? null,
-            'penulis' => strip_tags(trim((string) ($validated['penulis'] ?: $program->penulis))),
-            'urutan' => (int) ($validated['urutan'] ?? $program->urutan),
-            'is_active' => $request->has('is_active'),
-        ];
+        $validated = $this->validasiProgram($request);
+        $data = $this->susunDataProgram($request, $validated, $program);
 
         if ($request->hasFile('gambar')) {
-            if ($program->gambar_sampul && ! str_starts_with($program->gambar_sampul, 'frontend/') && Storage::disk('public')->exists($program->gambar_sampul)) {
+            if (
+                $program->gambar_sampul
+                && ! str_starts_with($program->gambar_sampul, 'frontend/')
+                && ! str_starts_with($program->gambar_sampul, 'backend/')
+                && Storage::disk('public')->exists($program->gambar_sampul)
+            ) {
                 Storage::disk('public')->delete($program->gambar_sampul);
             }
             $data['gambar_sampul'] = $request->file('gambar')->store('program_unggulan', 'public');
@@ -397,7 +173,7 @@ class ProgramUnggulanController extends Controller
         HomeController::bersihkanCache();
 
         return redirect()->route('program-unggulan.index')
-            ->with('success', 'Program unggulan "'.e($program->judul).'" berhasil diperbarui!');
+            ->with('success', 'Program unggulan "'.$program->judul.'" berhasil diperbarui!');
     }
 
     /**
@@ -405,10 +181,14 @@ class ProgramUnggulanController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
-        ProgramUnggulan::pastikanTabelSiap();
         $program = ProgramUnggulan::findOrFail($id);
 
-        if ($program->gambar_sampul && ! str_starts_with($program->gambar_sampul, 'frontend/') && Storage::disk('public')->exists($program->gambar_sampul)) {
+        if (
+            $program->gambar_sampul
+            && ! str_starts_with($program->gambar_sampul, 'frontend/')
+            && ! str_starts_with($program->gambar_sampul, 'backend/')
+            && Storage::disk('public')->exists($program->gambar_sampul)
+        ) {
             Storage::disk('public')->delete($program->gambar_sampul);
         }
 
@@ -417,7 +197,7 @@ class ProgramUnggulanController extends Controller
         HomeController::bersihkanCache();
 
         return redirect()->route('program-unggulan.index')
-            ->with('success', 'Program unggulan "'.e($judul).'" berhasil dihapus!');
+            ->with('success', 'Program unggulan "'.$judul.'" berhasil dihapus!');
     }
 
     /**
@@ -425,7 +205,6 @@ class ProgramUnggulanController extends Controller
      */
     public function toggleStatus(Request $request, int $id): JsonResponse|RedirectResponse
     {
-        ProgramUnggulan::pastikanTabelSiap();
         $program = ProgramUnggulan::findOrFail($id);
         $program->is_active = ! $program->is_active;
         $program->save();
@@ -440,7 +219,160 @@ class ProgramUnggulanController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Status program berhasil diubah!');
+        return redirect()->back()->with('success', 'Status program "'.$program->judul.'" berhasil diubah!');
+    }
+
+    /**
+     * Validasi terpadu untuk store & update (tanpa SVG demi keamanan XSS)
+     *
+     * @return array<string, mixed>
+     */
+    private function validasiProgram(Request $request): array
+    {
+        return $request->validate([
+            'judul' => 'required|string|max:160',
+            'kategori_badge' => 'required|string|max:80',
+            'icon' => 'required|string|max:80',
+            'ringkasan' => 'nullable|string',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'kutipan' => 'nullable|string|max:600',
+            'keunggulan_poin' => 'nullable|string',
+            'mini_feature_title' => 'nullable|array|max:2',
+            'mini_feature_title.*' => 'nullable|string|max:100',
+            'mini_feature_desc' => 'nullable|array|max:2',
+            'mini_feature_desc.*' => 'nullable|string|max:255',
+            'mini_feature_icon' => 'nullable|array|max:2',
+            'mini_feature_icon.*' => 'nullable|string|max:80',
+            'pilar_title' => 'nullable|array|max:4',
+            'pilar_title.*' => 'nullable|string|max:120',
+            'pilar_desc' => 'nullable|array|max:4',
+            'pilar_desc.*' => 'nullable|string|max:500',
+            'pilar_icon' => 'nullable|array|max:4',
+            'pilar_icon.*' => 'nullable|string|max:80',
+            'kegiatan_judul' => 'nullable|string|max:220',
+            'kegiatan_badge' => 'nullable|string|max:100',
+            'kegiatan_deskripsi' => 'nullable|string|max:500',
+            'kegiatan_card_badge' => 'nullable|array|max:6',
+            'kegiatan_card_badge.*' => 'nullable|string|max:100',
+            'kegiatan_card_title' => 'nullable|array|max:6',
+            'kegiatan_card_title.*' => 'nullable|string|max:220',
+            'kegiatan_card_desc' => 'nullable|array|max:6',
+            'kegiatan_card_desc.*' => 'nullable|string|max:1000',
+            'penulis' => 'nullable|string|max:100',
+            'urutan' => 'nullable|integer|min:1',
+            'is_active' => 'nullable',
+        ], [
+            'judul.required' => 'Nama program unggulan wajib diisi.',
+            'kategori_badge.required' => 'Label kategori/badge wajib diisi.',
+            'icon.required' => 'Ikon Font Awesome program wajib dipilih atau diisi.',
+            'gambar.image' => 'File sampul harus berupa gambar yang valid.',
+            'gambar.mimes' => 'Format gambar sampul hanya mendukung JPG, JPEG, PNG, atau WEBP.',
+            'gambar.max' => 'Ukuran gambar sampul maksimal 3 MB.',
+        ]);
+    }
+
+    /**
+     * Merapikan payload input menjadi struktur siap simpan untuk Model.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function susunDataProgram(Request $request, array $validated, ?ProgramUnggulan $existing = null): array
+    {
+        $poinList = [];
+        if (! empty($validated['keunggulan_poin'])) {
+            $lines = explode("\n", str_replace("\r", '', $validated['keunggulan_poin']));
+            $poinList = array_values(array_filter(array_map(fn ($line) => strip_tags(trim($line)), $lines)));
+        }
+
+        // Susun Mini Features (maksimal 2)
+        $miniFeatures = [];
+        $miniTitles = (array) $request->input('mini_feature_title', []);
+        $miniDescs = (array) $request->input('mini_feature_desc', []);
+        $miniIcons = (array) $request->input('mini_feature_icon', []);
+        $jumlahMini = max(count($miniTitles), count($miniDescs));
+
+        for ($i = 0; $i < min($jumlahMini, 2); $i++) {
+            $title = strip_tags(trim((string) ($miniTitles[$i] ?? '')));
+            $desc = strip_tags(trim((string) ($miniDescs[$i] ?? '')));
+            if ($title !== '' || $desc !== '') {
+                $miniFeatures[] = [
+                    'icon' => $this->bersihkanClassIcon($miniIcons[$i] ?? '', 'fas fa-check-circle'),
+                    'title' => $title,
+                    'desc' => $desc,
+                ];
+            }
+        }
+
+        // Susun Pilar Program (maksimal 4)
+        $pilarList = [];
+        $pilarTitles = (array) $request->input('pilar_title', []);
+        $pilarDescs = (array) $request->input('pilar_desc', []);
+        $pilarIcons = (array) $request->input('pilar_icon', []);
+        $jumlahPilar = max(count($pilarTitles), count($pilarDescs));
+
+        for ($i = 0; $i < min($jumlahPilar, 4); $i++) {
+            $title = strip_tags(trim((string) ($pilarTitles[$i] ?? '')));
+            $desc = strip_tags(trim((string) ($pilarDescs[$i] ?? '')));
+            if ($title !== '' || $desc !== '') {
+                $pilarList[] = [
+                    'icon' => $this->bersihkanClassIcon($pilarIcons[$i] ?? '', 'fas fa-award'),
+                    'title' => $title,
+                    'desc' => $desc,
+                ];
+            }
+        }
+
+        // Susun Kartu Kegiatan (maksimal 6)
+        $kegiatanList = [];
+        $kegTitles = (array) $request->input('kegiatan_card_title', []);
+        $kegDescs = (array) $request->input('kegiatan_card_desc', []);
+        $kegBadges = (array) $request->input('kegiatan_card_badge', []);
+        $jumlahKeg = max(count($kegTitles), count($kegDescs));
+
+        for ($i = 0; $i < min($jumlahKeg, 6); $i++) {
+            $title = strip_tags(trim((string) ($kegTitles[$i] ?? '')));
+            $desc = strip_tags(trim((string) ($kegDescs[$i] ?? '')));
+            if ($title !== '' || $desc !== '') {
+                $badge = strip_tags(trim((string) ($kegBadges[$i] ?? '')));
+                $kegiatanList[] = [
+                    'badge' => $badge !== '' ? $badge : 'Kegiatan',
+                    'title' => $title,
+                    'desc' => $desc,
+                ];
+            }
+        }
+
+        $defaultPenulis = $existing?->penulis ?: 'Tim Kurikulum MIN 1 Ciamis';
+        $defaultUrutan = $existing?->urutan ?? ((ProgramUnggulan::max('urutan') ?? 0) + 1);
+
+        return [
+            'judul' => strip_tags(trim((string) $validated['judul'])),
+            'kategori_badge' => strip_tags(trim((string) $validated['kategori_badge'])),
+            'icon' => $this->bersihkanClassIcon($validated['icon'] ?? '', 'fas fa-star'),
+            'ringkasan' => ProgramUnggulan::bersihkanHtml($validated['ringkasan'] ?? null),
+            'kutipan' => strip_tags(trim((string) ($validated['kutipan'] ?? ''))) ?: null,
+            'mini_features' => $miniFeatures,
+            'keunggulan_poin' => $poinList,
+            'pilar_list' => $pilarList,
+            'kegiatan_badge' => strip_tags(trim((string) ($validated['kegiatan_badge'] ?? ''))) ?: null,
+            'kegiatan_judul' => strip_tags(trim((string) ($validated['kegiatan_judul'] ?? ''))) ?: null,
+            'kegiatan_deskripsi' => strip_tags(trim((string) ($validated['kegiatan_deskripsi'] ?? ''))) ?: null,
+            'kegiatan_list' => $kegiatanList,
+            'penulis' => strip_tags(trim((string) ($validated['penulis'] ?? ''))) ?: $defaultPenulis,
+            'urutan' => (int) ($validated['urutan'] ?? $defaultUrutan),
+            'is_active' => $request->boolean('is_active'),
+        ];
+    }
+
+    /**
+     * Memastikan class ikon hanya berisi karakter CSS yang valid.
+     */
+    private function bersihkanClassIcon(?string $icon, string $fallback): string
+    {
+        $clean = trim((string) preg_replace('/[^a-zA-Z0-9\-\s_]/', '', (string) $icon));
+
+        return $clean !== '' ? $clean : $fallback;
     }
 
     /**
@@ -452,41 +384,41 @@ class ProgramUnggulanController extends Controller
 
         $request->validate([
             'topik' => ['required', 'string', 'min:3', 'max:600'],
-            'kategori' => ['nullable', 'string'],
-            'nada' => ['nullable', 'string'],
-            'engine' => ['nullable', 'string'],
-            'api_key' => ['nullable', 'string'],
+            'kategori' => ['nullable', 'string', 'max:100'],
+            'nada' => ['nullable', 'string', 'max:120'],
+            'engine' => ['nullable', 'string', 'max:80'],
+            'api_key' => ['nullable', 'string', 'max:200'],
         ]);
 
-        $topik = trim($request->topik);
-        $kategori = $request->kategori ?: 'Program Unggulan';
-        $nada = $request->nada ?: 'Formal, Edukatif, dan Inspiratif';
-        $engine = $request->engine ?: 'gemini-2.5-flash';
+        $topik = trim((string) $request->topik);
+        $kategori = trim((string) ($request->kategori ?: 'Program Unggulan'));
+        $nada = trim((string) ($request->nada ?: 'Formal, Edukatif, dan Inspiratif'));
+        $engine = trim((string) ($request->engine ?: 'gemini-2.5-flash'));
 
-        // 1. Jika user memilih Smart AI Studio Lokal
+        // 1. Mode Smart AI Studio Lokal
         if ($engine === 'smart_local') {
             return response()->json([
                 'status' => 'success',
                 'source' => 'Smart AI Studio Lokal MIN 1 Ciamis',
-                'data' => $this->susunProgramSmartLokal($topik, $kategori, $nada),
+                'data' => $this->susunProgramSmartLokal($topik),
             ]);
         }
 
-        // 2. Ambil API Key dari request atau config
+        // 2. Ambil API Key dari request manual atau config (.env)
         $apiKey = trim((string) $request->api_key);
-        if (empty($apiKey)) {
+        if ($apiKey === '') {
             $apiKey = trim((string) config('services.gemini.key', ''));
         }
 
-        if (empty($apiKey)) {
+        if ($apiKey === '') {
             return response()->json([
                 'status' => 'success',
                 'source' => 'Smart AI Studio Lokal (API Key Belum Diisi)',
-                'data' => $this->susunProgramSmartLokal($topik, $kategori, $nada),
+                'data' => $this->susunProgramSmartLokal($topik),
             ]);
         }
 
-        // 3. Prioritas 1: Gunakan Laravel AI SDK Agent (ProgramWriterAgent)
+        // 3. Prioritas 1: Laravel AI SDK Agent (ProgramWriterAgent)
         try {
             $agent = new ProgramWriterAgent;
             $agentPrompt = "Program Unggulan: {$topik}\nKategori: {$kategori}\nGaya Bahasa: {$nada}";
@@ -497,13 +429,15 @@ class ProgramUnggulanController extends Controller
                     'status' => 'success',
                     'source' => 'Laravel AI SDK (ProgramWriterAgent)',
                     'data' => [
-                        'ringkasan' => $aiOutput['ringkasan'],
-                        'kutipan' => $aiOutput['kutipan'] ?? "Melalui {$topik}, kami membentuk generasi berakhlak mulia dan berprestasi tinggi.",
+                        'ringkasan' => ProgramUnggulan::bersihkanHtml((string) $aiOutput['ringkasan']),
+                        'kutipan' => strip_tags(trim((string) ($aiOutput['kutipan'] ?? "Melalui {$topik}, kami membentuk generasi berakhlak mulia dan berprestasi tinggi."))),
                     ],
                 ]);
             }
         } catch (\Throwable $e) {
-            // Lanjut ke Direct HTTP API jika SDK Agent mengalami kendala
+            Log::warning('ProgramWriterAgent gagal, beralih ke Direct Gemini API.', [
+                'error' => $e->getMessage(),
+            ]);
         }
 
         // 4. Prioritas 2: Direct HTTP Call ke Gemini API
@@ -538,7 +472,7 @@ class ProgramUnggulanController extends Controller
                     'Content-Type' => 'application/json',
                 ])->withOptions([
                     'force_ip_resolve' => 'v4',
-                    'verify' => false,
+                    'verify' => app()->isProduction(),
                 ])->connectTimeout(15)->timeout(40)->post($urlEndpoint, [
                     'contents' => [
                         [
@@ -554,33 +488,47 @@ class ProgramUnggulanController extends Controller
 
                 if ($response->successful()) {
                     $parts = $response->json('candidates.0.content.parts') ?? [];
-                    $parsed = $this->ekstrakJsonGeminiProgram($parts, $topik, $kategori);
+                    $parsed = $this->ekstrakJsonGeminiProgram($parts, $topik);
 
                     if (! empty($parsed['ringkasan'])) {
                         return response()->json([
                             'status' => 'success',
                             'source' => 'Google '.strtoupper($modelName),
-                            'data' => $parsed,
+                            'data' => [
+                                'ringkasan' => ProgramUnggulan::bersihkanHtml((string) $parsed['ringkasan']),
+                                'kutipan' => strip_tags(trim((string) ($parsed['kutipan'] ?? ''))),
+                            ],
                         ]);
                     }
+                } else {
+                    Log::warning('Gemini API mengembalikan status gagal pada ProgramUnggulan.', [
+                        'model' => $modelName,
+                        'status' => $response->status(),
+                    ]);
                 }
-            } catch (\Exception $e) {
-                // Lanjut ke model berikutnya
+            } catch (\Throwable $e) {
+                Log::warning('Gagal menghubungi Gemini API pada ProgramUnggulan.', [
+                    'model' => $modelName,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 
-        // Fallback cerdas lokal jika Gemini offline / kuota limit
+        // Fallback lokal mandiri jika API offline / kena limit
         return response()->json([
             'status' => 'success',
             'source' => 'Smart AI Studio MIN 1 Ciamis (Auto-Fallback Lokal)',
-            'data' => $this->susunProgramSmartLokal($topik, $kategori, $nada),
+            'data' => $this->susunProgramSmartLokal($topik),
         ]);
     }
 
     /**
      * Ekstraktor JSON Gemini untuk Program Unggulan
+     *
+     * @param  array<int, array<string, mixed>>  $parts
+     * @return array<string, string>
      */
-    private function ekstrakJsonGeminiProgram(array $parts, string $topik, string $kategori): array
+    private function ekstrakJsonGeminiProgram(array $parts, string $topik): array
     {
         $rawText = '';
         foreach ($parts as $part) {
@@ -604,12 +552,15 @@ class ProgramUnggulanController extends Controller
         }
 
         if (is_array($parsed) && ! empty($parsed['ringkasan'])) {
-            return $parsed;
+            return [
+                'ringkasan' => (string) $parsed['ringkasan'],
+                'kutipan' => (string) ($parsed['kutipan'] ?? ''),
+            ];
         }
 
-        if (! empty(trim($rawText))) {
+        if (trim($rawText) !== '') {
             return [
-                'ringkasan' => '<p>'.nl2br(trim($rawText)).'</p>',
+                'ringkasan' => '<p>'.nl2br(e(trim($rawText))).'</p>',
                 'kutipan' => "Komitmen MIN 1 Ciamis dalam membina program {$topik} secara istiqamah.",
             ];
         }
@@ -619,10 +570,12 @@ class ProgramUnggulanController extends Controller
 
     /**
      * Generator Draf Lokal Mandiri (Tanpa Kuota & Anti Gagal)
+     *
+     * @return array{ringkasan: string, kutipan: string}
      */
-    private function susunProgramSmartLokal(string $topik, string $kategori, string $nada): array
+    private function susunProgramSmartLokal(string $topik): array
     {
-        $topikRapih = ucwords($topik);
+        $topikRapih = e(ucwords($topik));
         $lower = strtolower($topik);
 
         if (str_contains($lower, 'anak') || str_contains($lower, 'ramah') || str_contains($lower, 'sra') || str_contains($lower, 'bullying')) {

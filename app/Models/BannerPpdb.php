@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 class BannerPpdb extends Model
 {
@@ -41,7 +39,11 @@ class BannerPpdb extends Model
     public function getGambarUrlAttribute(): string
     {
         if (! empty($this->gambar)) {
-            if (str_starts_with($this->gambar, 'frontend/') || str_starts_with($this->gambar, 'backend/') || str_starts_with($this->gambar, 'http')) {
+            if (
+                str_starts_with($this->gambar, 'frontend/')
+                || str_starts_with($this->gambar, 'backend/')
+                || str_starts_with($this->gambar, 'http')
+            ) {
                 return asset($this->gambar);
             }
 
@@ -57,7 +59,11 @@ class BannerPpdb extends Model
     public function getPopupGambarUrlAttribute(): ?string
     {
         if (! empty($this->popup_gambar)) {
-            if (str_starts_with($this->popup_gambar, 'frontend/') || str_starts_with($this->popup_gambar, 'backend/') || str_starts_with($this->popup_gambar, 'http')) {
+            if (
+                str_starts_with($this->popup_gambar, 'frontend/')
+                || str_starts_with($this->popup_gambar, 'backend/')
+                || str_starts_with($this->popup_gambar, 'http')
+            ) {
                 return asset($this->popup_gambar);
             }
 
@@ -68,7 +74,7 @@ class BannerPpdb extends Model
     }
 
     /**
-     * SVG Dummy Standar Banner PPDB Landscape (Responsif Laptop & Mobile)
+     * SVG Dummy Standar Banner PPDB Landscape
      */
     public static function ambilDummyBannerSvg(): string
     {
@@ -109,8 +115,6 @@ class BannerPpdb extends Model
      */
     public static function ambilData(): self
     {
-        self::pastikanTabelSiap();
-
         $data = self::first();
         if (! $data) {
             $data = self::create([
@@ -135,32 +139,10 @@ class BannerPpdb extends Model
     }
 
     /**
-     * Memastikan Tabel banner_ppdbs Siap
+     * @deprecated Tabel dikelola resmi melalui Laravel Migrations.
      */
     public static function pastikanTabelSiap(): void
     {
-        if (! Schema::hasTable('banner_ppdbs')) {
-            Schema::create('banner_ppdbs', function (Blueprint $table) {
-                $table->id();
-                $table->string('judul', 200)->default('Penerimaan Peserta Didik Baru (PPDB) MIN 1 Ciamis');
-                $table->string('subjudul', 255)->default("Membentuk Generasi Qur'ani, Berakhlak Mulia & Unggul Prestasi");
-                $table->string('gambar', 255)->nullable();
-                $table->string('tipe_link', 30)->default('popup');
-                $table->string('link_url', 255)->nullable()->default('#ppdb');
-                $table->boolean('is_active')->default(true);
-
-                $table->boolean('is_active_popup')->default(true);
-                $table->boolean('auto_popup')->default(false);
-                $table->string('popup_judul', 200)->default('Informasi & Pendaftaran PPDB MIN 1 Ciamis');
-                $table->string('popup_badge', 100)->default('PPDB ONLINE T.A 2026/2027');
-                $table->string('popup_gambar', 255)->nullable();
-                $table->longText('popup_konten')->nullable();
-                $table->string('popup_tombol_teks', 100)->default('Daftar Online Sekarang');
-                $table->string('popup_tombol_url', 255)->default('https://wa.me/6282215650442?text=Halo%20Panitia%20PPDB%20MIN%201%20Ciamis');
-                $table->string('popup_wa_nomor', 50)->default('082215650442');
-                $table->string('popup_wa_teks', 255)->default('Halo Panitia PPDB MIN 1 Ciamis, saya ingin menanyakan informasi pendaftaran siswa baru.');
-                $table->timestamps();
-            });
-        }
+        // Dikosongkan untuk menjaga kompatibilitas tanpa query Schema::hasTable berulang.
     }
 }
