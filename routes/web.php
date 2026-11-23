@@ -31,9 +31,17 @@ use App\Http\Controllers\TahunAjaranController;
 use App\Http\Controllers\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| 1. HALAMAN PUBLIK & PORTAL INFORMASI
+|--------------------------------------------------------------------------
+*/
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/api/semantic-search', [SemanticSearchController::class, 'search'])->name('api.semantic-search');
-// Route Halaman Publik Kabar Madrasah (Portal Berita & Warta)
+Route::get('/api/semantic-search', [SemanticSearchController::class, 'search'])
+    ->middleware('throttle:30,1')
+    ->name('api.semantic-search');
+
+// Kabar Madrasah (Berita & Warta)
 Route::get('/kabar-madrasah', [BeritaController::class, 'publik'])->name('berita.publik');
 Route::get('/kabar', [BeritaController::class, 'publik']);
 Route::get('/warta', [BeritaController::class, 'publik']);
@@ -42,156 +50,206 @@ Route::get('/berita/{slug}', [BeritaController::class, 'show'])
     ->where('slug', '^(?!create$|edit$).*')
     ->name('berita.show');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
-// ROUTE HALAMAN DEPAN PRESENSI (TANPA LOGIN: SCANNER & INPUT SAKIT/IZIN/ALFA GURU)
-Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
-Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])->name('presensi.prosesScan');
-Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])->name('presensi.storeManualDepan');
-
-// Route Halaman Publik Layanan Cepat
+// Direktori Layanan Cepat, Dunia Ilmu & Program Unggulan
 Route::get('/layanan-cepat', [LayananCepatController::class, 'publik'])->name('layanan-cepat.publik');
 Route::get('/layanan', [LayananCepatController::class, 'publik']);
 
-// Route Halaman Publik Dunia Ilmu (Direktori Media Pembelajaran & Aplikasi Edukasi)
 Route::get('/dunia-ilmu', [DuniaIlmuController::class, 'publik'])->name('dunia-ilmu.publik');
 Route::get('/media-pembelajaran', [DuniaIlmuController::class, 'publik']);
+Route::get('/dunia-ilmu/play/{slug}', [DuniaIlmuController::class, 'play'])->name('dunia-ilmu.play');
 
-// Route Halaman Publik Program Unggulan
 Route::get('/program-unggulan', [ProgramUnggulanController::class, 'publik'])->name('program-unggulan.publik');
 Route::get('/program', [ProgramUnggulanController::class, 'publik']);
 Route::get('/program-unggulan/{slug}', [ProgramUnggulanController::class, 'detail'])->name('program-unggulan.detail');
+
+// Profil, Pimpinan, Guru & Halaman Statis
+Route::get('/profil-madrasah', [ProfilMadrasahController::class, 'showFrontend'])->name('profil-madrasah.public');
+Route::get('/kepala-madrasah-dan-staff', [KepalaStaffController::class, 'showFrontend'])->name('kepala-staff.public');
+Route::get('/guru-dan-staff', [GuruStaffController::class, 'showFrontend'])->name('guru-staff.public');
+Route::get('/halaman/{slug}', [HalamanController::class, 'show'])->name('halaman.show');
+
+// Layar Scanner Presensi QR Depan (Tanpa Login + Rate Limit)
+Route::get('/scan-presensi', [PresensiController::class, 'scanner'])->name('presensi.scanner');
+Route::post('/scan-presensi/proses', [PresensiController::class, 'prosesScan'])
+    ->middleware('throttle:60,1')
+    ->name('presensi.prosesScan');
+Route::post('/scan-presensi/manual-guru', [PresensiController::class, 'storeManualDepan'])
+    ->middleware('throttle:30,1')
+    ->name('presensi.storeManualDepan');
 Route::post('/scan-presensi/verifikasi-pin', [PresensiController::class, 'verifikasiPinServer'])
     ->middleware('throttle:5,1')
     ->name('presensi.verifikasiPin');
 Route::post('/scan-presensi/kunci-pin', [PresensiController::class, 'kunciPinServer'])
     ->name('presensi.kunciPin');
-// Rute Publik Pemutar Media Dunia Ilmu (.TSX / .JS / .HTML)
-Route::get('/dunia-ilmu/play/{slug}', [DuniaIlmuController::class, 'play'])->name('dunia-ilmu.play');
-// Halaman Publik Profil Madrasah
-Route::get('/profil-madrasah', [ProfilMadrasahController::class, 'showFrontend'])->name('profil-madrasah.public');
-// Halaman Publik Sub-Menu 2: Kepala Madrasah dan Staff
-Route::get('/kepala-madrasah-dan-staff', [KepalaStaffController::class, 'showFrontend'])->name('kepala-staff.public');
-// Halaman Publik Sub-Menu 3: Guru dan Staff
-Route::get('/guru-dan-staff', [GuruStaffController::class, 'showFrontend'])->name('guru-staff.public');
-// Halaman Publik Statis (NavMenu & Konten Informasi Madrasah)
-Route::get('/halaman/{slug}', [HalamanController::class, 'show'])->name('halaman.show');
+
+/*
+|--------------------------------------------------------------------------
+| 2. AREA TERAUTENTIKASI (DASHBOARD & MANAJEMEN BERBASIS HAK AKSES MODUL)
+|--------------------------------------------------------------------------
+*/
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    // Manajemen Role Pengguna & Toggle Hak Akses
-    Route::post('/users/toggle-permission', [UserRoleController::class, 'togglePermission'])->name('users.togglePermission');
-    Route::resource('users', UserRoleController::class)->except(['create', 'show', 'edit']);
 
+    // Profil Akun Pribadi (Semua Role yang Login)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('jabatan', JabatanController::class)->except(['create', 'show', 'edit']);
-    // Route Master Posisi & AJAX Dropdown
-    Route::resource('posisi', PosisiController::class)->except(['create', 'show', 'edit']);
-    Route::get('/posisi/by-jabatan/{jabatan_id}', [PosisiController::class, 'getByJabatan'])->name('posisi.byJabatan');
-    // Route Data Guru & Tendik
-    Route::resource('gtk', GtkController::class)->except(['create', 'show', 'edit']);
-    Route::post('/gtk/bulk-delete', [GtkController::class, 'bulkDestroy'])->name('gtk.bulkDestroy');
-    // Route Master Tahun Ajaran & Semester
-    Route::resource('tahun-ajaran', TahunAjaranController::class)->except(['create', 'show', 'edit']);
-    Route::patch('/tahun-ajaran/{id}/activate', [TahunAjaranController::class, 'setActive'])->name('tahun-ajaran.activate');
-    // Route Manajemen Kelas
-    Route::resource('kelas', KelasController::class)->except(['create', 'show', 'edit']);
-    Route::get('/kelas/{id}/dashboard', [KelasController::class, 'show'])->name('kelas.show');
-    Route::post('/kelas/plotting-mapel', [KelasController::class, 'storePlottingMapel'])->name('kelas.storePlottingMapel');
-    Route::delete('/kelas/plotting-mapel/{id}', [KelasController::class, 'destroyPlottingMapel'])->name('kelas.destroyPlottingMapel');
-    Route::post('/kelas/plotting-mapel/bulk-delete', [KelasController::class, 'bulkDestroyPlottingMapel'])->name('kelas.bulkDestroyPlottingMapel');
-    // Route Data Siswa & Smart Import Excel
-    Route::post('/siswa/import-paste', [SiswaController::class, 'importPaste'])->name('siswa.importPaste');
-    Route::resource('siswa', SiswaController::class)->except(['create', 'show', 'edit']);
-    Route::post('/siswa/bulk-delete', [SiswaController::class, 'bulkDestroy'])->name('siswa.bulkDestroy');
-    // Route Kenaikan Kelas & Mutasi Siswa
-    Route::get('/mutasi', [MutasiSiswaController::class, 'index'])->name('mutasi.index');
-    Route::post('/mutasi/kenaikan', [MutasiSiswaController::class, 'prosesKenaikan'])->name('mutasi.kenaikan');
-    Route::post('/mutasi/masuk', [MutasiSiswaController::class, 'storeMasuk'])->name('mutasi.storeMasuk');
-    Route::post('/mutasi/keluar', [MutasiSiswaController::class, 'storeKeluar'])->name('mutasi.storeKeluar');
-    Route::delete('/mutasi/{id}', [MutasiSiswaController::class, 'destroy'])->name('mutasi.destroy');
-    Route::post('/mutasi/bulk-delete', [MutasiSiswaController::class, 'bulkDestroy'])->name('mutasi.bulkDestroy');
-    // Route Master Mata Pelajaran
-    Route::post('/mapel/generate-default', [MataPelajaranController::class, 'generateDefault'])->name('mapel.generate');
-    Route::resource('mapel', MataPelajaranController::class)->except(['create', 'show', 'edit']);
-    Route::post('/mapel/bulk-delete', [MataPelajaranController::class, 'bulkDestroy'])->name('mapel.bulkDestroy');
-    // Master Mata Pelajaran (Tambah Mapel Baru, Edit, Hapus, & Bulk Delete)
-    Route::post('/mapel/bulk-delete', [MataPelajaranController::class, 'bulkDestroy'])->name('mapel.bulkDestroy');
-    Route::resource('mapel', MataPelajaranController::class)->except(['create', 'show', 'edit']);
-    // Route Presensi Admin, Pengaturan Jam, & Kalender Libur
-    Route::get('/presensi', [PresensiController::class, 'index'])->name('presensi.index');
-    Route::post('/presensi/manual', [PresensiController::class, 'storeManual'])->name('presensi.storeManual');
-    Route::post('/presensi/setting-jam', [PresensiController::class, 'updateSettingJam'])->name('presensi.updateSettingJam');
-    Route::post('/presensi/hari-libur', [PresensiController::class, 'storeHariLibur'])->name('presensi.storeHariLibur');
-    Route::delete('/presensi/hari-libur/{id}', [PresensiController::class, 'destroyHariLibur'])->name('presensi.destroyHariLibur');
-    Route::get('/presensi/kartu-qr', [PresensiController::class, 'kartuQr'])->name('presensi.kartuQr');
-    Route::get('/presensi/rekap', [PresensiController::class, 'rekap'])->name('presensi.rekap');
-    // Modul Ekstrakurikuler & Daftar Anggota
-    Route::get('/ekskul', [EkskulController::class, 'index'])->name('ekskul.index');
-    Route::post('/ekskul', [EkskulController::class, 'store'])->name('ekskul.store');
-    Route::put('/ekskul/{id}', [EkskulController::class, 'update'])->name('ekskul.update');
-    Route::delete('/ekskul/{id}', [EkskulController::class, 'destroy'])->name('ekskul.destroy');
-    Route::post('/ekskul/bulk-delete', [EkskulController::class, 'bulkDestroy'])->name('ekskul.bulkDestroy');
 
-    // Dashboard Anggota per Ekskul (Sistem Daftar via Ceklis)
-    Route::get('/ekskul/{id}/anggota', [EkskulController::class, 'show'])->name('ekskul.show');
-    Route::post('/ekskul/{id}/anggota', [EkskulController::class, 'storeAnggota'])->name('ekskul.storeAnggota');
-    Route::delete('/ekskul/anggota/{anggotaId}', [EkskulController::class, 'destroyAnggota'])->name('ekskul.destroyAnggota');
-    Route::post('/ekskul/anggota/bulk-delete', [EkskulController::class, 'bulkDestroyAnggota'])->name('ekskul.bulkDestroyAnggota');
-    // Tahap 6: Kenaikan Kelas Berurutan, Arsip Alumni, & Tombol Ajaib Pemeliharaan Sistem
-    Route::get('/kenaikan-kelas', [KenaikanKelasController::class, 'index'])->name('kenaikan.index');
-    Route::post('/kenaikan-kelas/proses', [KenaikanKelasController::class, 'prosesNaikKelas'])->name('kenaikan.proses');
-    Route::post('/kenaikan-kelas/alumni/bulk-delete', [KenaikanKelasController::class, 'bulkDeleteAlumni'])->name('kenaikan.bulkDeleteAlumni');
-    Route::post('/kenaikan-kelas/magic-action', [KenaikanKelasController::class, 'magicAction'])->name('kenaikan.magicAction');
-    Route::resource('jadwal', JadwalController::class);
+    // Khusus Superadmin: Manajemen Pengguna & Matriks Hak Akses
+    Route::middleware('modul:superadmin')->group(function () {
+        Route::post('/users/toggle-permission', [UserRoleController::class, 'togglePermission'])->name('users.togglePermission');
+        Route::resource('users', UserRoleController::class)->except(['create', 'show', 'edit']);
+    });
 
-    Route::resource('nav-menu', NavMenuController::class)->except(['create', 'show', 'edit']);
-    Route::get('/nav-menu/{id}/halaman', [HalamanController::class, 'kelolaDariMenu'])->name('nav-menu.halaman');
-    Route::resource('halaman', HalamanController::class)->except(['create', 'show']);
+    // Modul Kepegawaian (Jabatan, Posisi & GTK)
+    Route::middleware('modul:kepegawaian')->group(function () {
+        Route::resource('jabatan', JabatanController::class)->except(['create', 'show', 'edit']);
+        Route::resource('posisi', PosisiController::class)->except(['create', 'show', 'edit']);
+        Route::get('/posisi/by-jabatan/{jabatan_id}', [PosisiController::class, 'getByJabatan'])->name('posisi.byJabatan');
+        Route::resource('gtk', GtkController::class)->except(['create', 'show', 'edit']);
+        Route::post('/gtk/bulk-delete', [GtkController::class, 'bulkDestroy'])->name('gtk.bulkDestroy');
+    });
 
-    // CRUD Berita & Studio AI
-    Route::post('/berita/generate-ai', [BeritaController::class, 'generateAi'])->name('berita.generateAi');
-    Route::resource('berita', BeritaController::class)->except(['show']);
+    // Modul Tahun Ajaran
+    Route::middleware('modul:tahun_ajaran')->group(function () {
+        Route::resource('tahun-ajaran', TahunAjaranController::class)->except(['create', 'show', 'edit']);
+        Route::patch('/tahun-ajaran/{id}/activate', [TahunAjaranController::class, 'setActive'])->name('tahun-ajaran.activate');
+    });
 
-    // CRUD Kategori Berita (Beserta Slug Otomatis)
-    Route::post('/kategori-berita', [BeritaController::class, 'storeKategori'])->name('kategori-berita.store');
-    Route::put('/kategori-berita/{id}', [BeritaController::class, 'updateKategori'])->name('kategori-berita.update');
-    Route::delete('/kategori-berita/{id}', [BeritaController::class, 'destroyKategori'])->name('kategori-berita.destroy');
+    // Modul Manajemen Kelas & Plotting Mapel
+    Route::middleware('modul:kelas')->group(function () {
+        Route::resource('kelas', KelasController::class)->except(['create', 'show', 'edit']);
+        Route::post('/kelas/plotting-mapel', [KelasController::class, 'storePlottingMapel'])->name('kelas.storePlottingMapel');
+        Route::delete('/kelas/plotting-mapel/{id}', [KelasController::class, 'destroyPlottingMapel'])->name('kelas.destroyPlottingMapel');
+        Route::post('/kelas/plotting-mapel/bulk-delete', [KelasController::class, 'bulkDestroyPlottingMapel'])->name('kelas.bulkDestroyPlottingMapel');
+    });
+    // Dashboard detail kelas boleh dibuka oleh pengelola kelas, siswa, atau wali kelas/guru presensi
+    Route::get('/kelas/{id}/dashboard', [KelasController::class, 'show'])
+        ->middleware('modul:kelas,siswa,presensi_monitoring')
+        ->name('kelas.show');
 
-    Route::post('/banner-carousel/generate-ai', [BannerCarouselController::class, 'generateAi'])->name('banner-carousel.generateAi');
-    Route::resource('banner-carousel', BannerCarouselController::class)->except(['create', 'show', 'edit']);
-    // Manajemen Terpadu: Sambutan Kepala Madrasah, Profil, Visi, Misi & Motto
-    Route::get('/sambutan-profil', [SambutanProfilController::class, 'index'])->name('sambutan-profil.index');
-    Route::put('/sambutan-profil', [SambutanProfilController::class, 'update'])->name('sambutan-profil.update');
-    Route::post('/sambutan-profil/generate-ai', [SambutanProfilController::class, 'generateAi'])->name('sambutan-profil.generateAi');
+    // Modul Data Siswa & Buku Mutasi
+    Route::middleware('modul:siswa')->group(function () {
+        Route::post('/siswa/import-paste', [SiswaController::class, 'importPaste'])->name('siswa.importPaste');
+        Route::resource('siswa', SiswaController::class)->except(['create', 'show', 'edit']);
+        Route::post('/siswa/bulk-delete', [SiswaController::class, 'bulkDestroy'])->name('siswa.bulkDestroy');
 
-    // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
-    Route::resource('dunia-ilmu-admin', DuniaIlmuController::class)->names('dunia-ilmu')->parameters(['dunia-ilmu-admin' => 'id'])->except(['create', 'show', 'edit']);
-    // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
-    Route::get('/profil-madrasah-admin', [ProfilMadrasahController::class, 'index'])->name('profil-madrasah.index');
-    Route::put('/profil-madrasah-admin', [ProfilMadrasahController::class, 'update'])->name('profil-madrasah.update');
-    Route::post('/profil-madrasah-admin/sinkron-menu', [ProfilMadrasahController::class, 'sinkronKeNavbar'])->name('profil-madrasah.sinkronMenu');
-    // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
-    Route::get('/kepala-staff-admin', [KepalaStaffController::class, 'index'])->name('kepala-staff.index');
-    Route::put('/kepala-staff-admin', [KepalaStaffController::class, 'update'])->name('kepala-staff.update');
-    // Di dalam grup Route::middleware(['auth'])->group(function () { ... }) tambahkan:
-    Route::get('/guru-staff-admin', [GuruStaffController::class, 'index'])->name('guru-staff.index');
-    Route::put('/guru-staff-admin', [GuruStaffController::class, 'update'])->name('guru-staff.update');
+        Route::get('/mutasi', [MutasiSiswaController::class, 'index'])->name('mutasi.index');
+        Route::post('/mutasi/kenaikan', [MutasiSiswaController::class, 'prosesKenaikan'])->name('mutasi.kenaikan');
+        Route::post('/mutasi/masuk', [MutasiSiswaController::class, 'storeMasuk'])->name('mutasi.storeMasuk');
+        Route::post('/mutasi/keluar', [MutasiSiswaController::class, 'storeKeluar'])->name('mutasi.storeKeluar');
+        Route::delete('/mutasi/{id}', [MutasiSiswaController::class, 'destroy'])->name('mutasi.destroy');
+        Route::post('/mutasi/bulk-delete', [MutasiSiswaController::class, 'bulkDestroy'])->name('mutasi.bulkDestroy');
+    });
 
-    // Manajemen Banner PPDB & Popup Modal
-    Route::get('/banner-ppdb', [BannerPpdbController::class, 'index'])->name('banner-ppdb.index');
-    Route::put('/banner-ppdb', [BannerPpdbController::class, 'update'])->name('banner-ppdb.update');
+    // Modul Master Mata Pelajaran (Duplikasi Dihapus)
+    Route::middleware('modul:mapel')->group(function () {
+        Route::post('/mapel/generate-default', [MataPelajaranController::class, 'generateDefault'])->name('mapel.generate');
+        Route::post('/mapel/bulk-delete', [MataPelajaranController::class, 'bulkDestroy'])->name('mapel.bulkDestroy');
+        Route::resource('mapel', MataPelajaranController::class)->except(['create', 'show', 'edit']);
+    });
 
-    // Manajemen Layanan Cepat (Quick Access Portal)
-    Route::resource('layanan-cepat-admin', LayananCepatController::class)->names('layanan-cepat')->except(['create', 'show', 'edit']);
-    Route::patch('/layanan-cepat-admin/{id}/toggle-status', [LayananCepatController::class, 'toggleStatus'])->name('layanan-cepat.toggle-status');
+    // Modul Jadwal Pelajaran
+    Route::middleware('modul:jadwal')->group(function () {
+        Route::resource('jadwal', JadwalController::class);
+    });
 
-    // Manajemen Program Unggulan
-    Route::post('/program-unggulan-admin/generate-ai', [ProgramUnggulanController::class, 'generateAiProgram'])->name('program-unggulan.generateAi');
-    Route::resource('program-unggulan-admin', ProgramUnggulanController::class)->names('program-unggulan')->parameters(['program-unggulan-admin' => 'id'])->except(['show']);
-    Route::patch('/program-unggulan-admin/{id}/toggle-status', [ProgramUnggulanController::class, 'toggleStatus'])->name('program-unggulan.toggle-status');
+    // Modul Ekstrakurikuler & Anggota
+    Route::middleware('modul:ekskul')->group(function () {
+        Route::get('/ekskul', [EkskulController::class, 'index'])->name('ekskul.index');
+        Route::post('/ekskul', [EkskulController::class, 'store'])->name('ekskul.store');
+        Route::put('/ekskul/{id}', [EkskulController::class, 'update'])->name('ekskul.update');
+        Route::delete('/ekskul/{id}', [EkskulController::class, 'destroy'])->name('ekskul.destroy');
+        Route::post('/ekskul/bulk-delete', [EkskulController::class, 'bulkDestroy'])->name('ekskul.bulkDestroy');
+
+        Route::get('/ekskul/{id}/anggota', [EkskulController::class, 'show'])->name('ekskul.show');
+        Route::post('/ekskul/{id}/anggota', [EkskulController::class, 'storeAnggota'])->name('ekskul.storeAnggota');
+        Route::delete('/ekskul/anggota/{anggotaId}', [EkskulController::class, 'destroyAnggota'])->name('ekskul.destroyAnggota');
+        Route::post('/ekskul/anggota/bulk-delete', [EkskulController::class, 'bulkDestroyAnggota'])->name('ekskul.bulkDestroyAnggota');
+    });
+
+    // Modul Kenaikan Kelas, Arsip Alumni & Pemeliharaan Sistem
+    Route::middleware('modul:kenaikan_reset')->group(function () {
+        Route::get('/kenaikan-kelas', [KenaikanKelasController::class, 'index'])->name('kenaikan.index');
+        Route::post('/kenaikan-kelas/proses', [KenaikanKelasController::class, 'prosesNaikKelas'])->name('kenaikan.proses');
+        Route::post('/kenaikan-kelas/alumni/bulk-delete', [KenaikanKelasController::class, 'bulkDeleteAlumni'])->name('kenaikan.bulkDeleteAlumni');
+        Route::post('/kenaikan-kelas/magic-action', [KenaikanKelasController::class, 'magicAction'])->name('kenaikan.magicAction');
+    });
+
+    // Modul Presensi (Monitoring, Cetak Kartu QR & Rekap Bulanan)
+    Route::middleware('modul:presensi_monitoring')->group(function () {
+        Route::get('/presensi', [PresensiController::class, 'index'])->name('presensi.index');
+        Route::post('/presensi/manual', [PresensiController::class, 'storeManual'])->name('presensi.storeManual');
+        Route::post('/presensi/setting-jam', [PresensiController::class, 'updateSettingJam'])->name('presensi.updateSettingJam');
+        Route::post('/presensi/hari-libur', [PresensiController::class, 'storeHariLibur'])->name('presensi.storeHariLibur');
+        Route::delete('/presensi/hari-libur/{id}', [PresensiController::class, 'destroyHariLibur'])->name('presensi.destroyHariLibur');
+    });
+    Route::get('/presensi/kartu-qr', [PresensiController::class, 'kartuQr'])
+        ->middleware('modul:siswa,presensi_monitoring,presensi_rekap')
+        ->name('presensi.kartuQr');
+    Route::get('/presensi/rekap', [PresensiController::class, 'rekap'])
+        ->middleware('modul:presensi_rekap')
+        ->name('presensi.rekap');
+
+    // Modul Menu Navbar
+    Route::middleware('modul:nav_menu')->group(function () {
+        Route::resource('nav-menu', NavMenuController::class)->except(['create', 'show', 'edit']);
+    });
+    Route::get('/nav-menu/{id}/halaman', [HalamanController::class, 'kelolaDariMenu'])
+        ->middleware('modul:nav_menu,cms')
+        ->name('nav-menu.halaman');
+
+    // Modul Konten Website Publik (CMS)
+    Route::middleware('modul:cms')->group(function () {
+        Route::resource('halaman', HalamanController::class)->except(['create', 'show']);
+
+        Route::post('/berita/generate-ai', [BeritaController::class, 'generateAi'])->name('berita.generateAi');
+        Route::resource('berita', BeritaController::class)->except(['show']);
+
+        Route::post('/kategori-berita', [BeritaController::class, 'storeKategori'])->name('kategori-berita.store');
+        Route::put('/kategori-berita/{id}', [BeritaController::class, 'updateKategori'])->name('kategori-berita.update');
+        Route::delete('/kategori-berita/{id}', [BeritaController::class, 'destroyKategori'])->name('kategori-berita.destroy');
+
+        Route::post('/banner-carousel/generate-ai', [BannerCarouselController::class, 'generateAi'])->name('banner-carousel.generateAi');
+        Route::resource('banner-carousel', BannerCarouselController::class)->except(['create', 'show', 'edit']);
+
+        Route::get('/sambutan-profil', [SambutanProfilController::class, 'index'])->name('sambutan-profil.index');
+        Route::put('/sambutan-profil', [SambutanProfilController::class, 'update'])->name('sambutan-profil.update');
+        Route::post('/sambutan-profil/generate-ai', [SambutanProfilController::class, 'generateAi'])->name('sambutan-profil.generateAi');
+
+        Route::resource('dunia-ilmu-admin', DuniaIlmuController::class)
+            ->names('dunia-ilmu')
+            ->parameters(['dunia-ilmu-admin' => 'id'])
+            ->except(['create', 'show', 'edit']);
+
+        Route::get('/profil-madrasah-admin', [ProfilMadrasahController::class, 'index'])->name('profil-madrasah.index');
+        Route::put('/profil-madrasah-admin', [ProfilMadrasahController::class, 'update'])->name('profil-madrasah.update');
+        Route::post('/profil-madrasah-admin/sinkron-menu', [ProfilMadrasahController::class, 'sinkronKeNavbar'])->name('profil-madrasah.sinkronMenu');
+
+        Route::get('/kepala-staff-admin', [KepalaStaffController::class, 'index'])->name('kepala-staff.index');
+        Route::put('/kepala-staff-admin', [KepalaStaffController::class, 'update'])->name('kepala-staff.update');
+
+        Route::get('/guru-staff-admin', [GuruStaffController::class, 'index'])->name('guru-staff.index');
+        Route::put('/guru-staff-admin', [GuruStaffController::class, 'update'])->name('guru-staff.update');
+
+        Route::get('/banner-ppdb', [BannerPpdbController::class, 'index'])->name('banner-ppdb.index');
+        Route::put('/banner-ppdb', [BannerPpdbController::class, 'update'])->name('banner-ppdb.update');
+
+        Route::resource('layanan-cepat-admin', LayananCepatController::class)
+            ->names('layanan-cepat')
+            ->except(['create', 'show', 'edit']);
+        Route::patch('/layanan-cepat-admin/{id}/toggle-status', [LayananCepatController::class, 'toggleStatus'])->name('layanan-cepat.toggle-status');
+
+        Route::post('/program-unggulan-admin/generate-ai', [ProgramUnggulanController::class, 'generateAiProgram'])->name('program-unggulan.generateAi');
+        Route::resource('program-unggulan-admin', ProgramUnggulanController::class)
+            ->names('program-unggulan')
+            ->parameters(['program-unggulan-admin' => 'id'])
+            ->except(['show']);
+        Route::patch('/program-unggulan-admin/{id}/toggle-status', [ProgramUnggulanController::class, 'toggleStatus'])->name('program-unggulan.toggle-status');
+    });
 });
 
 require __DIR__.'/auth.php';

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Gtk;
 use App\Models\Kelas;
 use App\Models\KelasMapel;
-use App\Models\Mapel;
+use App\Models\MataPelajaran;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -18,7 +18,7 @@ class JadwalController extends Controller
         $user = auth()->user();
         $isGuru = $user && $user->role === 'guru';
         $kelasList = $user ? $user->getDaftarKelasAmpuan() : Kelas::orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
-        $mapels = Mapel::orderBy('nama_mapel', 'asc')->get();
+        $mapels = MataPelajaran::orderBy('nama_mapel', 'asc')->get();
         $gtks = Gtk::orderBy('nama_lengkap', 'asc')->get();
 
         $selectedKelasId = $request->get('kelas_id', $kelasList->first()->id ?? null);

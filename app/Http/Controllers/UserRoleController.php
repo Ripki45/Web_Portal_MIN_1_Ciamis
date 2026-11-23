@@ -101,6 +101,9 @@ class UserRoleController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->with('error', $validator->errors()->first());
         }
+        if ($user->role === 'superadmin' && $request->role !== 'superadmin' && User::where('role', 'superadmin')->count() <= 1) {
+            return redirect()->back()->with('error', 'Tidak dapat mengubah peran satu-satunya akun Superadmin!');
+        }
 
         $user->name = strip_tags(trim($request->name));
         $user->email = strtolower(trim($request->email));
@@ -138,6 +141,12 @@ class UserRoleController extends Controller
     {
         $this->pastikanSuperadmin();
         User::pastikanTabelRoleSiap();
+
+        $request->validate([
+            'role' => ['required', 'string', 'in:admin,guru,pembina_ekskul'],
+            'menu_key' => ['required', 'string', Rule::in(array_keys(User::daftarModulSistem()))],
+            'is_allowed' => ['required'],
+        ]);
 
         DB::table('role_permissions')->updateOrInsert(
             [

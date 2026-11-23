@@ -26,7 +26,7 @@ class KelasMapel extends Model
 
     public function mapel()
     {
-        return $this->belongsTo(Mapel::class, 'mapel_id');
+        return $this->belongsTo(MataPelajaran::class, 'mapel_id');
     }
 
     public function guru()

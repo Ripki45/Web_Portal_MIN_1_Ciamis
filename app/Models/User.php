@@ -62,6 +62,11 @@ class User extends Authenticatable
      */
     public static function pastikanTabelRoleSiap(): void
     {
+        static $roleDicek = false;
+        if ($roleDicek) {
+            return;
+        }
+         $roleDicek = true;
         // 1. Cek kolom role secara mandiri
         if (! Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {
@@ -153,19 +158,20 @@ class User extends Authenticatable
     {
         self::pastikanTabelRoleSiap();
 
-        // KEAMANAN: Default ke 'guru' jika role kosong
         $userRole = $this->role ?: 'guru';
-
         if ($userRole === 'superadmin') {
             return true;
         }
 
-        $izin = DB::table('role_permissions')
-            ->where('role', $userRole)
-            ->where('menu_key', $menuKey)
-            ->value('is_allowed');
+        static $izinPerRole = [];
+        if (! isset($izinPerRole[$userRole])) {
+            $izinPerRole[$userRole] = DB::table('role_permissions')
+                ->where('role', $userRole)
+                ->pluck('is_allowed', 'menu_key')
+                ->toArray();
+        }
 
-        return (bool) $izin;
+        return (bool) ($izinPerRole[$userRole][$menuKey] ?? false);
     }
 
     public function getLabelRoleAttribute(): string
@@ -206,7 +212,7 @@ class User extends Authenticatable
      */
     public function getDaftarKelasAmpuan()
     {
-        if (in_array($this->role, ['superadmin', 'admin']) || empty($this->role)) {
+        if (in_array($this->role, ['superadmin', 'admin'], true)) {
             return Kelas::with('waliKelas')->orderBy('tingkat', 'asc')->orderBy('nama_kelas', 'asc')->get();
         }
 
@@ -243,7 +249,7 @@ class User extends Authenticatable
      */
     public function getDaftarEkskulBinaan()
     {
-        if (in_array($this->role, ['superadmin', 'admin']) || empty($this->role)) {
+        if (in_array($this->role, ['superadmin', 'admin'], true)) {
             return Ekskul::with('pembina')
                 ->where('status', 'Aktif')
                 ->orderBy('nama_ekskul', 'asc')
