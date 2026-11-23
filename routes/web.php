@@ -30,6 +30,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\TahunAjaranController;
 use App\Http\Controllers\UserRoleController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\KalenderAkademikController;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +82,13 @@ Route::post('/scan-presensi/verifikasi-pin', [PresensiController::class, 'verifi
     ->name('presensi.verifikasiPin');
 Route::post('/scan-presensi/kunci-pin', [PresensiController::class, 'kunciPinServer'])
     ->name('presensi.kunciPin');
+    // Kalender & Agenda Akademik (Dashboard)
+    Route::get('/kalender-akademik-admin', [KalenderAkademikController::class, 'index'])->name('kalender-akademik.index');
+    Route::get('/kalender-akademik-admin/cetak-heb', [KalenderAkademikController::class, 'cetakHeb'])->name('kalender-akademik.cetakHeb');
+    // Kalender & Agenda Akademik Publik
+    Route::get('/kalender-akademik', [KalenderAkademikController::class, 'publik'])->name('kalender-akademik.publik');
+    Route::get('/agenda-akademik', [KalenderAkademikController::class, 'publik']);
+    Route::get('/kaldik', [KalenderAkademikController::class, 'publik']);
 
 /*
 |--------------------------------------------------------------------------
@@ -249,6 +257,15 @@ Route::middleware('auth')->group(function () {
             ->parameters(['program-unggulan-admin' => 'id'])
             ->except(['show']);
         Route::patch('/program-unggulan-admin/{id}/toggle-status', [ProgramUnggulanController::class, 'toggleStatus'])->name('program-unggulan.toggle-status');
+    });
+    // CRUD & Pengaturan Kaldik (Hanya Superadmin / pengelola Tahun Ajaran / CMS)
+    Route::middleware('modul:tahun_ajaran,cms')->group(function () {
+        Route::post('/kalender-akademik-admin', [KalenderAkademikController::class, 'store'])->name('kalender-akademik.store');
+        Route::put('/kalender-akademik-admin/{agendaAkademik}', [KalenderAkademikController::class, 'update'])->name('kalender-akademik.update');
+        Route::delete('/kalender-akademik-admin/{agendaAkademik}', [KalenderAkademikController::class, 'destroy'])->name('kalender-akademik.destroy');
+        Route::put('/kalender-akademik-dokumen', [KalenderAkademikController::class, 'updateDokumen'])->name('kalender-akademik.updateDokumen');
+        Route::post('/kalender-akademik-admin/sinkron-libur', [KalenderAkademikController::class, 'sinkronHariLibur'])
+            ->name('kalender-akademik.sinkronLibur');
     });
 });
 

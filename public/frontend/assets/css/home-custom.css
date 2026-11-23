@@ -701,6 +701,101 @@
         font-size: 0.8rem !important;
     }
 }
+/* 11. AGENDA & KALENDER AKADEMIK DI BERANDA (#agenda) */
+.agenda-home-section {
+    padding: 60px 0 !important;
+    background: #ffffff;
+}
+.agenda-home-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+.agenda-home-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    text-decoration: none;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+.agenda-home-card:hover {
+    transform: translateY(-5px);
+    border-color: #1b9c85;
+    box-shadow: 0 16px 32px rgba(13, 106, 86, 0.12);
+}
+.agenda-date-box {
+    width: 62px;
+    min-width: 62px;
+    border-radius: 14px;
+    padding: 10px 6px;
+    text-align: center;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+}
+.agenda-date-day {
+    font-family: "Outfit", sans-serif;
+    font-size: 1.45rem;
+    font-weight: 800;
+}
+.agenda-date-month {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    opacity: 0.95;
+}
+.agenda-home-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+.agenda-status-pill {
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 2px 9px;
+    border-radius: 9999px;
+}
+.agenda-status-pill.berlangsung {
+    background: #dcfce7;
+    color: #166534;
+}
+.agenda-status-pill.mendatang {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+.agenda-status-pill.libur {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.agenda-home-title {
+    font-family: "Outfit", sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.35;
+    margin: 0 0 6px;
+}
+.agenda-home-range {
+    font-size: 0.78rem;
+    color: #64748b;
+    font-weight: 600;
+    margin: 0;
+}
 
 /* =========================================================================
    DARK MODE SUPPORT
@@ -974,4 +1069,20 @@
 }
 [data-bs-theme="dark"] .footer-bottom {
     border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .agenda-home-section {
+    background: #0b1317 !important;
+}
+[data-bs-theme="dark"] .agenda-home-card {
+    background: #132228 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-bs-theme="dark"] .agenda-home-card:hover {
+    border-color: #2dd4bf !important;
+}
+[data-bs-theme="dark"] .agenda-home-title {
+    color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .agenda-home-range {
+    color: #94a3b8 !important;
 }

@@ -67,6 +67,18 @@
 
             return \Illuminate\Support\Str::limit($plain, $limit);
         };
+        $agendaTerdekat = \App\Models\AgendaAkademik::where('is_publik', true)
+            ->whereDate('tanggal_selesai', '>=', now()->toDateString())
+            ->orderBy('tanggal_mulai', 'asc')
+            ->take(4)
+            ->get();
+
+        if ($agendaTerdekat->isEmpty()) {
+            $agendaTerdekat = \App\Models\AgendaAkademik::where('is_publik', true)
+                ->orderBy('tanggal_mulai', 'desc')
+                ->take(4)
+                ->get();
+        }
     @endphp
 
     {{-- 1. HERO SLIDER SECTION --}}
@@ -731,6 +743,59 @@
             </div>
         </div>
     </section>
+    {{-- 9B. AGENDA & KALENDER AKADEMIK TERDEKAT --}}
+    @if ($agendaTerdekat->isNotEmpty())
+        <section class="agenda-home-section" id="agenda-akademik">
+            <div class="container">
+                <div class="section-header" style="margin-bottom: 34px;">
+                    <span class="section-subtitle">Jadwal &amp; Kegiatan Resmi</span>
+                    <h2 class="section-title">Agenda Akademik Madrasah</h2>
+                    <p class="section-desc">Pantau jadwal asesmen, pembagian rapor, kegiatan madrasah, dan hari libur resmi MIN 1 Ciamis</p>
+                    <div class="section-divider"></div>
+                </div>
+
+                <div class="agenda-home-grid">
+                    @foreach ($agendaTerdekat as $ag)
+                        @php
+                            $meta = $ag->meta_kategori;
+                            $hariIni = now()->startOfDay();
+                            $sedangBerlangsung = $hariIni->between($ag->tanggal_mulai, $ag->tanggal_selesai);
+                        @endphp
+                        <a href="{{ route('kalender-akademik.publik', ['tahun_ajaran' => $ag->tahun_ajaran]) }}" class="agenda-home-card">
+                            <div class="agenda-date-box" style="background: {{ $meta['color'] }};">
+                                <span class="agenda-date-day">{{ $ag->tanggal_mulai->format('d') }}</span>
+                                <span class="agenda-date-month">{{ $ag->tanggal_mulai->translatedFormat('M Y') }}</span>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div class="agenda-home-meta">
+                                    @if ($sedangBerlangsung)
+                                        <span class="agenda-status-pill berlangsung">Sedang Berlangsung</span>
+                                    @else
+                                        <span class="agenda-status-pill mendatang">{{ $meta['label'] }}</span>
+                                    @endif
+
+                                    @if ($ag->is_hari_libur)
+                                        <span class="agenda-status-pill libur">Libur</span>
+                                    @endif
+                                </div>
+                                <h3 class="agenda-home-title">{{ $ag->judul }}</h3>
+                                <p class="agenda-home-range">
+                                    <i class="far fa-calendar-alt me-1"></i> {{ $ag->rentang_tanggal_label }}
+                                </p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+
+                <div style="text-align: center; margin-top: 38px;">
+                    <a href="{{ route('kalender-akademik.publik') }}" class="guru-view-all-btn" style="display: inline-flex; text-decoration: none; padding: 12px 28px; font-size: 0.92rem; font-weight: 700;">
+                        <span>Buka Kalender Akademik Lengkap</span>
+                        <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+    @endif
 
     {{-- 10. MUTIARA HIKMAH ISLAMI --}}
     <section class="mutiara-section" id="mutiara-hikmah">

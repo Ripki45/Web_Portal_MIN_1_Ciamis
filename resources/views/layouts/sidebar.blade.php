@@ -330,6 +330,11 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('kalender-akademik.index') }}">
+                            <i class="ph ph-calendar"></i><span>Kalender Akademik</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="#"><i class="ph ph-megaphone"></i><span>Pengumuman</span></a>
                     </li>
                     <li>

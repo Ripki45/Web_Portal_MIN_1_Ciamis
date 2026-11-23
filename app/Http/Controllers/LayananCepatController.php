@@ -14,8 +14,6 @@ class LayananCepatController extends Controller
      */
     public function publik(): View
     {
-        LayananCepat::pastikanTabelSiap();
-
         $layananCepats = LayananCepat::where('is_active', true)
             ->orderBy('urutan', 'asc')
             ->orderBy('id', 'asc')
@@ -29,8 +27,6 @@ class LayananCepatController extends Controller
      */
     public function index(): View
     {
-        LayananCepat::pastikanTabelSiap();
-
         $layananCepats = LayananCepat::orderBy('urutan', 'asc')
             ->orderBy('id', 'asc')
             ->get();
@@ -46,36 +42,22 @@ class LayananCepatController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        LayananCepat::pastikanTabelSiap();
+        $validated = $this->validasiLayanan($request);
 
-        $validated = $request->validate([
-            'nama_layanan' => 'required|string|max:150',
-            'icon' => 'required|string|max:80',
-            'link_url' => 'required|string|max:255',
-            'target' => 'required|in:_blank,_self',
-            'urutan' => 'nullable|integer|min:1',
-            'is_active' => 'nullable',
-            'keterangan' => 'nullable|string|max:255',
-        ], [
-            'nama_layanan.required' => 'Nama layanan wajib diisi.',
-            'icon.required' => 'Ikon Font Awesome / Favicon wajib diisi.',
-            'link_url.required' => 'Tautan / URL isian layanan wajib diisi.',
-        ]);
-
-        LayananCepat::create([
-            'nama_layanan' => $validated['nama_layanan'],
-            'icon' => trim($validated['icon']),
+        $layanan = LayananCepat::create([
+            'nama_layanan' => strip_tags(trim($validated['nama_layanan'])),
+            'icon' => $this->bersihkanClassIcon($validated['icon']),
             'link_url' => trim($validated['link_url']),
             'target' => $validated['target'],
             'urutan' => $validated['urutan'] ?? ((LayananCepat::max('urutan') ?? 0) + 1),
-            'is_active' => $request->has('is_active'),
-            'keterangan' => $validated['keterangan'] ?? null,
+            'is_active' => $request->boolean('is_active'),
+            'keterangan' => isset($validated['keterangan']) ? (strip_tags(trim($validated['keterangan'])) ?: null) : null,
         ]);
 
         HomeController::bersihkanCache();
 
         return redirect()->route('layanan-cepat.index')
-            ->with('success', 'Layanan cepat "'.e($validated['nama_layanan']).'" berhasil ditambahkan!');
+            ->with('success', 'Layanan cepat "'.$layanan->nama_layanan.'" berhasil ditambahkan!');
     }
 
     /**
@@ -83,37 +65,23 @@ class LayananCepatController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        LayananCepat::pastikanTabelSiap();
         $layanan = LayananCepat::findOrFail($id);
-
-        $validated = $request->validate([
-            'nama_layanan' => 'required|string|max:150',
-            'icon' => 'required|string|max:80',
-            'link_url' => 'required|string|max:255',
-            'target' => 'required|in:_blank,_self',
-            'urutan' => 'nullable|integer|min:1',
-            'is_active' => 'nullable',
-            'keterangan' => 'nullable|string|max:255',
-        ], [
-            'nama_layanan.required' => 'Nama layanan wajib diisi.',
-            'icon.required' => 'Ikon Font Awesome wajib diisi.',
-            'link_url.required' => 'Tautan / URL layanan wajib diisi.',
-        ]);
+        $validated = $this->validasiLayanan($request);
 
         $layanan->update([
-            'nama_layanan' => $validated['nama_layanan'],
-            'icon' => trim($validated['icon']),
+            'nama_layanan' => strip_tags(trim($validated['nama_layanan'])),
+            'icon' => $this->bersihkanClassIcon($validated['icon']),
             'link_url' => trim($validated['link_url']),
             'target' => $validated['target'],
             'urutan' => $validated['urutan'] ?? $layanan->urutan,
-            'is_active' => $request->has('is_active'),
-            'keterangan' => $validated['keterangan'] ?? null,
+            'is_active' => $request->boolean('is_active'),
+            'keterangan' => isset($validated['keterangan']) ? (strip_tags(trim($validated['keterangan'])) ?: null) : null,
         ]);
 
         HomeController::bersihkanCache();
 
         return redirect()->route('layanan-cepat.index')
-            ->with('success', 'Layanan cepat "'.e($layanan->nama_layanan).'" berhasil diperbarui!');
+            ->with('success', 'Layanan cepat "'.$layanan->nama_layanan.'" berhasil diperbarui!');
     }
 
     /**
@@ -121,7 +89,6 @@ class LayananCepatController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
-        LayananCepat::pastikanTabelSiap();
         $layanan = LayananCepat::findOrFail($id);
         $nama = $layanan->nama_layanan;
         $layanan->delete();
@@ -129,7 +96,7 @@ class LayananCepatController extends Controller
         HomeController::bersihkanCache();
 
         return redirect()->route('layanan-cepat.index')
-            ->with('success', 'Layanan cepat "'.e($nama).'" berhasil dihapus!');
+            ->with('success', 'Layanan cepat "'.$nama.'" berhasil dihapus!');
     }
 
     /**
@@ -137,7 +104,6 @@ class LayananCepatController extends Controller
      */
     public function toggleStatus(int $id): RedirectResponse
     {
-        LayananCepat::pastikanTabelSiap();
         $layanan = LayananCepat::findOrFail($id);
         $layanan->is_active = ! $layanan->is_active;
         $layanan->save();
@@ -147,6 +113,53 @@ class LayananCepatController extends Controller
         $statusTeks = $layanan->is_active ? 'diaktifkan' : 'dinonaktifkan';
 
         return redirect()->route('layanan-cepat.index')
-            ->with('success', 'Layanan cepat "'.e($layanan->nama_layanan).'" berhasil '.$statusTeks.'!');
+            ->with('success', 'Layanan cepat "'.$layanan->nama_layanan.'" berhasil '.$statusTeks.'!');
+    }
+
+    /**
+     * Validasi terpadu untuk store & update (hanya mengizinkan URL http/https, path relatif, atau anchor)
+     *
+     * @return array<string, mixed>
+     */
+    private function validasiLayanan(Request $request): array
+    {
+        return $request->validate([
+            'nama_layanan' => 'required|string|max:150',
+            'icon' => 'required|string|max:80',
+            'link_url' => [
+                'required',
+                'string',
+                'max:255',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    $url = trim((string) $value);
+                    $valid = str_starts_with($url, 'https://')
+                        || str_starts_with($url, 'http://')
+                        || str_starts_with($url, '/')
+                        || str_starts_with($url, '#');
+
+                    if (! $valid) {
+                        $fail('Tautan layanan harus diawali dengan https://, http://, /, atau #.');
+                    }
+                },
+            ],
+            'target' => 'required|in:_blank,_self',
+            'urutan' => 'nullable|integer|min:1',
+            'is_active' => 'nullable',
+            'keterangan' => 'nullable|string|max:255',
+        ], [
+            'nama_layanan.required' => 'Nama layanan wajib diisi.',
+            'icon.required' => 'Ikon Font Awesome wajib diisi.',
+            'link_url.required' => 'Tautan / URL layanan wajib diisi.',
+        ]);
+    }
+
+    /**
+     * Memastikan class ikon hanya berisi karakter CSS yang valid.
+     */
+    private function bersihkanClassIcon(?string $icon): string
+    {
+        $clean = trim((string) preg_replace('/[^a-zA-Z0-9\-\s_]/', '', (string) $icon));
+
+        return $clean !== '' ? $clean : 'fas fa-link';
     }
 }
